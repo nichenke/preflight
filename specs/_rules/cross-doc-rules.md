@@ -1,7 +1,7 @@
 ---
 type: rules
 applies_to: cross-document
-version: 1.0.0
+version: 1.1.0
 source: PM Documentation Framework (Notion)
 ---
 
@@ -15,6 +15,9 @@ source: PM Documentation Framework (Notion)
 | XDOC-04 | Superseded ADRs SHALL have a successor ADR that exists | Error |
 | XDOC-05 | Interface contracts SHALL reference components that exist in the Architecture Doc | Warning |
 | XDOC-06 | Test strategy requirement mappings SHALL reference valid requirement IDs | Warning |
+| XDOC-07 | ADRs that conflict with a constitution principle SHALL include a constitution amendment (CONST-X02) | Error |
+| XDOC-08 | Architecture doc Crosscutting Concepts (S8) SHALL be consistent with constitution principles (CONST-X04) | Warning |
+| XDOC-09 | Constitution amendments SHALL have a ratified ADR referenced in the Amendment Log (CONST-R07) | Warning |
 
 ## Traceability Rules
 

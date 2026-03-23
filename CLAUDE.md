@@ -78,6 +78,10 @@ Review rules are in `specs/_rules/`. Key severities:
 - ARCH-R01: External interfaces specify protocol and data format
 - XDOC-01: Referenced ADRs exist in decisions/adrs/
 - XDOC-02: Referenced requirement IDs exist in requirements.md
+- XDOC-07: ADRs conflicting with constitution include amendment
+- CONST-R01: Constitution principles have unique CONST-{CATEGORY}-NN IDs
+- CONST-R03: Ratified constitution lists ratifiers in frontmatter
+- CONST-R07: Amendments recorded in Amendment Log with ADR reference
 
 **Warning (should fix):**
 - UNIV-05: Vague adjectives quantified
@@ -99,6 +103,9 @@ Review rules are in `specs/_rules/`. Key severities:
 | ADR Rule | ADR-RNN | ADR-R01 |
 | Architecture Rule | ARCH-RNN | ARCH-R01 |
 | RFC Rule | RFC-RNN | RFC-R01 |
+| Constitution Rule | CONST-RNN | CONST-R01 |
+| Constitution Principle | CONST-{CAT}-NN | CONST-CS-01 |
+| Constitution Cross-Doc | CONST-XNN | CONST-X01 |
 
 IDs are sequential and never reused. Superseded documents keep their IDs.
 

@@ -1,32 +1,43 @@
 ---
 status: Draft
-date: 2026-03-23
-owner: TBD
 version: 0.1.0
+date: 2026-03-23
+ratified_by: []
+last_amended:
+amendment_adrs: []
 ---
 
 # Engineering Constitution
 
-Non-negotiable rules that apply to every feature, every agent, every time.
-This document gets injected into agent context regardless of which feature is being built.
+## Preamble
 
-## Code Quality
-<!-- TBD — owner: [name] — e.g., "All services MUST have structured logging" -->
+<!-- TBD — owner: [name]
+     State what this document is, who it applies to, and what authority
+     it carries. See specs/_templates/constitution-template.md for format. -->
+
+## Code Standards
+<!-- TBD — owner: [name] -->
 
 ## Testing
-<!-- TBD — owner: [name] — e.g., "TDD is mandatory — tests before code" -->
+<!-- TBD — owner: [name] -->
 
 ## Security
-<!-- TBD — owner: [name] — e.g., "No secrets in code — use env vars or secret manager" -->
-
-## API Design
-<!-- TBD — owner: [name] — e.g., "All APIs must be idempotent" -->
-
-## Data
-<!-- TBD — owner: [name] — e.g., "No ORM magic — explicit SQL only" -->
+<!-- TBD — owner: [name] -->
 
 ## Observability
-<!-- TBD — owner: [name] — e.g., "Every service must emit structured logs, metrics, and traces" -->
+<!-- TBD — owner: [name] -->
 
-## Deployment
-<!-- TBD — owner: [name] — e.g., "All deployments must be reversible within 5 minutes" -->
+## API Design
+<!-- TBD — owner: [name] -->
+
+## Data
+<!-- TBD — owner: [name] -->
+
+## Documentation & Process
+- [CONST-DOC-01] All behavioral requirement changes require an ADR (REQ-R13)
+- [CONST-DOC-02] ADRs use MADR 4.0 format
+- [CONST-DOC-03] All constitution amendments require an ADR with ratification
+
+## Amendment Log
+| Version | Date | ADR | Change Summary |
+|---------|------|-----|----------------|
