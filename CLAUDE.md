@@ -30,7 +30,7 @@ Before writing any implementation code, read these files in order:
 
 If a file doesn't exist yet, note the gap but don't block on it.
 
-## Requirements Change Governance (REQ-R13 / REQ-R14)
+## Requirements Change Governance (REQ-R07)
 
 **No behavioral requirement change without an ADR.**
 
@@ -67,27 +67,26 @@ ADR. If it only makes existing intent clearer, it doesn't.
 Review rules are in `specs/_rules/`. Key severities:
 
 **Error (must fix):**
-- UNIV-01: YAML frontmatter with status, date, owner
-- UNIV-02: Meta section with version and status
-- REQ-R01: Functional requirements use EARS notation
-- REQ-R02: Every requirement has a unique ID
+- UNIV-01: YAML frontmatter with status (valid enum), date, owner, version
+- REQ-R02: Every requirement has a unique, stable ID (never reused)
 - REQ-R03: Requirements don't prescribe implementation
-- REQ-R13: Behavioral changes accompanied by ADR
-- ADR-R06: At least two options in Considered Options
-- ADR-R10: One decision per ADR
+- REQ-R07: Behavioral requirement changes accompanied by ADR with affected IDs
+- ADR-R01: ADR status from valid enum
 - ARCH-R01: External interfaces specify protocol and data format
+- CONST-R01: Constitution principles have unique CONST-{CATEGORY}-NN IDs
+- CONST-R06: Constitution amendments recorded in Amendment Log with ADR
+- RFC-R05: Accepted RFC produces at least one ADR
 - XDOC-01: Referenced ADRs exist in decisions/adrs/
 - XDOC-02: Referenced requirement IDs exist in requirements.md
+- XDOC-04: Superseded ADRs have a successor that exists (no circular chains)
 - XDOC-07: ADRs conflicting with constitution include amendment
-- CONST-R01: Constitution principles have unique CONST-{CATEGORY}-NN IDs
-- CONST-R03: Ratified constitution lists ratifiers in frontmatter
-- CONST-R07: Amendments recorded in Amendment Log with ADR reference
 
 **Warning (should fix):**
-- UNIV-05: Vague adjectives quantified
-- REQ-R06: User journeys have failure modes
-- ADR-R08: Consequences include tradeoffs
+- UNIV-04: Vague adjectives quantified
+- REQ-R05: User journeys have failure modes
+- ADR-R05: Consequences include tradeoffs
 - ARCH-R04: Runtime view includes failure scenarios
+- XDOC-09: Every FR/NFR referenced by at least one arch component, test, or ADR
 
 ## ID Conventions
 
@@ -105,7 +104,6 @@ Review rules are in `specs/_rules/`. Key severities:
 | RFC Rule | RFC-RNN | RFC-R01 |
 | Constitution Rule | CONST-RNN | CONST-R01 |
 | Constitution Principle | CONST-{CAT}-NN | CONST-CS-01 |
-| Constitution Cross-Doc | CONST-XNN | CONST-X01 |
 
 IDs are sequential and never reused. Superseded documents keep their IDs.
 
@@ -133,4 +131,4 @@ IDs are sequential and never reused. Superseded documents keep their IDs.
 1. Identify which FR-xxx is violated
 2. Read constitution, architecture, and relevant interface contracts
 3. Fix the code to match the spec
-4. If the spec was wrong, write an ADR first (REQ-R13), then update the requirement
+4. If the spec was wrong, write an ADR first (REQ-R07), then update the requirement
