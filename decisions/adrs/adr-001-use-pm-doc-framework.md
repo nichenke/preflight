@@ -41,7 +41,7 @@ from requirements through test strategy.
 ### Consequences
 
 - Good, because agents get structured, parseable specs with unique IDs and EARS notation
-- Good, because requirements changes are governed by ADRs (REQ-R13), preventing silent scope drift
+- Good, because requirements changes are governed by ADRs (REQ-R07), preventing silent scope drift
 - Good, because the framework maps to Spec Kit, Kiro, OpenSpec, and BMAD artifact chains
 - Bad, because there is upfront effort to bootstrap templates, write constitution, and capture existing decisions as retroactive ADRs
 - Neutral, because the framework identifies gaps (constitution, task template, UX spec, delta specs) that need to be filled incrementally

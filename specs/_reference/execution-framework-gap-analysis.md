@@ -22,7 +22,7 @@ each one asks for, mapped against our framework.
 | API / Interface Contracts | Interface Contracts | Architect -> API design | /plan -> contracts/ folder | Within specs/ | Within design phase |
 | Research / Alternatives | RFC + ADR options analysis | Analyst research phase | /plan -> research.md | /opsx:explore | -- |
 | Decision Records | ADRs (MADR) | Implicit in arch doc | research.md uses Decision/Rationale/Alternatives format | Archived proposals | -- |
-| Constitution / Invariant Rules | *Gap* | AGENTS.md + checklists | constitution.md | config.yaml context + rules | Steering files |
+| Constitution / Invariant Rules | Constitution (Section 16) | AGENTS.md + checklists | constitution.md | config.yaml context + rules | Steering files |
 | Epic/Story Breakdown | *Gap* | SM -> hyper-detailed story files | /tasks -> tasks.md | tasks.md | Sequenced task plan |
 | Task Decomposition | *Gap (structure undefined)* | Developer -> per-story branches | Individual task files | tasks.md checkboxes | Discrete dependency-sequenced tasks |
 | Test Strategy | Test Strategy | QA Agent + Test Architect | constitution.md (TDD mandate) + quickstart.md | config.yaml rules | -- |
@@ -33,14 +33,11 @@ each one asks for, mapped against our framework.
 
 ## Identified Gaps
 
-### Gap 1: Constitution / Engineering Principles
-Both Spec Kit and BMAD have a concept we don't: a non-negotiable rules document that
-persists across all features and all time. Spec Kit calls it `constitution.md`. BMAD
-encodes it in `AGENTS.md` + checklists. OpenSpec has `config.yaml` with context and rules.
+### ~~Gap 1: Constitution / Engineering Principles~~ — RESOLVED
 
-**Recommendation**: Add a Constitution / Engineering Principles doc. Short, bulleted,
-non-negotiable. Gets injected into every agent context regardless of which feature is
-being built.
+Resolved by Section 16: Constitution / Engineering Principles. Template, rules (CONST-R01
+through R06), change governance with ADR-gated amendments, and cross-doc traceability
+(XDOC-07, XDOC-08) are now part of the framework.
 
 ### Gap 2: UX / Frontend Specification
 BMAD has an explicit UX Designer agent producing `UX_Design.md`. Our framework captures

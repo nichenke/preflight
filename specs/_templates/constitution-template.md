@@ -58,7 +58,7 @@ must comply. Amendments require an ADR with explicit ratification."
 - [CONST-DATA-02] [principle]
 
 ## Documentation & Process
-- [CONST-DOC-01] All behavioral requirement changes require an ADR (REQ-R13)
+- [CONST-DOC-01] All behavioral requirement changes require an ADR (REQ-R07)
 - [CONST-DOC-02] ADRs use MADR 4.0 format
 - [CONST-DOC-03] All constitution amendments require an ADR with ratification
 

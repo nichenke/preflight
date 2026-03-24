@@ -31,3 +31,18 @@ essential because agents can't infer implicit agreements.
 **Test Strategy** exists because requirements define *what* success looks like, but not
 *how we verify it*. An AI agent building code needs to know what testing framework to use,
 what coverage targets to hit, and what acceptance criteria look like in executable form.
+
+## Updated Document Taxonomy (with gaps filled)
+
+| Document | Owner | Purpose | When |
+|----------|-------|---------|------|
+| **Constitution / Engineering Principles** | Team/Org Lead | Invariant rules that apply everywhere, always | Day zero, rarely changes |
+| **Requirements Spec** | Product/PM | What + why — outcomes, journeys, EARS requirements | Before design |
+| **UX Specification** (optional) | Design/Frontend Lead | Interaction design, component specs, design system refs | Parallel to requirements |
+| **Architecture & Design Doc** | Architect/Lead | How — system structure, patterns, technology choices | After requirements |
+| **ADR** | Decision maker | Why this choice — rationale, alternatives, consequences | At each decision point |
+| **RFC / Design Proposal** | Proposer | Pre-decision exploration — weigh options, get feedback | Before ADRs |
+| **Interface Contract** | Owning team | API/event/data boundaries between components | During architecture |
+| **Test Strategy** | QE/SRE/Dev | How we verify — levels, frameworks, coverage targets | Parallel to architecture |
+| **Task / Story Files** | PM/Tech Lead | Decomposed work units with acceptance criteria | Before implementation |
+| **Glossary / Domain Model** | Product + Engineering | Shared vocabulary, entity relationships | Day one, maintained always |

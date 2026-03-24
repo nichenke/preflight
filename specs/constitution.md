@@ -34,7 +34,7 @@ amendment_adrs: []
 <!-- TBD — owner: [name] -->
 
 ## Documentation & Process
-- [CONST-DOC-01] All behavioral requirement changes require an ADR (REQ-R13)
+- [CONST-DOC-01] All behavioral requirement changes require an ADR (REQ-R07)
 - [CONST-DOC-02] ADRs use MADR 4.0 format
 - [CONST-DOC-03] All constitution amendments require an ADR with ratification
 
