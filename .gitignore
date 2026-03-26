@@ -1,0 +1,3 @@
+.worktrees/
+.claude/*.local.md
+.claude/*.local.json
