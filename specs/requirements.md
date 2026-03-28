@@ -49,7 +49,6 @@ tested, and synced across the repo and any Notion upstream.
   3. Plugin creates skeleton `constitution.md` and `glossary.md`
   4. Plugin creates `decisions/adrs/` and `decisions/rfcs/` directories
   5. Plugin creates `adr-001-use-preflight.md` meta-ADR
-  6. Plugin adds `.preflight/` gitignore entry if not present
 - Success: `.preflight/` directory exists with all framework content, ready to use
 - Failure: Directory already exists — plugin reports what's there, asks before overwriting
   framework files, never overwrites project-specific files
@@ -104,7 +103,7 @@ tested, and synced across the repo and any Notion upstream.
 - FR-002: When the user runs `/preflight scaffold`, the plugin shall copy all template files from the plugin's `templates/` directory into `.preflight/_templates/`.
 - FR-003: When the user runs `/preflight scaffold`, the plugin shall copy all rules files from the plugin's `rules-source/` directory into `.preflight/_rules/`.
 - FR-004: When the user runs `/preflight scaffold`, the plugin shall copy all reference files from the plugin's `reference/` directory into `.preflight/_reference/`.
-- FR-005: When the user runs `/preflight scaffold`, the plugin shall create skeleton `constitution.md` and `glossary.md` in `.preflight/`.
+- FR-005: When the user runs `/preflight scaffold`, the plugin shall create skeleton `constitution.md` and `glossary.md` in the configured docs directory.
 - FR-006: When the user runs `/preflight scaffold`, the plugin shall create `decisions/adrs/` and `decisions/rfcs/` directories.
 - FR-007: When the user runs `/preflight scaffold`, the plugin shall create `decisions/adrs/adr-001-use-preflight.md` with the meta-ADR recording framework adoption.
 - FR-008: While `.preflight/` already exists, when the user runs `/preflight scaffold`, the plugin shall compare framework files against plugin source and report differences without overwriting project-specific files.

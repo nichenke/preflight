@@ -235,6 +235,8 @@ understand structure, then walks the user through guided sections:
 3. Write the file to the correct location
 4. Dispatch review subagent — reads applicable rules from
    `${CLAUDE_PLUGIN_ROOT}/content/rules-source/`, universal rules, and cross-doc rules
+   (uses plugin source, not `.preflight/_rules/`, because the project copy may not
+   reflect the latest plugin rules or may not exist yet in a fresh scaffold)
 5. Auto-fix any Error-severity findings
 6. Report what was created and any Warning-severity findings for the user to consider
 
