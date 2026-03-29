@@ -1,0 +1,39 @@
+Format and process used (no skill — native capability only)
+===========================================================
+
+1. Discovery
+   - Read the existing ADR files in the project's docs/decisions/adrs/ directory to
+     determine the format in use (YAML front matter + Markdown body) and the next
+     sequential ID (adr-001 and adr-002 existed, so adr-003 was assigned).
+
+2. Format followed
+   - Matched the front matter schema from adr-001: status, date, deciders, consulted,
+     informed, type, version, owner.
+   - Matched section structure: Context and Problem Statement, Decision Drivers,
+     Considered Options, Decision Outcome (with Consequences and Confirmation),
+     Pros and Cons of the Options, More Information.
+   - Filename convention: adr-NNN-<slug>.md with zero-padded three-digit ID.
+
+3. Content approach
+   - Synthesized decision drivers, options, and outcome directly from the provided
+     brief with no elicitation step — treated the brief as the complete source of
+     truth.
+   - Added a note under Consequences flagging that Redis may already be present (an
+     inference from common architectures) to avoid treating it as net-new if not
+     warranted.
+   - Kept Pros and Cons balanced: did not editorialize beyond what was in the brief.
+
+4. What was NOT done (no skill)
+   - No structured elicitation — did not prompt for missing fields (consulted,
+     informed, confirmation criteria) before writing.
+   - No template lookup — format was reverse-engineered from existing ADRs, not
+     loaded from a canonical template.
+   - No rule validation — no automated check that required fields are present or
+     that the document meets any defined quality rules.
+   - No version bump or ADR-impact propagation check.
+
+5. Notable gaps vs. a skill-guided flow
+   - consulted and informed fields are empty; a skill would likely prompt for these.
+   - Confirmation criteria were inferred; a skill would elicit measurable acceptance
+     criteria explicitly.
+   - No cross-check against existing decisions for conflicts.

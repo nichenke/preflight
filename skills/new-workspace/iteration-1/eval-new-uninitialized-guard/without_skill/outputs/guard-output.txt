@@ -1,0 +1,35 @@
+## New Skill — Uninitialized Guard Evaluation (Baseline, No Skill)
+
+**Eval:** Case C — Attempt to create an ADR in an uninitialized project without skill guidance
+
+**Setup:**
+- Working directory: $TMPDIR/preflight-uninitialized-test-baseline (empty)
+- No .preflight/ directory present
+- No skill loaded — purely ad hoc model behavior
+
+**What happened:**
+
+Without the `/preflight new` skill, there is no guard mechanism. The model would proceed to create an ADR document using whatever default structure it infers — no validation of project initialization, no template lookup, no doc-type elicitation, no required field enforcement.
+
+In practice, an LLM asked to "create an ADR" without skill guidance would:
+1. Generate an ADR inline in the conversation using a generic template from training data
+2. Offer to write it to a path like `docs/decisions/adrs/adr-001-<topic>.md` or similar
+3. Create whatever directory structure it deems reasonable via mkdir -p
+4. Produce a document with variable structure — may or may not include required frontmatter fields (status, date, deciders), may or may not follow MADR format, may or may not use the project's ID namespace
+
+**No guard fires.** The model has no awareness that:
+- .preflight/ is absent (project is uninitialized)
+- Templates defining required doc structure are not loaded
+- ID sequencing has not been established
+
+**Observed directory state after attempted creation:**
+- .preflight/: absent (not created)
+- docs/: not created (no action taken in this eval — documenting what would happen, not executing it)
+- No template consulted, no rules enforced
+
+**Contrast with skill behavior:**
+- The `/preflight new` skill would check for .preflight/_templates/ before proceeding
+- Without those templates, the skill would halt and direct the user to run `/preflight scaffold` first
+- The baseline produces a document of unknown quality; the skill produces a conformant document or stops with a clear error
+
+**Result:** No guard — baseline silently proceeds. This is the failure mode the skill's initialization check is designed to prevent.

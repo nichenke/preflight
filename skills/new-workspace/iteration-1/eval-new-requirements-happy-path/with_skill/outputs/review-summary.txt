@@ -1,0 +1,18 @@
+## Post-creation review: docs/requirements.md
+
+### Auto-fixed (Errors)
+None.
+
+### Warnings (user action needed)
+
+- UNIV-03: `owner` field in YAML frontmatter contains a TBD placeholder ("TBD — product-team") — replace with the actual owner name or team identifier before moving to In Review status.
+
+- UNIV-04: Vague adjectives "timely" and "reliable" appear in Section 2 (persona descriptions) without quantification in that context — acceptable in prose/persona descriptions since NFR-001 quantifies delivery latency (p95 < 30s) and NFR-003 quantifies delivery success rate (99.9%), but confirm the persona descriptions are intentionally aspirational rather than normative.
+
+- UNIV-03: Section 10 (Open Questions) and Section 11 (Appendices) are marked TBD with owner "product-team" — populate or confirm these sections are intentionally deferred before review.
+
+- XDOC-09: FR-001 through FR-008 and NFR-001 through NFR-003 are not yet referenced by any architecture component, test, or ADR — expected for a newly created doc. Address during architecture and test strategy authoring.
+
+- REQ-R06: Success measures table lacks a "baseline" measurement method (how will the current baseline of N/A be confirmed at launch?) — consider adding a note on how Day 0 baseline will be established.
+
+### Result: 0 auto-fixed, 5 warnings

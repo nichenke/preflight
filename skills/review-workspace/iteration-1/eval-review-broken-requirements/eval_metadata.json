@@ -1,0 +1,11 @@
+{
+  "eval_id": 2,
+  "eval_name": "review-broken-requirements",
+  "prompt": "Review requirements doc with injected violations — expect rule IDs reported",
+  "assertions": [
+    {"name": "violations-found", "description": "review-output.txt contains at least 1 Error finding"},
+    {"name": "rule-ids-cited", "description": "Findings cite specific rule IDs (REQ-*, UNIV-*, XDOC-*)"},
+    {"name": "result-summary-line", "description": "Output ends with 'Result: N Errors, M Warnings' line"},
+    {"name": "doc-not-modified", "description": "Skill reports advisory-only; no auto-fix applied"}
+  ]
+}

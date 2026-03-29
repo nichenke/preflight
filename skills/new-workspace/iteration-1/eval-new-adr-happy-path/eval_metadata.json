@@ -1,0 +1,11 @@
+{
+  "eval_id": 1,
+  "eval_name": "new-adr-happy-path",
+  "prompt": "Create ADR for background job processing using scripted answers",
+  "assertions": [
+    {"name": "adr-file-created", "description": "Output contains MADR frontmatter with status, date, deciders fields"},
+    {"name": "has-two-options", "description": "Document contains at least 2 options sections with pros/cons"},
+    {"name": "post-review-ran", "description": "review-summary.txt contains rule IDs from post-creation review"},
+    {"name": "impact-propagation-triggered", "description": "review-summary reports impact propagation step ran"}
+  ]
+}

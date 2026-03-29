@@ -1,0 +1,6 @@
+{"expectations":[
+  {"text":"violations-found","passed":true,"evidence":"Baseline found 10 issues (3 High, 4 Medium, 3 Low) — more raw findings than skill, but no systematic framework"},
+  {"text":"rule-ids-cited","passed":false,"evidence":"No rule IDs — findings use High/Medium/Low without REQ-*, UNIV-*, or XDOC-* identifiers"},
+  {"text":"result-summary-line","passed":false,"evidence":"No structured Result line; findings presented as informal severity buckets"},
+  {"text":"doc-not-modified","passed":true,"evidence":"Baseline read-only, did not modify document"}
+]}

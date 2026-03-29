@@ -1,0 +1,30 @@
+{
+  "expectations": [
+    {
+      "text": "ears-format",
+      "passed": true,
+      "evidence": "8 FRs with EARS notation throughout \u2014 event-driven (When..shall), state-driven (While..shall), ubiquitous (The system shall)"
+    },
+    {
+      "text": "sequential-ids",
+      "passed": true,
+      "evidence": "FR-001 through FR-008, NFR-001 through NFR-003, no gaps"
+    },
+    {
+      "text": "measurable-nfrs",
+      "passed": true,
+      "evidence": "NFR-001: p95 < 30s; NFR-002: 99.9% over 30-day window; NFR-003: 10,000/minute \u2014 all quantitative"
+    },
+    {
+      "text": "post-review-ran",
+      "passed": true,
+      "evidence": "Post-creation review found 5 warnings with rule IDs (UNIV-03, UNIV-04, XDOC-09, REQ-R06)"
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4
+  }
+}

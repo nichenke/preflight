@@ -7,16 +7,6 @@ description: Validate a spec document against preflight framework rules — chec
 
 Validate a spec document against the project's preflight rules. Report findings grouped by severity. Do not modify the document.
 
-## 0. Resolve plugin root
-
-Run the following Bash command to verify `${CLAUDE_PLUGIN_ROOT}` is set:
-
-```bash
-echo "$CLAUDE_PLUGIN_ROOT"
-```
-
-If the output is empty or the variable is unset, stop and tell the user: "CLAUDE_PLUGIN_ROOT is not set. This skill requires the preflight plugin to be installed in Claude Code."
-
 ## 1. Resolve docs directory
 
 Read `.preflight/config.yml` and extract the `docs_dir` value. If the file is missing or `docs_dir` is absent, default to `docs/`.
@@ -63,23 +53,13 @@ test -d .preflight/_rules/ && echo "EXISTS" || echo "MISSING"
 
 If the output is `MISSING`, stop and tell the user: "No `.preflight/_rules/` directory found. Run `/preflight scaffold` first to initialize the project."
 
-### 4.1 Staleness check
+### 4.1 Staleness note
 
-Before loading rules, compare the project copy against the plugin source to detect divergence. For each file in `.preflight/_rules/`, check whether the corresponding file in `${CLAUDE_PLUGIN_ROOT}/content/rules-source/` differs:
-
-```bash
-diff -rq .preflight/_rules/ ${CLAUDE_PLUGIN_ROOT}/content/rules-source/ || true
-```
-
-If any files differ or are missing from `.preflight/_rules/`, warn the user:
-
-> "Warning: `.preflight/_rules/` is out of date with the installed plugin version. The review will use the project's current copy. Run `/preflight scaffold` to pull in the latest rules."
-
-Continue with the review using the project copy — do not block on staleness.
+The review always uses the project's committed copy of rules in `.preflight/_rules/`. If the plugin has been upgraded since the last scaffold run, the project copy may be out of date. Run `/preflight scaffold` to pull in the latest rules.
 
 ### 4.2 Load rules files
 
-Read rules from `.preflight/_rules/` (the project's committed copy, NOT from `${CLAUDE_PLUGIN_ROOT}`).
+Read rules from `.preflight/_rules/` (the project's committed copy).
 
 **Always load:**
 - `.preflight/_rules/universal-rules.md`

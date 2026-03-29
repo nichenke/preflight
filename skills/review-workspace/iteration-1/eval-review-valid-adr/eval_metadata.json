@@ -1,0 +1,10 @@
+{
+  "eval_id": 1,
+  "eval_name": "review-valid-adr",
+  "prompt": "Review a well-formed ADR — expect PASS or warnings only",
+  "assertions": [
+    {"name": "result-pass", "description": "review-output.txt contains PASS or '0 Errors'"},
+    {"name": "no-false-error", "description": "Output contains no findings labeled as Error"},
+    {"name": "rule-ids-cited", "description": "Any warnings cite specific rule IDs (ADR-*, UNIV-*)"}
+  ]
+}

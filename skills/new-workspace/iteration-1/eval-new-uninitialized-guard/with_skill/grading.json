@@ -1,0 +1,4 @@
+{"expectations":[
+  {"text":"guard-fires","passed":true,"evidence":"Step 0 output: NOT_INITIALIZED. Skill wrote: 'No .preflight/_templates/ directory found. Run /preflight scaffold first.'"},
+  {"text":"no-elicitation","passed":true,"evidence":"Skill halted at Step 0; no doc type selection or elicitation questions were asked"}
+]}

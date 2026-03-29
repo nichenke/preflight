@@ -1,0 +1,30 @@
+{
+  "expectations": [
+    {
+      "text": "adr-file-created",
+      "passed": true,
+      "evidence": "Agent confirmed MADR frontmatter (status, date, deciders, consulted, informed) written to adr-001-use-sidekiq-for-background-jobs.md"
+    },
+    {
+      "text": "has-two-options",
+      "passed": true,
+      "evidence": "Two options (Sidekiq, GoodJob) with pros/cons sections confirmed"
+    },
+    {
+      "text": "post-review-ran",
+      "passed": true,
+      "evidence": "Auto-fix applied (ADR-R01: status Draft\u2192Proposed); warning ADR-R02 reported with rule ID"
+    },
+    {
+      "text": "impact-propagation-triggered",
+      "passed": true,
+      "evidence": "Agent ran impact propagation step; found requirements.md, checked for downstream changes, flagged untraced consequences"
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4
+  }
+}

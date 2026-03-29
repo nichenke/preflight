@@ -1,0 +1,235 @@
+{
+  "metadata": {
+    "skill_name": "review",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-03-29T20:18:38Z",
+    "evals_run": [
+      1,
+      2,
+      3
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 116.9,
+        "tokens": 26562,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "violations-found",
+          "passed": true,
+          "evidence": "1 Error (REQ-R02 missing IDs) and 6 Warnings found \u2014 Result: 1 Errors, 6 Warnings"
+        },
+        {
+          "text": "rule-ids-cited",
+          "passed": true,
+          "evidence": "REQ-R02, REQ-R01, REQ-R04, REQ-R05, REQ-R06, UNIV-04, XDOC-09 all cited"
+        },
+        {
+          "text": "result-summary-line",
+          "passed": true,
+          "evidence": "Report ends with structured Result line"
+        },
+        {
+          "text": "doc-not-modified",
+          "passed": true,
+          "evidence": "Agent confirmed: 'The document was not modified'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 28.0,
+        "tokens": 7118,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "guard-fires",
+          "passed": true,
+          "evidence": "Section 4.0 test -d .preflight/_rules/ returned MISSING; skill halted with 'Run /preflight scaffold first'"
+        },
+        {
+          "text": "no-rules-loaded",
+          "passed": true,
+          "evidence": "Skill stopped before loading any rules or evaluating any document"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 60.1,
+        "tokens": 23399,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "result-pass",
+          "passed": true,
+          "evidence": "Result: PASS \u2014 0 Errors, 2 Warnings"
+        },
+        {
+          "text": "no-false-error",
+          "passed": true,
+          "evidence": "Zero Error findings on a well-formed ADR"
+        },
+        {
+          "text": "rule-ids-cited",
+          "passed": true,
+          "evidence": "Warnings cite ADR-R02 (passive framing) and UNIV-04 (vague adjectives)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.5,
+        "passed": 2,
+        "failed": 2,
+        "total": 4,
+        "time_seconds": 58.4,
+        "tokens": 12090,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "violations-found",
+          "passed": true,
+          "evidence": "Baseline found 10 issues (3 High, 4 Medium, 3 Low) \u2014 more raw findings than skill, but no systematic framework"
+        },
+        {
+          "text": "rule-ids-cited",
+          "passed": false,
+          "evidence": "No rule IDs \u2014 findings use High/Medium/Low without REQ-*, UNIV-*, or XDOC-* identifiers"
+        },
+        {
+          "text": "result-summary-line",
+          "passed": false,
+          "evidence": "No structured Result line; findings presented as informal severity buckets"
+        },
+        {
+          "text": "doc-not-modified",
+          "passed": true,
+          "evidence": "Baseline read-only, did not modify document"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.0,
+        "passed": 0,
+        "failed": 3,
+        "total": 3,
+        "time_seconds": 28.0,
+        "tokens": 7118,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "result-pass",
+          "passed": false,
+          "evidence": "Baseline found 5 issues (1 High, 2 Medium, 2 Low) \u2014 no PASS result, no structured severity schema matching the rules framework"
+        },
+        {
+          "text": "no-false-error",
+          "passed": false,
+          "evidence": "Baseline flagged 1 High finding (NFR-002 citation missing from Confirmation) \u2014 a genuine finding but without rule ID validation"
+        },
+        {
+          "text": "rule-ids-cited",
+          "passed": false,
+          "evidence": "Baseline used High/Medium/Low severity \u2014 no rule IDs cited"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 68.3333,
+        "stddev": 45.0183,
+        "min": 28.0,
+        "max": 116.9
+      },
+      "tokens": {
+        "mean": 19026.3333,
+        "stddev": 10433.4771,
+        "min": 7118,
+        "max": 26562
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.25,
+        "stddev": 0.3536,
+        "min": 0.0,
+        "max": 0.5
+      },
+      "time_seconds": {
+        "mean": 43.2,
+        "stddev": 21.496,
+        "min": 28.0,
+        "max": 58.4
+      },
+      "tokens": {
+        "mean": 9604.0,
+        "stddev": 3515.7349,
+        "min": 7118,
+        "max": 12090
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.75",
+      "time_seconds": "+25.1",
+      "tokens": "+9422"
+    }
+  },
+  "notes": []
+}

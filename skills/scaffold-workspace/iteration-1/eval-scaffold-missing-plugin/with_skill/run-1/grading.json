@@ -1,0 +1,20 @@
+{
+  "expectations": [
+    {
+      "text": "guard-fires",
+      "passed": true,
+      "evidence": "Step 0 test returned CONTENT_PATH_MISSING; skill halted with plugin content directory error"
+    },
+    {
+      "text": "no-dirs-created",
+      "passed": true,
+      "evidence": "Skill stopped before any directory creation or file operations"
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 2,
+    "failed": 0,
+    "total": 2
+  }
+}

@@ -1,0 +1,5 @@
+{"expectations":[
+  {"text":"result-pass","passed":false,"evidence":"Baseline found 5 issues (1 High, 2 Medium, 2 Low) — no PASS result, no structured severity schema matching the rules framework"},
+  {"text":"no-false-error","passed":false,"evidence":"Baseline flagged 1 High finding (NFR-002 citation missing from Confirmation) — a genuine finding but without rule ID validation"},
+  {"text":"rule-ids-cited","passed":false,"evidence":"Baseline used High/Medium/Low severity — no rule IDs cited"}
+]}

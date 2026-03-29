@@ -1,0 +1,26 @@
+## Scaffold Skill — Step 0 Guard Evaluation
+
+**Eval:** Case A — Missing CLAUDE_PLUGIN_ROOT with skill
+
+**Setup:**
+- CLAUDE_PLUGIN_ROOT: unset
+- Working directory: $TMPDIR/preflight-scaffold-guard (empty)
+
+**Step 0 executed:**
+
+```bash
+test -d ${CLAUDE_PLUGIN_ROOT}/content && echo "OK" || echo "CONTENT_PATH_MISSING"
+```
+
+**Result:** CONTENT_PATH_MISSING
+
+**Skill response (per SKILL.md Step 0 guard):**
+
+Plugin content directory not found at /content. The preflight plugin may not be installed correctly.
+
+**Guard behavior:** PASS — skill correctly detected that CLAUDE_PLUGIN_ROOT was unset (expanded to empty string, so path became "/content" which does not exist) and halted execution before any scaffold steps ran.
+
+**Notes:**
+- The guard fires before Step 1 (state detection) and all subsequent steps
+- With CLAUDE_PLUGIN_ROOT unset, the shell expands ${CLAUDE_PLUGIN_ROOT} to an empty string, making the tested path "/content" — non-existent
+- The error message includes the expanded path, which in the unset case shows "/content" rather than a meaningful plugin path — this is a minor UX rough edge but the guard itself is sound

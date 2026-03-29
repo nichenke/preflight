@@ -1,0 +1,23 @@
+{
+  "skill_name": "review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "You are testing the /preflight review skill. A pre-scaffolded project exists at /Users/nic/src/ai-home/pm-framework/.worktrees/plugin-conversion/skills/test-fixtures/scaffolded-project/. Use that directory as your working directory for all file operations.\n\nRun /preflight review docs/decisions/adrs/adr-002-valid-decision.md\n\nThis is a well-formed ADR. The review should either PASS or report only warnings — no errors.\n\nSave the full review output to outputs/review-output.txt",
+      "expected_output": "Review runs successfully. Loads universal-rules.md and adr-rules.md. Result is PASS or 0 Errors with some warnings. No false positives on the well-formed document. Report includes rule IDs for any findings.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "You are testing the /preflight review skill. A pre-scaffolded project exists at /Users/nic/src/ai-home/pm-framework/.worktrees/plugin-conversion/skills/test-fixtures/scaffolded-project/. Use that directory as your working directory for all file operations.\n\nRun /preflight review docs/requirements.md\n\nThis document has intentional violations:\n- Two requirements missing FR-NNN IDs (prose sentences instead of requirements)\n- Two requirements using 'should' and 'can' instead of 'shall' (non-EARS pattern)\n- Three NFRs with vague non-measurable criteria (NFR-001, NFR-002, NFR-003)\n\nThe review should find these violations and report them with specific rule IDs. It must NOT modify the document.\n\nSave the full review output to outputs/review-output.txt",
+      "expected_output": "Review finds multiple violations. Reports Errors or Warnings for: missing IDs, non-EARS language (should/can instead of shall), vague NFR criteria. Each finding cites a specific rule ID. Document is not modified. Summary line shows N Errors, M Warnings.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "You are testing the /preflight review skill's initialization guard. Run /preflight review on any document in a directory that has NOT been scaffolded — use /tmp/preflight-uninitialized-review/ as your working directory (create it fresh with mkdir -p). Do not create any .preflight/ directory there.\n\nThe skill should detect that .preflight/_rules/ does not exist and stop with a clear error message telling the user to run /preflight scaffold first.\n\nSave the skill's response/output to outputs/guard-output.txt",
+      "expected_output": "Skill stops at section 4.0 guard with a message telling the user to run /preflight scaffold first. Does NOT attempt to load rules or review any document.",
+      "files": []
+    }
+  ]
+}

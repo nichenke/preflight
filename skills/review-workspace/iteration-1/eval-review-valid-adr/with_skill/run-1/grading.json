@@ -1,0 +1,25 @@
+{
+  "expectations": [
+    {
+      "text": "result-pass",
+      "passed": true,
+      "evidence": "Result: PASS \u2014 0 Errors, 2 Warnings"
+    },
+    {
+      "text": "no-false-error",
+      "passed": true,
+      "evidence": "Zero Error findings on a well-formed ADR"
+    },
+    {
+      "text": "rule-ids-cited",
+      "passed": true,
+      "evidence": "Warnings cite ADR-R02 (passive framing) and UNIV-04 (vague adjectives)"
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3
+  }
+}

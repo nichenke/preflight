@@ -1,0 +1,6 @@
+{"expectations":[
+  {"text":"violations-found","passed":true,"evidence":"1 Error (REQ-R02 missing IDs) and 6 Warnings found — Result: 1 Errors, 6 Warnings"},
+  {"text":"rule-ids-cited","passed":true,"evidence":"REQ-R02, REQ-R01, REQ-R04, REQ-R05, REQ-R06, UNIV-04, XDOC-09 all cited"},
+  {"text":"result-summary-line","passed":true,"evidence":"Report ends with structured Result line"},
+  {"text":"doc-not-modified","passed":true,"evidence":"Agent confirmed: 'The document was not modified'"}
+]}

@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #faf9f5;
+      --surface: #ffffff;
+      --border: #e8e6dc;
+      --text: #141413;
+      --text-muted: #b0aea5;
+      --accent: #d97757;
+      --accent-hover: #c4613f;
+      --green: #788c5d;
+      --green-bg: #eef2e8;
+      --red: #c44;
+      --red-bg: #fceaea;
+      --header-bg: #141413;
+      --header-text: #faf9f5;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .header .instructions {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    .header .progress {
+      font-size: 0.875rem;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* ---- Main content ---- */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- Sections ---- */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+    .section-header {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .section-body {
+      padding: 1rem;
+    }
+
+    /* ---- Config badge ---- */
+    .config-badge {
+      display: inline-block;
+      padding: 0.2rem 0.625rem;
+      border-radius: 9999px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+    }
+    .config-badge.config-primary {
+      background: rgba(33, 150, 243, 0.12);
+      color: #1976d2;
+    }
+    .config-badge.config-baseline {
+      background: rgba(255, 193, 7, 0.15);
+      color: #f57f17;
+    }
+
+    /* ---- Prompt ---- */
+    .prompt-text {
+      white-space: pre-wrap;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    /* ---- Outputs ---- */
+    .output-file {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .output-file + .output-file {
+      margin-top: 1rem;
+    }
+    .output-file-header {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-file-header .dl-btn {
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    .output-file-header .dl-btn:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .output-file-content {
+      padding: 0.75rem;
+      overflow-x: auto;
+    }
+    .output-file-content pre {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    .output-file-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .output-file-content iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .output-file-content table {
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      width: 100%;
+    }
+    .output-file-content table td,
+    .output-file-content table th {
+      border: 1px solid var(--border);
+      padding: 0.375rem 0.5rem;
+      text-align: left;
+    }
+    .output-file-content table th {
+      background: var(--bg);
+      font-weight: 600;
+    }
+    .output-file-content .download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    .output-file-content .download-link:hover {
+      background: var(--border);
+    }
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ---- Feedback ---- */
+    .prev-feedback {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.625rem 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .prev-feedback-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+    .feedback-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      resize: vertical;
+      color: var(--text);
+    }
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .feedback-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      min-height: 1.1em;
+    }
+
+    /* ---- Grades (collapsible) ---- */
+    .grades-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .grades-toggle:hover {
+      color: var(--accent);
+    }
+    .grades-toggle .arrow {
+      margin-right: 0.5rem;
+      transition: transform 0.15s;
+      font-size: 0.75rem;
+    }
+    .grades-toggle .arrow.open {
+      transform: rotate(90deg);
+    }
+    .grades-content {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .grades-content.open {
+      display: block;
+    }
+    .grades-summary {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .grade-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .grade-pass { background: var(--green-bg); color: var(--green); }
+    .grade-fail { background: var(--red-bg); color: var(--red); }
+    .assertion-list {
+      list-style: none;
+    }
+    .assertion-item {
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+    .assertion-item:last-child { border-bottom: none; }
+    .assertion-status {
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .assertion-status.pass { color: var(--green); }
+    .assertion-status.fail { color: var(--red); }
+    .assertion-evidence {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      padding-left: 1.5rem;
+    }
+
+    /* ---- View tabs ---- */
+    .view-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .view-tab {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+    /* ---- Benchmark view ---- */
+    .benchmark-view {
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .benchmark-table {
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .benchmark-table th, .benchmark-table td {
+      padding: 0.625rem 0.75rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .benchmark-table th {
+      font-family: 'Poppins', sans-serif;
+      background: var(--header-bg);
+      color: var(--header-text);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .benchmark-table tr:hover { background: var(--bg); }
+    .benchmark-table tr.benchmark-row-with { background: rgba(33, 150, 243, 0.06); }
+    .benchmark-table tr.benchmark-row-without { background: rgba(255, 193, 7, 0.06); }
+    .benchmark-table tr.benchmark-row-with:hover { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-without:hover { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-table tr.benchmark-row-avg { font-weight: 600; border-top: 2px solid var(--border); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-with { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-without { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-delta-positive { color: var(--green); font-weight: 600; }
+    .benchmark-delta-negative { color: var(--red); font-weight: 600; }
+    .benchmark-notes {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .benchmark-notes h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    .benchmark-notes ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+    .benchmark-notes li {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      margin-bottom: 0.375rem;
+    }
+    .benchmark-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* ---- Navigation ---- */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .done-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .done-btn:hover {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .done-btn.ready {
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .done-btn.ready:hover {
+      background: var(--accent-hover);
+    }
+    /* ---- Done overlay ---- */
+    .done-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .done-overlay.visible {
+      display: flex;
+    }
+    .done-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem 3rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+    }
+    .done-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .done-card p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .done-card .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .done-card button {
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .done-card button:hover {
+      background: var(--bg);
+    }
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .toast.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height:100vh; display:flex; flex-direction:column;">
+    <div class="header">
+      <div>
+        <h1>Eval Review: <span id="skill-name"></span></h1>
+        <div class="instructions">Review each output and leave feedback below. Navigate with arrow keys or buttons. When done, copy feedback and paste into Claude Code.</div>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- View tabs (only shown when benchmark data exists) -->
+    <div class="view-tabs" id="view-tabs" style="display:none;">
+      <button class="view-tab active" onclick="switchView('outputs')">Outputs</button>
+      <button class="view-tab" onclick="switchView('benchmark')">Benchmark</button>
+    </div>
+
+    <!-- Outputs panel (qualitative review) -->
+    <div class="view-panel active" id="panel-outputs">
+    <div class="main">
+      <!-- Prompt -->
+      <div class="section">
+        <div class="section-header">Prompt <span class="config-badge" id="config-badge" style="display:none;"></span></div>
+        <div class="section-body">
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+      </div>
+
+      <!-- Outputs -->
+      <div class="section">
+        <div class="section-header">Output</div>
+        <div class="section-body" id="outputs-body">
+          <div class="empty-state">No output files found</div>
+        </div>
+      </div>
+
+      <!-- Previous Output (collapsible) -->
+      <div class="section" id="prev-outputs-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="togglePrevOutputs()">
+            <span class="arrow" id="prev-outputs-arrow">&#9654;</span>
+            Previous Output
+          </div>
+        </div>
+        <div class="grades-content" id="prev-outputs-content"></div>
+      </div>
+
+      <!-- Grades (collapsible) -->
+      <div class="section" id="grades-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="toggleGrades()">
+            <span class="arrow" id="grades-arrow">&#9654;</span>
+            Formal Grades
+          </div>
+        </div>
+        <div class="grades-content" id="grades-content"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="section">
+        <div class="section-header">Your Feedback</div>
+        <div class="section-body">
+          <textarea
+            class="feedback-textarea"
+            id="feedback"
+            placeholder="What do you think of this output? Any issues, suggestions, or things that look great?"
+          ></textarea>
+          <div class="feedback-status" id="feedback-status"></div>
+          <div class="prev-feedback" id="prev-feedback" style="display:none;">
+            <div class="prev-feedback-label">Previous feedback</div>
+            <div id="prev-feedback-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav" id="outputs-nav">
+      <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">&#8592; Previous</button>
+      <button class="done-btn" id="done-btn" onclick="showDoneDialog()">Submit All Reviews</button>
+      <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next &#8594;</button>
+    </div>
+    </div><!-- end panel-outputs -->
+
+    <!-- Benchmark panel (quantitative stats) -->
+    <div class="view-panel" id="panel-benchmark">
+      <div class="benchmark-view" id="benchmark-content">
+        <div class="benchmark-empty">No benchmark data available. Run a benchmark to see quantitative results here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done overlay -->
+  <div class="done-overlay" id="done-overlay">
+    <div class="done-card">
+      <h2>Review Complete</h2>
+      <p>Your feedback has been saved. Go back to your Claude Code session and tell Claude you're done reviewing.</p>
+      <div class="btn-row">
+        <button onclick="closeDoneDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---- Embedded data (injected by generate_review.py) ----
+    const EMBEDDED_DATA = {"skill_name": "preflight-new", "runs": [{"id": "eval-new-adr-happy-path-with_skill", "prompt": "Create ADR for background job processing using scripted answers", "eval_id": 1, "outputs": [{"name": "adr-output.md", "type": "text", "content": "---\nstatus: Proposed\ndate: 2026-03-29\nowner: backend-team\nversion: 0.1.0\ntype: adr\ndeciders: backend-team, platform-team\nconsulted: frontend-team\ninformed: all-engineers\n---\n\n# ADR-001: Use Sidekiq for Background Job Processing\n\n## Context and Problem Statement\n\nBackground jobs currently run inline within the request lifecycle. Heavy operations cause request timeouts, degrading user experience and risking data loss when the process is interrupted mid-job. We need to move job execution out of the request cycle into a reliable, observable async processing system.\n\n## Decision Drivers\n\n- Reliability: jobs must not be lost on crash or restart\n- Observability: job status must be inspectable at any point\n- Team familiarity: the team has deep Redis expertise\n- Operational simplicity: minimize new infrastructure complexity\n\n## Considered Options\n\n1. Sidekiq (Redis-backed queue)\n2. GoodJob (database-backed queue using PostgreSQL)\n\n## Decision Outcome\n\nChosen option: \"Sidekiq (Redis-backed queue)\", because reliability and observability requirements are best met by a proven, battle-tested queue with strong retry semantics and a built-in UI. The operational cost of Redis is acceptable because we already run Redis in production.\n\n### Consequences\n\n- Good, because reliable async job execution with automatic retries reduces job loss risk\n- Good, because existing Redis instance is reused \u2014 no net-new infrastructure required\n- Bad, because Redis uptime becomes a dependency for job processing availability\n- Neutral, because the team will need training on Sidekiq-specific patterns and conventions\n\n### Confirmation\n\nZero dropped jobs in the first 30 days post-migration. Job queue depth monitored via a Grafana alert on queue lag. Review at the 30-day mark; revisit this decision if Redis availability falls below 99.9% or queue depth alerts fire more than twice per week.\n\n## Pros and Cons of the Options\n\n### Sidekiq (Redis-backed queue)\n\nRedis-backed job queue with Sidekiq worker processes. Jobs are serialized to Redis and processed by Sidekiq workers independently of the web process.\n\n- Good, because the team has proven Redis and Sidekiq expertise \u2014 reduced onboarding friction\n- Good, because battle-tested at scale with extensive retry, scheduling, and dead-job tooling\n- Good, because Sidekiq Web UI provides built-in job status visibility\n- Bad, because requires Redis as an operational dependency for job processing\n\n### GoodJob (database-backed queue using PostgreSQL)\n\nPostgreSQL-backed job queue using the existing database. No additional infrastructure required.\n\n- Good, because no extra infrastructure \u2014 uses existing PostgreSQL instance\n- Good, because transactional job enqueueing \u2014 jobs and application state committed atomically\n- Bad, because increases load on the primary database under high job throughput\n- Bad, because less battle-tested than Sidekiq at high job volumes\n\n## More Information\n\n- Decision driven by inline-job timeout incidents in production\n- Redis already operates as part of the platform (session cache, rate limiting)\n- Sidekiq Pro license to be evaluated if priority queues or batch jobs become a requirement\n"}, {"name": "review-summary.txt", "type": "text", "content": "## Post-creation review: adr-001-use-sidekiq-for-background-jobs.md\n\n### Auto-fixed (Errors)\n- ADR-R01: status was \"Draft\" \u2014 not in the allowed enum (Proposed, Accepted, Deprecated, Superseded). Auto-fixed to \"Proposed\".\n\n### Warnings (user action needed)\n- ADR-R02: Decision Outcome uses passive \"Chosen option:\" phrasing rather than active voice (\"We will use Sidekiq...\"). Consider rewriting the opening sentence to use active voice per MADR convention.\n\n### Result: 1 auto-fixed, 1 warning\n\n---\n\n## Impact propagation from ADR-001\n\n### requirements.md\n- No changes applied \u2014 existing requirements.md is scoped to User Authentication Service and does not cover background job processing. The ADR implies new requirements (async job processing, Redis availability SLA) that belong in a separate requirements document or a new section for the jobs subsystem.\n\n### Untraced consequences\n- The ADR consequence \"Redis uptime becomes a dependency for job processing availability\" is not reflected in any downstream doc. Consider adding an NFR for Redis availability to requirements.md, or creating a dedicated background-jobs requirements document.\n- The Confirmation criteria (zero dropped jobs, Grafana queue depth alert) are not traceable to any existing NFR \u2014 consider adding NFR-005 to requirements.md once the background jobs scope is formalized.\n"}], "grading": {"expectations": [{"text": "adr-file-created", "passed": true, "evidence": "Agent confirmed MADR frontmatter (status, date, deciders, consulted, informed) written to adr-001-use-sidekiq-for-background-jobs.md"}, {"text": "has-two-options", "passed": true, "evidence": "Two options (Sidekiq, GoodJob) with pros/cons sections confirmed"}, {"text": "post-review-ran", "passed": true, "evidence": "Auto-fix applied (ADR-R01: status Draft\u2192Proposed); warning ADR-R02 reported with rule ID"}, {"text": "impact-propagation-triggered", "passed": true, "evidence": "Agent ran impact propagation step; found requirements.md, checked for downstream changes, flagged untraced consequences"}]}}, {"id": "eval-new-adr-happy-path-without_skill", "prompt": "Create ADR for background job processing using scripted answers", "eval_id": 1, "outputs": [{"name": "adr-output.md", "type": "text", "content": "---\nstatus: Accepted\ndate: 2026-03-29\ndeciders: [backend-team]\nconsulted: []\ninformed: []\ntype: adr\nversion: 1.0.0\nowner: backend-team\n---\n\n# ADR-003: Use Sidekiq for Background Jobs\n\n## Context and Problem Statement\n\nJobs currently run inline within the request cycle. Heavy operations cause request timeouts, degrading reliability and user experience. A background job processing solution is needed to decouple job execution from the request lifecycle.\n\n## Decision Drivers\n\n- Reliability \u2014 jobs must complete without request timeout constraints\n- Observability \u2014 job status, retries, and failures must be visible\n- Team familiarity \u2014 backend team has existing Redis knowledge\n- Operational simplicity \u2014 minimize new moving parts and failure modes\n\n## Considered Options\n\n1. Sidekiq (Redis-backed queue)\n2. GoodJob (database-backed queue)\n\n## Decision Outcome\n\nChosen option: **Sidekiq**, because it provides proven reliability, strong observability tooling, and aligns with the team's existing Redis expertise without introducing an unfamiliar operational model.\n\n### Consequences\n\n- Good, because Sidekiq's retry semantics, dead job queues, and Web UI provide strong observability out of the box\n- Good, because team familiarity with Redis reduces operational risk and onboarding friction\n- Good, because Sidekiq's performance characteristics are well-understood at scale\n- Bad, because Redis becomes a required infrastructure dependency\n- Neutral, because Redis may already be present for other uses (caching, sessions); verify before treating this as a net-new dependency\n\n### Confirmation\n\nMeasure after first month of production use: job timeout rate drops to zero; failed job detection and retry occurs within alerting SLOs.\n\n## Pros and Cons of the Options\n\n### Sidekiq (Redis-backed)\n\nRedis-backed queue with mature retry, scheduling, and visibility tooling.\n\n- Good, because battle-tested reliability with predictable failure modes\n- Good, because built-in Web UI for job monitoring and dead-queue inspection\n- Good, because team already operates Redis \u2014 no new runbook or on-call ramp\n- Bad, because Redis is an additional infrastructure dependency if not already present\n\n### GoodJob (database-backed)\n\nPostgreSQL-backed queue with no additional infrastructure.\n\n- Good, because no extra infrastructure \u2014 uses the existing database\n- Good, because simpler deployment topology\n- Bad, because higher database load under job volume; competes with OLTP queries for connections and I/O\n- Bad, because observability tooling is less mature than Sidekiq's\n\n## More Information\n\nRedis infrastructure provisioning and Sidekiq configuration are implementation concerns outside the scope of this decision.\n"}, {"name": "review-summary.txt", "type": "text", "content": "Format and process used (no skill \u2014 native capability only)\n===========================================================\n\n1. Discovery\n   - Read the existing ADR files in the project's docs/decisions/adrs/ directory to\n     determine the format in use (YAML front matter + Markdown body) and the next\n     sequential ID (adr-001 and adr-002 existed, so adr-003 was assigned).\n\n2. Format followed\n   - Matched the front matter schema from adr-001: status, date, deciders, consulted,\n     informed, type, version, owner.\n   - Matched section structure: Context and Problem Statement, Decision Drivers,\n     Considered Options, Decision Outcome (with Consequences and Confirmation),\n     Pros and Cons of the Options, More Information.\n   - Filename convention: adr-NNN-<slug>.md with zero-padded three-digit ID.\n\n3. Content approach\n   - Synthesized decision drivers, options, and outcome directly from the provided\n     brief with no elicitation step \u2014 treated the brief as the complete source of\n     truth.\n   - Added a note under Consequences flagging that Redis may already be present (an\n     inference from common architectures) to avoid treating it as net-new if not\n     warranted.\n   - Kept Pros and Cons balanced: did not editorialize beyond what was in the brief.\n\n4. What was NOT done (no skill)\n   - No structured elicitation \u2014 did not prompt for missing fields (consulted,\n     informed, confirmation criteria) before writing.\n   - No template lookup \u2014 format was reverse-engineered from existing ADRs, not\n     loaded from a canonical template.\n   - No rule validation \u2014 no automated check that required fields are present or\n     that the document meets any defined quality rules.\n   - No version bump or ADR-impact propagation check.\n\n5. Notable gaps vs. a skill-guided flow\n   - consulted and informed fields are empty; a skill would likely prompt for these.\n   - Confirmation criteria were inferred; a skill would elicit measurable acceptance\n     criteria explicitly.\n   - No cross-check against existing decisions for conflicts.\n"}], "grading": {"expectations": [{"text": "adr-file-created", "passed": true, "evidence": "Agent produced ADR with frontmatter; reverse-engineered format from existing fixture"}, {"text": "has-two-options", "passed": true, "evidence": "Two options with pros/cons included"}, {"text": "post-review-ran", "passed": false, "evidence": "No validation pass ran. Agent noted: 'no rule validation pass, correctness was best-effort from engineering judgment'"}, {"text": "impact-propagation-triggered", "passed": false, "evidence": "No impact propagation step \u2014 not part of baseline behavior"}]}}, {"id": "eval-new-requirements-happy-path-with_skill", "prompt": "Create requirements doc for notification system using scripted answers", "eval_id": 2, "outputs": [{"name": "requirements-output.md", "type": "text", "content": "---\nstatus: Draft\ndate: 2026-03-29\nowner: TBD \u2014 product-team\nversion: 0.1.0\ntype: requirements\n---\n\n# Notification System \u2014 Requirements Specification\n\n## Meta\n- Version: 0.1.0\n- Status: Draft\n- Owner: TBD \u2014 product-team\n- Stakeholders: TBD \u2014 product-team\n- Last Updated: 2026-03-29\n\n## 1. Problem Statement\n\nThe platform needs a notification system. Users currently have no way to receive alerts about events relevant to them (new messages, task completions, system alerts). This creates a gap in user awareness and engagement \u2014 users must manually poll the platform to learn about changes that affect them.\n\n## 2. Users & Personas\n\n**End User**\n- Role: Platform user who receives notifications\n- Goals: Stay informed about events relevant to them (task completions, messages) in a timely way\n- Pain points: Currently must manually check the platform to discover relevant events; no proactive alerting\n- Technical sophistication: Non-technical; expects simple, intuitive notification delivery\n\n**Admin**\n- Role: Platform administrator who configures notification infrastructure\n- Goals: Configure notification channels and templates to meet organizational needs; maintain reliable delivery\n- Pain points: No current tooling to manage notification routing or templates\n- Technical sophistication: Technically sophisticated; comfortable with configuration and channel management\n\n## 3. User Journeys / Jobs to Be Done\n\n### Journey 1: User receives notification when assigned task is completed\n\n- **Trigger:** A task assigned to the user is marked as complete.\n- **Steps:**\n  1. System detects the task-marked-complete event.\n  2. System identifies the user to whom the task was assigned.\n  3. System evaluates the user's notification preferences from the user profile service.\n  4. System selects the configured delivery channel (email or in-app).\n  5. System delivers the notification via the selected channel.\n  6. User sees the notification.\n- **Success Outcome:** User sees the notification within 30 seconds of the task being marked complete.\n- **Failure Modes:**\n  - Delivery fails (channel unavailable, invalid email, etc.): system retries delivery up to 3 times, then marks the notification as failed.\n  - User preferences not found: system falls back to default channel (in-app).\n  - User profile service unavailable: system queues notification and retries when service is available.\n\n## 4. Functional Requirements\n\nFR-001: When a task is marked complete, the system shall detect the task completion event and initiate notification processing for the assigned user.\n\nFR-002: When a task completion event is being processed, the system shall retrieve the assigned user's notification preferences from the user profile service before selecting a delivery channel.\n\nFR-003: When a user's notification preferences specify email delivery, the system shall send the notification to the user's registered email address.\n\nFR-004: When a user's notification preferences specify in-app delivery, the system shall deliver the notification via the in-app notification channel.\n\nFR-005: When notification delivery fails, the system shall retry delivery up to 3 times using the same delivery channel.\n\nFR-006: When a notification has been retried 3 times without success, the system shall mark the notification as failed and record the failure event.\n\nFR-007: If the user profile service is unavailable when processing a notification, the system shall queue the notification and retry processing when the service becomes available.\n\nFR-008: The system shall deliver task completion notifications within 30 seconds of the triggering event under normal operating conditions.\n\n## 5. Non-Functional Requirements\n\nNFR-001: Notification delivery latency shall not exceed 30 seconds at the p95 percentile, measured from event trigger to confirmed delivery receipt.\n\nNFR-002: The system shall handle a peak load of 10,000 notifications per minute without degradation in delivery latency or reliability.\n\nNFR-003: The system shall achieve a 99.9% notification delivery success rate over any 30-day rolling window, measured via delivery receipts.\n\n## 6. Constraints\n\n- Must support email and in-app notification channels.\n- SMS notifications are excluded from v1.\n- Notification processing must not add more than 50ms of latency to task completion API calls (notification processing must be asynchronous and decoupled from the task completion request path).\n\n## 7. Assumptions\n\n- Users have a valid email address on file in their user profile.\n- Notification preferences are stored in and retrievable from the user profile service.\n- Validation plan: Verify email presence rate in user profile service before launch; confirm user profile service API supports preference retrieval.\n\n## 8. Success Measures\n\n| Metric | Baseline | Target | Measurement Method | Timeline |\n|--------|----------|--------|--------------------|----------|\n| Delivery latency (p95) | N/A (no current system) | < 30 seconds | Delivery receipt timestamps logged per notification | First 30 days post-launch |\n| Delivery success rate | N/A | 99.9% over 30-day rolling window | Confirmed deliveries / total attempted via delivery receipts | First 30 days post-launch |\n\n## 9. Out of Scope\n\n- Push notifications (mobile): excluded from v1; may be considered in a future phase.\n- SMS notifications: excluded from v1 by explicit constraint.\n- Digest/batched notifications: excluded from v1; users receive individual per-event notifications only.\n\n## 10. Open Questions\n\nTBD \u2014 product-team\n\n## 11. Appendices\n\nTBD \u2014 product-team\n"}, {"name": "review-summary.txt", "type": "text", "content": "## Post-creation review: docs/requirements.md\n\n### Auto-fixed (Errors)\nNone.\n\n### Warnings (user action needed)\n\n- UNIV-03: `owner` field in YAML frontmatter contains a TBD placeholder (\"TBD \u2014 product-team\") \u2014 replace with the actual owner name or team identifier before moving to In Review status.\n\n- UNIV-04: Vague adjectives \"timely\" and \"reliable\" appear in Section 2 (persona descriptions) without quantification in that context \u2014 acceptable in prose/persona descriptions since NFR-001 quantifies delivery latency (p95 < 30s) and NFR-003 quantifies delivery success rate (99.9%), but confirm the persona descriptions are intentionally aspirational rather than normative.\n\n- UNIV-03: Section 10 (Open Questions) and Section 11 (Appendices) are marked TBD with owner \"product-team\" \u2014 populate or confirm these sections are intentionally deferred before review.\n\n- XDOC-09: FR-001 through FR-008 and NFR-001 through NFR-003 are not yet referenced by any architecture component, test, or ADR \u2014 expected for a newly created doc. Address during architecture and test strategy authoring.\n\n- REQ-R06: Success measures table lacks a \"baseline\" measurement method (how will the current baseline of N/A be confirmed at launch?) \u2014 consider adding a note on how Day 0 baseline will be established.\n\n### Result: 0 auto-fixed, 5 warnings\n"}], "grading": {"expectations": [{"text": "ears-format", "passed": true, "evidence": "8 FRs with EARS notation throughout \u2014 event-driven (When..shall), state-driven (While..shall), ubiquitous (The system shall)"}, {"text": "sequential-ids", "passed": true, "evidence": "FR-001 through FR-008, NFR-001 through NFR-003, no gaps"}, {"text": "measurable-nfrs", "passed": true, "evidence": "NFR-001: p95 < 30s; NFR-002: 99.9% over 30-day window; NFR-003: 10,000/minute \u2014 all quantitative"}, {"text": "post-review-ran", "passed": true, "evidence": "Post-creation review found 5 warnings with rule IDs (UNIV-03, UNIV-04, XDOC-09, REQ-R06)"}]}}, {"id": "eval-new-requirements-happy-path-without_skill", "prompt": "Create requirements doc for notification system using scripted answers", "eval_id": 2, "outputs": [{"name": "requirements-output.md", "type": "text", "content": "# Requirements: Notification System\n\n## Problem Statement\n\nThe platform lacks a mechanism to alert users about relevant events in real time. Without notifications, users must manually check for new messages, task completions, and system alerts \u2014 increasing missed activity and reducing platform responsiveness. A notification system is needed to deliver timely, reliable alerts via email and in-app channels.\n\n## Functional Requirements\n\nFR-001: When a new message is received for a user, the system shall deliver a notification to all of that user's enabled channels within 30 seconds of the message event.\n\nFR-002: When a task is marked complete, the system shall deliver a notification to the task owner and any subscribed users within 30 seconds of the completion event.\n\nFR-003: When a system alert is generated, the system shall deliver a notification to all affected users within 30 seconds of the alert being raised.\n\nFR-004: The system shall support email as a notification delivery channel.\n\nFR-005: The system shall support in-app notifications as a delivery channel, surfaced within the platform UI.\n\nFR-006: Users shall be able to configure per-channel notification preferences, including enabling or disabling individual event types per channel.\n\nFR-007: When a notification delivery attempt fails, the system shall retry delivery using exponential backoff up to a maximum of 5 attempts within 10 minutes, then mark the notification as permanently failed.\n\n## Non-Functional Requirements\n\nNFR-001: The system shall deliver notifications within 30 seconds of the triggering event at the p99 percentile under normal operating conditions.\n\nNFR-002: The system shall achieve a delivery success rate of 99.9% or higher, measured as (successfully delivered notifications / total delivery attempts) over a rolling 30-day window.\n\nNFR-003: The system shall sustain a throughput of 10,000 notifications per minute without exceeding the p99 latency bound defined in NFR-001 or dropping below the delivery rate defined in NFR-002.\n\nNFR-004: Failures in the notification subsystem shall not affect core platform availability \u2014 the notification service shall be isolated from platform-critical operations.\n\n## Constraints\n\n- SMS delivery is excluded from v1; the channel abstraction must not preclude adding SMS in a future phase.\n- Email delivery must use an approved transactional email provider.\n\n## Assumptions\n\n- Users have a valid email address on file for email channel delivery.\n- In-app notifications are consumed by clients that poll or subscribe via an active platform session.\n- Triggering events (message received, task completed, system alert) are published as structured events consumable by the notification service.\n\n## Out of Scope\n\n- Mobile push notifications (iOS/Android)\n- SMS notifications\n- Notification digest or batching (v1 delivers immediately)\n- Notification read/unread state tracking\n"}, {"name": "review-summary.txt", "type": "text", "content": "eval: without_skill \u2014 requirements generation (happy path)\ndate: 2026-03-29\n\n--- format used ---\n\nNo project format was loaded or prescribed. Format was inferred from general\nengineering practice:\n- Markdown heading hierarchy (h1 title, h2 sections)\n- No YAML frontmatter \u2014 no indication it was required without a template\n- Sections: Problem Statement, Functional Requirements, Non-Functional\n  Requirements, Constraints, Assumptions, Out of Scope\n- FR/NFR sequential IDs (FR-001, NFR-001, ...)\n- EARS-style phrasing for event-triggered FRs (\"When X, the system shall Y\")\n- Measurable NFRs with explicit thresholds and measurement conditions\n\n--- process used ---\n\n1. Parsed the raw feature description to identify:\n   - Event triggers: new message, task completion, system alert \u2192 FR-001\u2013003\n   - Channel support: email, in-app \u2192 FR-004\u2013005\n   - User control: per-channel preferences \u2192 FR-006\n   - Failure handling: retry/backoff \u2014 prose input was vague, so bounds\n     were added (5 attempts, 10 minutes) using engineering judgment \u2192 FR-007\n   - Latency: 30 seconds \u2192 NFR-001 with p99 qualifier added\n   - Delivery rate: 99.9% \u2192 NFR-002, denominator made explicit\n   - Throughput: 10k/min \u2192 NFR-003, referenced NFR-001/NFR-002 to avoid\n     restating thresholds\n   - Isolation implied by delivery rate SLA \u2192 NFR-004\n2. Surfaced constraints: SMS excluded in v1 with forward-compatibility note,\n   email provider constraint carried through from prose.\n3. Added Assumptions for dependencies required for FRs to hold but not\n   stated in the input.\n4. Added \"notification read/unread state\" to Out of Scope as an implicit\n   gap for in-app delivery.\n\n--- observations (no skill) ---\n\n- No elicitation occurred. Gaps in the input (retry bounds, delivery\n  denominator, in-app persistence model) were filled with engineering\n  judgment rather than by asking the user. Results may not match actual\n  project decisions.\n- No template was loaded, so section structure and format conventions were\n  generated from first principles. This produced a reasonable output but\n  without verification against any project standard.\n- EARS phrasing applied from general knowledge \u2014 no rule enforced it.\n- NFR measurability improvements (explicit denominator in NFR-002, cross-\n  referencing in NFR-003) were made opportunistically, not from a checklist.\n- No validation step ran after generation \u2014 the document was not checked\n  against any rule set for completeness or quality.\n- Single pass, no iteration.\n"}], "grading": {"expectations": [{"text": "ears-format", "passed": true, "evidence": "Baseline used EARS-style FR phrasing by convention; however no template was loaded to enforce it"}, {"text": "sequential-ids", "passed": true, "evidence": "Sequential FR/NFR IDs used"}, {"text": "measurable-nfrs", "passed": true, "evidence": "Baseline made NFRs quantitative using judgment; no elicitation prompted for measurement method"}, {"text": "post-review-ran", "passed": false, "evidence": "No validation pass. Agent: 'No quality gate validated the output against any framework rule set'"}]}}, {"id": "eval-new-uninitialized-guard-with_skill", "prompt": "Run new skill in uninitialized project \u2014 expect Step 0 guard to stop it", "eval_id": 3, "outputs": [{"name": "guard-output.txt", "type": "text", "content": "No `.preflight/_templates/` directory found. Run `/preflight scaffold` first to initialize the project.\n"}], "grading": {"expectations": [{"text": "guard-fires", "passed": true, "evidence": "Step 0 output: NOT_INITIALIZED. Skill wrote: 'No .preflight/_templates/ directory found. Run /preflight scaffold first.'"}, {"text": "no-elicitation", "passed": true, "evidence": "Skill halted at Step 0; no doc type selection or elicitation questions were asked"}]}}, {"id": "eval-new-uninitialized-guard-without_skill", "prompt": "Run new skill in uninitialized project \u2014 expect Step 0 guard to stop it", "eval_id": 3, "outputs": [{"name": "guard-output.txt", "type": "text", "content": "## New Skill \u2014 Uninitialized Guard Evaluation (Baseline, No Skill)\n\n**Eval:** Case C \u2014 Attempt to create an ADR in an uninitialized project without skill guidance\n\n**Setup:**\n- Working directory: $TMPDIR/preflight-uninitialized-test-baseline (empty)\n- No .preflight/ directory present\n- No skill loaded \u2014 purely ad hoc model behavior\n\n**What happened:**\n\nWithout the `/preflight new` skill, there is no guard mechanism. The model would proceed to create an ADR document using whatever default structure it infers \u2014 no validation of project initialization, no template lookup, no doc-type elicitation, no required field enforcement.\n\nIn practice, an LLM asked to \"create an ADR\" without skill guidance would:\n1. Generate an ADR inline in the conversation using a generic template from training data\n2. Offer to write it to a path like `docs/decisions/adrs/adr-001-<topic>.md` or similar\n3. Create whatever directory structure it deems reasonable via mkdir -p\n4. Produce a document with variable structure \u2014 may or may not include required frontmatter fields (status, date, deciders), may or may not follow MADR format, may or may not use the project's ID namespace\n\n**No guard fires.** The model has no awareness that:\n- .preflight/ is absent (project is uninitialized)\n- Templates defining required doc structure are not loaded\n- ID sequencing has not been established\n\n**Observed directory state after attempted creation:**\n- .preflight/: absent (not created)\n- docs/: not created (no action taken in this eval \u2014 documenting what would happen, not executing it)\n- No template consulted, no rules enforced\n\n**Contrast with skill behavior:**\n- The `/preflight new` skill would check for .preflight/_templates/ before proceeding\n- Without those templates, the skill would halt and direct the user to run `/preflight scaffold` first\n- The baseline produces a document of unknown quality; the skill produces a conformant document or stops with a clear error\n\n**Result:** No guard \u2014 baseline silently proceeds. This is the failure mode the skill's initialization check is designed to prevent.\n"}], "grading": {"expectations": [{"text": "guard-fires", "passed": false, "evidence": "No guard \u2014 baseline would proceed to generate ADR using training-data defaults with no initialization check"}, {"text": "no-elicitation", "passed": false, "evidence": "Baseline has no guard mechanism; would proceed without checks"}]}}], "previous_feedback": {}, "previous_outputs": {}, "benchmark": {"metadata": {"skill_name": "new", "skill_path": "<path/to/skill>", "executor_model": "<model-name>", "analyzer_model": "<model-name>", "timestamp": "2026-03-29T20:18:38Z", "evals_run": [1, 2, 3], "runs_per_configuration": 3}, "runs": [{"eval_id": 1, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 4, "failed": 0, "total": 4, "time_seconds": 118.0, "tokens": 32828, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "adr-file-created", "passed": true, "evidence": "Agent confirmed MADR frontmatter (status, date, deciders, consulted, informed) written to adr-001-use-sidekiq-for-background-jobs.md"}, {"text": "has-two-options", "passed": true, "evidence": "Two options (Sidekiq, GoodJob) with pros/cons sections confirmed"}, {"text": "post-review-ran", "passed": true, "evidence": "Auto-fix applied (ADR-R01: status Draft\u2192Proposed); warning ADR-R02 reported with rule ID"}, {"text": "impact-propagation-triggered", "passed": true, "evidence": "Agent ran impact propagation step; found requirements.md, checked for downstream changes, flagged untraced consequences"}], "notes": []}, {"eval_id": 2, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 4, "failed": 0, "total": 4, "time_seconds": 171.9, "tokens": 39101, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "ears-format", "passed": true, "evidence": "8 FRs with EARS notation throughout \u2014 event-driven (When..shall), state-driven (While..shall), ubiquitous (The system shall)"}, {"text": "sequential-ids", "passed": true, "evidence": "FR-001 through FR-008, NFR-001 through NFR-003, no gaps"}, {"text": "measurable-nfrs", "passed": true, "evidence": "NFR-001: p95 < 30s; NFR-002: 99.9% over 30-day window; NFR-003: 10,000/minute \u2014 all quantitative"}, {"text": "post-review-ran", "passed": true, "evidence": "Post-creation review found 5 warnings with rule IDs (UNIV-03, UNIV-04, XDOC-09, REQ-R06)"}], "notes": []}, {"eval_id": 3, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 2, "failed": 0, "total": 2, "time_seconds": 31.1, "tokens": 23608, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "guard-fires", "passed": true, "evidence": "Step 0 output: NOT_INITIALIZED. Skill wrote: 'No .preflight/_templates/ directory found. Run /preflight scaffold first.'"}, {"text": "no-elicitation", "passed": true, "evidence": "Skill halted at Step 0; no doc type selection or elicitation questions were asked"}], "notes": []}, {"eval_id": 1, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.5, "passed": 2, "failed": 2, "total": 4, "time_seconds": 57.4, "tokens": 19905, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "adr-file-created", "passed": true, "evidence": "Agent produced ADR with frontmatter; reverse-engineered format from existing fixture"}, {"text": "has-two-options", "passed": true, "evidence": "Two options with pros/cons included"}, {"text": "post-review-ran", "passed": false, "evidence": "No validation pass ran. Agent noted: 'no rule validation pass, correctness was best-effort from engineering judgment'"}, {"text": "impact-propagation-triggered", "passed": false, "evidence": "No impact propagation step \u2014 not part of baseline behavior"}], "notes": []}, {"eval_id": 2, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.75, "passed": 3, "failed": 1, "total": 4, "time_seconds": 62.1, "tokens": 19787, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "ears-format", "passed": true, "evidence": "Baseline used EARS-style FR phrasing by convention; however no template was loaded to enforce it"}, {"text": "sequential-ids", "passed": true, "evidence": "Sequential FR/NFR IDs used"}, {"text": "measurable-nfrs", "passed": true, "evidence": "Baseline made NFRs quantitative using judgment; no elicitation prompted for measurement method"}, {"text": "post-review-ran", "passed": false, "evidence": "No validation pass. Agent: 'No quality gate validated the output against any framework rule set'"}], "notes": []}, {"eval_id": 3, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.0, "passed": 0, "failed": 2, "total": 2, "time_seconds": 28.0, "tokens": 7118, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "guard-fires", "passed": false, "evidence": "No guard \u2014 baseline would proceed to generate ADR using training-data defaults with no initialization check"}, {"text": "no-elicitation", "passed": false, "evidence": "Baseline has no guard mechanism; would proceed without checks"}], "notes": []}], "run_summary": {"with_skill": {"pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0}, "time_seconds": {"mean": 107.0, "stddev": 71.0416, "min": 31.1, "max": 171.9}, "tokens": {"mean": 31845.6667, "stddev": 7793.0736, "min": 23608, "max": 39101}}, "without_skill": {"pass_rate": {"mean": 0.4167, "stddev": 0.3819, "min": 0.0, "max": 0.75}, "time_seconds": {"mean": 49.1667, "stddev": 18.4809, "min": 28.0, "max": 62.1}, "tokens": {"mean": 15603.3333, "stddev": 7348.7511, "min": 7118, "max": 19905}}, "delta": {"pass_rate": "+0.58", "time_seconds": "+57.8", "tokens": "+16242"}}, "notes": []}};
+
+    // ---- State ----
+    let feedbackMap = {};  // run_id -> feedback text
+    let currentIndex = 0;
+    let visitedRuns = new Set();
+
+    // ---- Init ----
+    async function init() {
+      // Load saved feedback from server — but only if this isn't a fresh
+      // iteration (indicated by previous_feedback being present). When
+      // previous feedback exists, the feedback.json on disk is stale from
+      // the prior iteration and should not pre-fill the textareas.
+      const hasPrevious = Object.keys(EMBEDDED_DATA.previous_feedback || {}).length > 0
+        || Object.keys(EMBEDDED_DATA.previous_outputs || {}).length > 0;
+      if (!hasPrevious) {
+        try {
+          const resp = await fetch("/api/feedback");
+          const data = await resp.json();
+          if (data.reviews) {
+            for (const r of data.reviews) feedbackMap[r.run_id] = r.feedback;
+          }
+        } catch { /* first run, no feedback yet */ }
+      }
+
+      document.getElementById("skill-name").textContent = EMBEDDED_DATA.skill_name;
+      showRun(0);
+
+      // Wire up feedback auto-save
+      const textarea = document.getElementById("feedback");
+      let saveTimeout = null;
+      textarea.addEventListener("input", () => {
+        clearTimeout(saveTimeout);
+        document.getElementById("feedback-status").textContent = "";
+        saveTimeout = setTimeout(() => saveCurrentFeedback(), 800);
+      });
+    }
+
+    // ---- Navigation ----
+    function navigate(delta) {
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < EMBEDDED_DATA.runs.length) {
+        saveCurrentFeedback();
+        showRun(newIndex);
+      }
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prev-btn").disabled = currentIndex === 0;
+      document.getElementById("next-btn").disabled =
+        currentIndex === EMBEDDED_DATA.runs.length - 1;
+    }
+
+    // ---- Show a run ----
+    function showRun(index) {
+      currentIndex = index;
+      const run = EMBEDDED_DATA.runs[index];
+
+      // Progress
+      document.getElementById("progress").textContent =
+        `${index + 1} of ${EMBEDDED_DATA.runs.length}`;
+
+      // Prompt
+      document.getElementById("prompt-text").textContent = run.prompt;
+
+      // Config badge
+      const badge = document.getElementById("config-badge");
+      const configMatch = run.id.match(/(with_skill|without_skill|new_skill|old_skill)/);
+      if (configMatch) {
+        const config = configMatch[1];
+        const isBaseline = config === "without_skill" || config === "old_skill";
+        badge.textContent = config.replace(/_/g, " ");
+        badge.className = "config-badge " + (isBaseline ? "config-baseline" : "config-primary");
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Outputs
+      renderOutputs(run);
+
+      // Previous outputs
+      renderPrevOutputs(run);
+
+      // Grades
+      renderGrades(run);
+
+      // Previous feedback
+      const prevFb = (EMBEDDED_DATA.previous_feedback || {})[run.id];
+      const prevEl = document.getElementById("prev-feedback");
+      if (prevFb) {
+        document.getElementById("prev-feedback-text").textContent = prevFb;
+        prevEl.style.display = "block";
+      } else {
+        prevEl.style.display = "none";
+      }
+
+      // Feedback
+      document.getElementById("feedback").value = feedbackMap[run.id] || "";
+      document.getElementById("feedback-status").textContent = "";
+
+      updateNavButtons();
+
+      // Track visited runs and promote done button when all visited
+      visitedRuns.add(index);
+      const doneBtn = document.getElementById("done-btn");
+      if (visitedRuns.size >= EMBEDDED_DATA.runs.length) {
+        doneBtn.classList.add("ready");
+      }
+
+      // Scroll main content to top
+      document.querySelector(".main").scrollTop = 0;
+    }
+
+    // ---- Render outputs ----
+    function renderOutputs(run) {
+      const container = document.getElementById("outputs-body");
+      container.innerHTML = "";
+
+      const outputs = run.outputs || [];
+      if (outputs.length === 0) {
+        container.innerHTML = '<div class="empty-state">No output files</div>';
+        return;
+      }
+
+      for (const file of outputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        // Always show file header with download link
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const content = document.createElement("div");
+        content.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          content.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          content.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          content.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(content, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          content.appendChild(a);
+        } else if (file.type === "error") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          pre.style.color = "var(--red)";
+          content.appendChild(pre);
+        }
+
+        fileDiv.appendChild(content);
+        container.appendChild(fileDiv);
+      }
+    }
+
+    // ---- XLSX rendering via SheetJS ----
+    function renderXlsx(container, b64Data) {
+      try {
+        const raw = Uint8Array.from(atob(b64Data), c => c.charCodeAt(0));
+        const wb = XLSX.read(raw, { type: "array" });
+
+        for (let i = 0; i < wb.SheetNames.length; i++) {
+          const sheetName = wb.SheetNames[i];
+          const ws = wb.Sheets[sheetName];
+
+          if (wb.SheetNames.length > 1) {
+            const sheetLabel = document.createElement("div");
+            sheetLabel.style.cssText =
+              "font-weight:600; font-size:0.8rem; color:#b0aea5; margin-top:0.5rem; margin-bottom:0.25rem;";
+            sheetLabel.textContent = "Sheet: " + sheetName;
+            container.appendChild(sheetLabel);
+          }
+
+          const htmlStr = XLSX.utils.sheet_to_html(ws, { editable: false });
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = htmlStr;
+          container.appendChild(wrapper);
+        }
+      } catch (err) {
+        container.textContent = "Error rendering spreadsheet: " + err.message;
+      }
+    }
+
+    // ---- Grades ----
+    function renderGrades(run) {
+      const section = document.getElementById("grades-section");
+      const content = document.getElementById("grades-content");
+
+      if (!run.grading) {
+        section.style.display = "none";
+        return;
+      }
+
+      const grading = run.grading;
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("grades-arrow").classList.remove("open");
+
+      const summary = grading.summary || {};
+      const expectations = grading.expectations || [];
+
+      let html = '<div style="padding: 1rem;">';
+
+      // Summary line
+      const passRate = summary.pass_rate != null
+        ? Math.round(summary.pass_rate * 100) + "%"
+        : "?";
+      const badgeClass = summary.pass_rate >= 0.8 ? "grade-pass" : summary.pass_rate >= 0.5 ? "" : "grade-fail";
+      html += '<div class="grades-summary">';
+      html += '<span class="grade-badge ' + badgeClass + '">' + passRate + '</span>';
+      html += '<span>' + (summary.passed || 0) + ' passed, ' + (summary.failed || 0) + ' failed of ' + (summary.total || 0) + '</span>';
+      html += '</div>';
+
+      // Assertions list
+      html += '<ul class="assertion-list">';
+      for (const exp of expectations) {
+        const statusClass = exp.passed ? "pass" : "fail";
+        const statusIcon = exp.passed ? "\u2713" : "\u2717";
+        html += '<li class="assertion-item">';
+        html += '<span class="assertion-status ' + statusClass + '">' + statusIcon + '</span>';
+        html += '<span>' + escapeHtml(exp.text) + '</span>';
+        if (exp.evidence) {
+          html += '<div class="assertion-evidence">' + escapeHtml(exp.evidence) + '</div>';
+        }
+        html += '</li>';
+      }
+      html += '</ul>';
+
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function toggleGrades() {
+      const content = document.getElementById("grades-content");
+      const arrow = document.getElementById("grades-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Previous outputs (collapsible) ----
+    function renderPrevOutputs(run) {
+      const section = document.getElementById("prev-outputs-section");
+      const content = document.getElementById("prev-outputs-content");
+      const prevOutputs = (EMBEDDED_DATA.previous_outputs || {})[run.id];
+
+      if (!prevOutputs || prevOutputs.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("prev-outputs-arrow").classList.remove("open");
+
+      // Render the files into the content area
+      content.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.style.padding = "1rem";
+
+      for (const file of prevOutputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const fc = document.createElement("div");
+        fc.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          fc.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          fc.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          fc.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(fc, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          fc.appendChild(a);
+        }
+
+        fileDiv.appendChild(fc);
+        wrapper.appendChild(fileDiv);
+      }
+
+      content.appendChild(wrapper);
+    }
+
+    function togglePrevOutputs() {
+      const content = document.getElementById("prev-outputs-content");
+      const arrow = document.getElementById("prev-outputs-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Feedback (saved to server -> feedback.json) ----
+    function saveCurrentFeedback() {
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // Build reviews array from map
+      const reviews = [];
+      for (const [run_id, feedback] of Object.entries(feedbackMap)) {
+        if (feedback.trim()) {
+          reviews.push({ run_id, feedback, timestamp: new Date().toISOString() });
+        }
+      }
+
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviews, status: "in_progress" }),
+      }).then(() => {
+        document.getElementById("feedback-status").textContent = "Saved";
+      }).catch(() => {
+        // Static mode or server unavailable — no-op on auto-save,
+        // feedback will be downloaded on final submit
+        document.getElementById("feedback-status").textContent = "Will download on submit";
+      });
+    }
+
+    // ---- Done ----
+    function showDoneDialog() {
+      // Save current textarea to feedbackMap (but don't POST yet)
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // POST once with status: complete — include ALL runs so the model
+      // can distinguish "no feedback" (looks good) from "not reviewed"
+      const reviews = [];
+      const ts = new Date().toISOString();
+      for (const r of EMBEDDED_DATA.runs) {
+        reviews.push({ run_id: r.id, feedback: feedbackMap[r.id] || "", timestamp: ts });
+      }
+      const payload = JSON.stringify({ reviews, status: "complete" }, null, 2);
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      }).then(() => {
+        document.getElementById("done-overlay").classList.add("visible");
+      }).catch(() => {
+        // Server not available (static mode) — download as file
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "feedback.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById("done-overlay").classList.add("visible");
+      });
+    }
+
+    function closeDoneDialog() {
+      // Reset status back to in_progress
+      saveCurrentFeedback();
+      document.getElementById("done-overlay").classList.remove("visible");
+    }
+
+    // ---- Toast ----
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2000);
+    }
+
+    // ---- Keyboard nav ----
+    document.addEventListener("keydown", (e) => {
+      // Don't capture when typing in textarea
+      if (e.target.tagName === "TEXTAREA") return;
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        navigate(-1);
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        navigate(1);
+      }
+    });
+
+    // ---- Util ----
+    function getDownloadUri(file) {
+      if (file.data_uri) return file.data_uri;
+      if (file.data_b64) return "data:application/octet-stream;base64," + file.data_b64;
+      if (file.type === "text") return "data:text/plain;charset=utf-8," + encodeURIComponent(file.content);
+      return "#";
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ---- View switching ----
+    function switchView(view) {
+      document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelector(`[onclick="switchView('${view}')"]`).classList.add("active");
+      document.getElementById("panel-" + view).classList.add("active");
+    }
+
+    // ---- Benchmark rendering ----
+    function renderBenchmark() {
+      const data = EMBEDDED_DATA.benchmark;
+      if (!data) return;
+
+      // Show the tabs
+      document.getElementById("view-tabs").style.display = "flex";
+
+      const container = document.getElementById("benchmark-content");
+      const summary = data.run_summary || {};
+      const metadata = data.metadata || {};
+      const notes = data.notes || [];
+
+      let html = "";
+
+      // Header
+      html += "<h2 style='font-family: Poppins, sans-serif; margin-bottom: 0.5rem;'>Benchmark Results</h2>";
+      html += "<p style='color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;'>";
+      if (metadata.skill_name) html += "<strong>" + escapeHtml(metadata.skill_name) + "</strong> &mdash; ";
+      if (metadata.timestamp) html += metadata.timestamp + " &mdash; ";
+      if (metadata.evals_run) html += "Evals: " + metadata.evals_run.join(", ") + " &mdash; ";
+      html += (metadata.runs_per_configuration || "?") + " runs per configuration";
+      html += "</p>";
+
+      // Summary table
+      html += '<table class="benchmark-table">';
+
+      function fmtStat(stat, pct) {
+        if (!stat) return "—";
+        const suffix = pct ? "%" : "";
+        const m = pct ? (stat.mean * 100).toFixed(0) : stat.mean.toFixed(1);
+        const s = pct ? (stat.stddev * 100).toFixed(0) : stat.stddev.toFixed(1);
+        return m + suffix + " ± " + s + suffix;
+      }
+
+      function deltaClass(val) {
+        if (!val) return "";
+        const n = parseFloat(val);
+        if (n > 0) return "benchmark-delta-positive";
+        if (n < 0) return "benchmark-delta-negative";
+        return "";
+      }
+
+      // Discover config names dynamically (everything except "delta")
+      const configs = Object.keys(summary).filter(k => k !== "delta");
+      const configA = configs[0] || "config_a";
+      const configB = configs[1] || "config_b";
+      const labelA = configA.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const labelB = configB.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const a = summary[configA] || {};
+      const b = summary[configB] || {};
+      const delta = summary.delta || {};
+
+      html += "<thead><tr><th>Metric</th><th>" + escapeHtml(labelA) + "</th><th>" + escapeHtml(labelB) + "</th><th>Delta</th></tr></thead>";
+      html += "<tbody>";
+
+      html += "<tr><td><strong>Pass Rate</strong></td>";
+      html += "<td>" + fmtStat(a.pass_rate, true) + "</td>";
+      html += "<td>" + fmtStat(b.pass_rate, true) + "</td>";
+      html += '<td class="' + deltaClass(delta.pass_rate) + '">' + (delta.pass_rate || "—") + "</td></tr>";
+
+      // Time (only show row if data exists)
+      if (a.time_seconds || b.time_seconds) {
+        html += "<tr><td><strong>Time (s)</strong></td>";
+        html += "<td>" + fmtStat(a.time_seconds, false) + "</td>";
+        html += "<td>" + fmtStat(b.time_seconds, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.time_seconds) + '">' + (delta.time_seconds ? delta.time_seconds + "s" : "—") + "</td></tr>";
+      }
+
+      // Tokens (only show row if data exists)
+      if (a.tokens || b.tokens) {
+        html += "<tr><td><strong>Tokens</strong></td>";
+        html += "<td>" + fmtStat(a.tokens, false) + "</td>";
+        html += "<td>" + fmtStat(b.tokens, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.tokens) + '">' + (delta.tokens || "—") + "</td></tr>";
+      }
+
+      html += "</tbody></table>";
+
+      // Per-eval breakdown (if runs data available)
+      const runs = data.runs || [];
+      if (runs.length > 0) {
+        const evalIds = [...new Set(runs.map(r => r.eval_id))].sort((a, b) => a - b);
+
+        html += "<h3 style='font-family: Poppins, sans-serif; margin-bottom: 0.75rem;'>Per-Eval Breakdown</h3>";
+
+        const hasTime = runs.some(r => r.result && r.result.time_seconds != null);
+        const hasErrors = runs.some(r => r.result && r.result.errors > 0);
+
+        for (const evalId of evalIds) {
+          const evalRuns = runs.filter(r => r.eval_id === evalId);
+          const evalName = evalRuns[0] && evalRuns[0].eval_name ? evalRuns[0].eval_name : "Eval " + evalId;
+
+          html += "<h4 style='font-family: Poppins, sans-serif; margin: 1rem 0 0.5rem; color: var(--text);'>" + escapeHtml(evalName) + "</h4>";
+          html += '<table class="benchmark-table">';
+          html += "<thead><tr><th>Config</th><th>Run</th><th>Pass Rate</th>";
+          if (hasTime) html += "<th>Time (s)</th>";
+          if (hasErrors) html += "<th>Crashes During Execution</th>";
+          html += "</tr></thead>";
+          html += "<tbody>";
+
+          // Group by config and render with average rows
+          const configGroups = [...new Set(evalRuns.map(r => r.configuration))];
+          for (let ci = 0; ci < configGroups.length; ci++) {
+            const config = configGroups[ci];
+            const configRuns = evalRuns.filter(r => r.configuration === config);
+            if (configRuns.length === 0) continue;
+
+            const rowClass = ci === 0 ? "benchmark-row-with" : "benchmark-row-without";
+            const configLabel = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+            for (const run of configRuns) {
+              const r = run.result || {};
+              const prClass = r.pass_rate >= 0.8 ? "benchmark-delta-positive" : r.pass_rate < 0.5 ? "benchmark-delta-negative" : "";
+              html += '<tr class="' + rowClass + '">';
+              html += "<td>" + configLabel + "</td>";
+              html += "<td>" + run.run_number + "</td>";
+              html += '<td class="' + prClass + '">' + ((r.pass_rate || 0) * 100).toFixed(0) + "% (" + (r.passed || 0) + "/" + (r.total || 0) + ")</td>";
+              if (hasTime) html += "<td>" + (r.time_seconds != null ? r.time_seconds.toFixed(1) : "—") + "</td>";
+              if (hasErrors) html += "<td>" + (r.errors || 0) + "</td>";
+              html += "</tr>";
+            }
+
+            // Average row
+            const rates = configRuns.map(r => (r.result || {}).pass_rate || 0);
+            const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+            const avgPrClass = avgRate >= 0.8 ? "benchmark-delta-positive" : avgRate < 0.5 ? "benchmark-delta-negative" : "";
+            html += '<tr class="benchmark-row-avg ' + rowClass + '">';
+            html += "<td>" + configLabel + "</td>";
+            html += "<td>Avg</td>";
+            html += '<td class="' + avgPrClass + '">' + (avgRate * 100).toFixed(0) + "%</td>";
+            if (hasTime) {
+              const times = configRuns.map(r => (r.result || {}).time_seconds).filter(t => t != null);
+              html += "<td>" + (times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : "—") + "</td>";
+            }
+            if (hasErrors) html += "<td></td>";
+            html += "</tr>";
+          }
+          html += "</tbody></table>";
+
+          // Per-assertion detail for this eval
+          const runsWithExpectations = {};
+          for (const config of configGroups) {
+            runsWithExpectations[config] = evalRuns.filter(r => r.configuration === config && r.expectations && r.expectations.length > 0);
+          }
+          const hasAnyExpectations = Object.values(runsWithExpectations).some(runs => runs.length > 0);
+          if (hasAnyExpectations) {
+            // Collect all unique assertion texts across all configs
+            const allAssertions = [];
+            const seen = new Set();
+            for (const config of configGroups) {
+              for (const run of runsWithExpectations[config]) {
+                for (const exp of (run.expectations || [])) {
+                  if (!seen.has(exp.text)) {
+                    seen.add(exp.text);
+                    allAssertions.push(exp.text);
+                  }
+                }
+              }
+            }
+
+            html += '<table class="benchmark-table" style="margin-top: 0.5rem;">';
+            html += "<thead><tr><th>Assertion</th>";
+            for (const config of configGroups) {
+              const label = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+              html += "<th>" + escapeHtml(label) + "</th>";
+            }
+            html += "</tr></thead><tbody>";
+
+            for (const assertionText of allAssertions) {
+              html += "<tr><td>" + escapeHtml(assertionText) + "</td>";
+
+              for (const config of configGroups) {
+                html += "<td>";
+                for (const run of runsWithExpectations[config]) {
+                  const exp = (run.expectations || []).find(e => e.text === assertionText);
+                  if (exp) {
+                    const cls = exp.passed ? "benchmark-delta-positive" : "benchmark-delta-negative";
+                    const icon = exp.passed ? "\u2713" : "\u2717";
+                    html += '<span class="' + cls + '" title="Run ' + run.run_number + ': ' + escapeHtml(exp.evidence || "") + '">' + icon + "</span> ";
+                  } else {
+                    html += "— ";
+                  }
+                }
+                html += "</td>";
+              }
+              html += "</tr>";
+            }
+            html += "</tbody></table>";
+          }
+        }
+      }
+
+      // Notes
+      if (notes.length > 0) {
+        html += '<div class="benchmark-notes">';
+        html += "<h3>Analysis Notes</h3>";
+        html += "<ul>";
+        for (const note of notes) {
+          html += "<li>" + escapeHtml(note) + "</li>";
+        }
+        html += "</ul></div>";
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ---- Start ----
+    init();
+    renderBenchmark();
+  </script>
+</body>
+</html>

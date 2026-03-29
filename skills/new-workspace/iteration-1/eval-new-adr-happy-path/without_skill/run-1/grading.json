@@ -1,0 +1,30 @@
+{
+  "expectations": [
+    {
+      "text": "adr-file-created",
+      "passed": true,
+      "evidence": "Agent produced ADR with frontmatter; reverse-engineered format from existing fixture"
+    },
+    {
+      "text": "has-two-options",
+      "passed": true,
+      "evidence": "Two options with pros/cons included"
+    },
+    {
+      "text": "post-review-ran",
+      "passed": false,
+      "evidence": "No validation pass ran. Agent noted: 'no rule validation pass, correctness was best-effort from engineering judgment'"
+    },
+    {
+      "text": "impact-propagation-triggered",
+      "passed": false,
+      "evidence": "No impact propagation step \u2014 not part of baseline behavior"
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.5,
+    "passed": 2,
+    "failed": 2,
+    "total": 4
+  }
+}

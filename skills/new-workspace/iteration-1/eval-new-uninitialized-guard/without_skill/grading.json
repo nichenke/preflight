@@ -1,0 +1,4 @@
+{"expectations":[
+  {"text":"guard-fires","passed":false,"evidence":"No guard — baseline would proceed to generate ADR using training-data defaults with no initialization check"},
+  {"text":"no-elicitation","passed":false,"evidence":"Baseline has no guard mechanism; would proceed without checks"}
+]}

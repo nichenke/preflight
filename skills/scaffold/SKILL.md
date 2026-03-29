@@ -9,13 +9,15 @@ Bootstrap or update a project's spec-driven development structure.
 
 ## 0. Resolve plugin root
 
-Run the following Bash command to verify `${CLAUDE_PLUGIN_ROOT}` is set:
+Run the following Bash command to verify the plugin content is reachable:
 
 ```bash
-echo "$CLAUDE_PLUGIN_ROOT"
+if [ -z "${CLAUDE_PLUGIN_ROOT}" ]; then echo "PLUGIN_ROOT_NOT_SET"; elif [ -d "${CLAUDE_PLUGIN_ROOT}/content" ]; then echo "OK"; else echo "CONTENT_PATH_MISSING"; fi
 ```
 
-If the output is empty or the variable is unset, stop and tell the user: "CLAUDE_PLUGIN_ROOT is not set. This skill requires the preflight plugin to be installed in Claude Code."
+- `OK` → proceed.
+- `PLUGIN_ROOT_NOT_SET` → stop and tell the user: "CLAUDE_PLUGIN_ROOT is not set. The preflight plugin may not be installed correctly — try restarting Claude Code."
+- `CONTENT_PATH_MISSING` → stop and tell the user: "Plugin content directory not found at ${CLAUDE_PLUGIN_ROOT}/content. The preflight plugin may not be installed correctly."
 
 ## 1. Detect current state
 
@@ -38,24 +40,16 @@ If the user accepts the default or gives no answer, use `docs/`. Store the chose
 
 ### 2.2 Create .preflight/ framework content
 
-Create the `.preflight/` directory structure and populate it from plugin content. Do NOT hardcode file lists — use Glob to enumerate source files so new content is picked up automatically.
+Use Bash to copy framework content from the plugin into `.preflight/`:
 
-**Templates:**
-1. Glob `${CLAUDE_PLUGIN_ROOT}/content/templates/*`
-2. Create `.preflight/_templates/` with `mkdir -p`
-3. For each file found: Read it, Write it to `.preflight/_templates/{filename}`
+```bash
+mkdir -p .preflight/_templates .preflight/_rules .preflight/_reference
+cp ${CLAUDE_PLUGIN_ROOT}/content/templates/* .preflight/_templates/
+cp ${CLAUDE_PLUGIN_ROOT}/content/rules-source/* .preflight/_rules/
+cp ${CLAUDE_PLUGIN_ROOT}/content/reference/* .preflight/_reference/
+```
 
-Note: `.preflight/_templates/` is a read-only reference copy for humans to browse (CONST-CI-02). The single source of truth is `content/templates/` in the plugin. Never edit files in `.preflight/_templates/` directly — run `/preflight scaffold` to update them from the plugin.
-
-**Rules:**
-1. Glob `${CLAUDE_PLUGIN_ROOT}/content/rules-source/*`
-2. Create `.preflight/_rules/` with `mkdir -p`
-3. For each file found: Read it, Write it to `.preflight/_rules/{filename}`
-
-**Reference:**
-1. Glob `${CLAUDE_PLUGIN_ROOT}/content/reference/*`
-2. Create `.preflight/_reference/` with `mkdir -p`
-3. For each file found: Read it, Write it to `.preflight/_reference/{filename}`
+Note: `.preflight/_templates/`, `_rules/`, and `_reference/` are read-only reference copies for humans to browse (CONST-CI-02). The single source of truth is `content/` in the plugin. Never edit files in `.preflight/` directly — run `/preflight scaffold` to update them from the plugin.
 
 ### 2.3 Create project docs
 
@@ -159,7 +153,7 @@ Present all new and changed files as a list. Ask the user which changes to apply
 - Accept individually (list each file)
 - Skip all
 
-For accepted changes: Read the source file, Write it to the `.preflight/` destination.
+For accepted changes: use Bash `cp ${CLAUDE_PLUGIN_ROOT}/content/{category}/{file} .preflight/{subdir}/{file}` to copy each accepted file.
 
 ### 3.4 Update .claude/rules/preflight.md
 

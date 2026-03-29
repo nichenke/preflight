@@ -1,0 +1,77 @@
+## Review: adr-002-valid-decision.md (Baseline, No Skill)
+
+**Method:** Ad hoc review — no rules framework, no .preflight/ loaded, no rule IDs
+
+---
+
+### Overall assessment
+
+This ADR is well-structured and substantive. It follows MADR format closely and provides
+genuine decision-making value. The issues below are genuine quality gaps, not formatting
+nitpicks.
+
+---
+
+### Issues found
+
+**High: Missing explicit link between NFR-002 and the Confirmation section**
+
+The "More Information" footer references NFR-002 in `docs/requirements.md` for latency
+targets, and the Confirmation section includes a latency target (p95 < 200ms). These are
+the same requirement, but they are not explicitly connected — the Confirmation section
+does not cite NFR-002. A reviewer cannot verify that the confirmation criterion is
+derived from the stated requirement without cross-referencing. The confirmation criterion
+should cite NFR-002 directly, e.g., "Analytics query p95 latency < 200ms (per NFR-002)".
+
+**Medium: RFC-001 reference is dangling**
+
+The footer references "Migration plan tracked in RFC-001" but RFC-001 is not summarized
+or linked. A reader cannot tell whether RFC-001 exists, whether it was accepted, or what
+the migration plan's current status is. The ADR should include the RFC's current status
+(Accepted/Superseded/etc.) and, if possible, a relative path.
+
+**Medium: Confirmation criteria mix post-hoc verification with forward-looking targets**
+
+The ADR status is "Accepted" with date 2026-03-15. The Confirmation section includes
+"Migration complete with zero data loss (verified via row counts and spot-checks)" —
+written in the past tense as if already done — alongside "No regulatory findings related
+to transaction integrity at next audit" which is clearly future-looking. It is ambiguous
+whether the migration was already complete at the time of acceptance or whether these are
+success criteria to be verified later. The section should be consistent: either mark
+criteria as future ("shall verify") or explicitly state which have already been
+validated.
+
+**Low: "Neutral" consequence is vague**
+
+"Neutral, because team training on PostgreSQL-specific features (JSONB, window functions)
+needed" does not say who owns the training, what the scope is, or when it will happen.
+As written it is an observation, not an actionable consequence. Either promote it to a
+Bad consequence (it has a real cost) or attach an owner/timeline.
+
+**Low: Decision Drivers lack prioritization**
+
+Four decision drivers are listed with no indication of which are hard requirements versus
+preferences. "ACID compliance required for financial transaction records (regulatory)" is
+a hard constraint — it eliminates MongoDB and MySQL arguably on its own. "Team has strong
+SQL expertise" is a preference. The drivers would be more useful to future readers if
+they were ordered or tagged (hard constraint vs. preference), since that affects whether
+the decision remains sound if team composition changes.
+
+---
+
+### What is working well
+
+- Three options considered with genuine tradeoffs for each — not a pro-forma rubber stamp
+- Chosen option reasoning is explicit and directly maps to the decision drivers
+- Consequences section covers good/bad/neutral and is specific
+- Frontmatter is complete: status, date, deciders, consulted, informed, type, version, owner
+- The ADR is self-contained — a new team member could read it and understand the decision
+
+---
+
+### Summary
+
+5 issues: 1 High, 2 Medium, 2 Low. No blocking defects. The High issue (NFR-002 citation
+gap in Confirmation) and the RFC-001 status ambiguity are the only items worth fixing
+before this ADR is referenced in downstream documents. The document is substantively
+sound.

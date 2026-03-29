@@ -1,0 +1,11 @@
+{
+  "eval_id": 1,
+  "eval_name": "scaffold-fresh-project",
+  "prompt": "Scaffold a fresh project with CLAUDE_PLUGIN_ROOT set — verify full structure created",
+  "assertions": [
+    {"name": "preflight-dir-created", "description": ".preflight/_templates/, _rules/, _reference/ all created with files"},
+    {"name": "config-written", "description": ".preflight/config.yml contains docs_dir"},
+    {"name": "skeleton-docs-created", "description": "docs/constitution.md, glossary.md, decisions/adrs/adr-001 created"},
+    {"name": "rules-file-created", "description": ".claude/rules/preflight.md written with correct docs/ paths"}
+  ]
+}

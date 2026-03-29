@@ -1,0 +1,20 @@
+## Post-creation review: adr-001-use-sidekiq-for-background-jobs.md
+
+### Auto-fixed (Errors)
+- ADR-R01: status was "Draft" — not in the allowed enum (Proposed, Accepted, Deprecated, Superseded). Auto-fixed to "Proposed".
+
+### Warnings (user action needed)
+- ADR-R02: Decision Outcome uses passive "Chosen option:" phrasing rather than active voice ("We will use Sidekiq..."). Consider rewriting the opening sentence to use active voice per MADR convention.
+
+### Result: 1 auto-fixed, 1 warning
+
+---
+
+## Impact propagation from ADR-001
+
+### requirements.md
+- No changes applied — existing requirements.md is scoped to User Authentication Service and does not cover background job processing. The ADR implies new requirements (async job processing, Redis availability SLA) that belong in a separate requirements document or a new section for the jobs subsystem.
+
+### Untraced consequences
+- The ADR consequence "Redis uptime becomes a dependency for job processing availability" is not reflected in any downstream doc. Consider adding an NFR for Redis availability to requirements.md, or creating a dedicated background-jobs requirements document.
+- The Confirmation criteria (zero dropped jobs, Grafana queue depth alert) are not traceable to any existing NFR — consider adding NFR-005 to requirements.md once the background jobs scope is formalized.

@@ -1,0 +1,57 @@
+## Review: docs/requirements.md
+Document type: requirements
+Rules checked: universal-rules.md, requirements-rules.md, cross-doc-rules.md
+
+---
+
+## Errors
+
+### Error: REQ-R02
+**Violation:** Three requirements have no unique, stable ID. Lines 19, 23, and 25 contain requirements that are missing IDs entirely:
+- Line 19: "The system should also allow users to reset their passwords by clicking a link in their email."
+- Line 23: "Users can log out and their session should be invalidated immediately."
+- Line 25: "The system needs to support multi-factor authentication for admin accounts."
+Additionally, the sequence FR-001, FR-003, FR-006 skips FR-002, FR-004, and FR-005, suggesting these missing IDs were either never assigned or were deleted without renumbering — both violate the "never reused" and "stable ID" requirements.
+**Fix:** Assign unique FR IDs to the three unnumbered requirements (e.g., FR-002, FR-004, FR-005). Do not reuse any previously assigned ID, even for deleted requirements. Renumber only if IDs were never published; otherwise leave gaps.
+
+---
+
+## Warnings
+
+### Warning: REQ-R01
+**Violation:** Three requirements lack EARS (Easy Approach to Requirements Syntax) notation — they have no trigger keyword ("When", "While", "Where", "If") and use weak modal verbs instead of "shall":
+- Line 19: "The system should also allow users to reset their passwords..." — missing trigger and uses "should"
+- Line 23: "Users can log out and their session should be invalidated immediately." — missing trigger and uses "can"/"should"
+- Line 25: "The system needs to support multi-factor authentication for admin accounts." — missing trigger and uses "needs to"
+**Fix:** Rewrite each as an EARS statement. Example for line 19: "When a user requests a password reset, the system shall send a reset link to the user's registered email address."
+
+### Warning: REQ-R04
+**Violation:** Three NFRs lack quantitative acceptance criteria:
+- NFR-001: "shall be fast and responsive under load" — no latency target, no load level, no percentile
+- NFR-002: "shall maintain high availability at all times" — no SLA percentage, no measurement window
+- NFR-003: "All passwords must be stored securely using appropriate hashing" — no algorithm specification or minimum work factor
+NFR-004 is the only NFR that satisfies REQ-R04 (200ms p95 at 500 concurrent requests, staging environment).
+**Fix:** Add measurable targets to each NFR. Example for NFR-001: "The authentication endpoint shall respond within 150ms at the p95 percentile under a load of 200 concurrent requests." Example for NFR-002: "The authentication service shall achieve 99.9% uptime, measured over a rolling 30-day window."
+
+### Warning: REQ-R05
+**Violation:** The password reset journey (line 19) has no failure mode documented. No section addresses what happens when the reset email fails to deliver, when the reset link expires, or when the link is reused.
+**Fix:** Add failure mode coverage for the password reset journey: document behavior for expired links, delivery failures, and token reuse attempts.
+
+### Warning: REQ-R06
+**Violation:** The document has no success measures section. There is no baseline, target, or measurement method defined for any functional or non-functional goal.
+**Fix:** Add a "Success Measures" section with at minimum: current baseline (e.g., current auth latency), target state (e.g., p95 < 200ms), and how it will be measured (e.g., load test in staging, 30-day production window).
+
+### Warning: UNIV-04
+**Violation:** Three NFRs use vague adjectives without quantification (also flagged under REQ-R04, but independently violates UNIV-04):
+- NFR-001: "fast and responsive"
+- NFR-002: "high availability"
+- NFR-003: "securely" and "appropriate hashing"
+**Fix:** Replace vague adjectives with measurable thresholds. See REQ-R04 fix suggestions above.
+
+### Warning: XDOC-09
+**Violation:** Most FR and NFR IDs in this document are not referenced by any architecture component, ADR, or test. Of the named IDs (FR-001, FR-003, FR-006, NFR-001, NFR-002, NFR-003, NFR-004), only NFR-002 is referenced in an ADR (adr-002-valid-decision.md). No architecture doc or test strategy exists that maps to any requirement.
+**Fix:** After creating the architecture doc and test strategy, ensure each FR and NFR is referenced by at least one of: an architecture component, a test case mapping, or an ADR. This cross-doc check should be re-run once those documents exist.
+
+---
+
+**Result: 1 Error, 6 Warnings**

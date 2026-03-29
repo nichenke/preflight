@@ -1,0 +1,117 @@
+Manual review of docs/requirements.md (no rules framework)
+============================================================
+Reviewer: Claude (baseline, no skill)
+File: skills/test-fixtures/scaffolded-project/docs/requirements.md
+Date: 2026-03-29
+
+---
+
+## Overall assessment
+
+The document is structurally sound and generally well-written. The EARS-style
+requirement statements (When <trigger>, the system shall <response>) are used
+consistently for FRs. Most requirements are atomic and testable. However, there
+are quality issues across completeness, precision, and internal consistency.
+
+---
+
+## Issues found
+
+### High severity
+
+1. NFR-001 duplicates latency already captured in FR-001/FR-002/FR-003
+   FR-001 through FR-003 each specify "within 30 seconds" as part of the
+   functional trigger→response. NFR-001 restates the same bound as a
+   non-functional requirement without adding new information (it adds "p99"
+   and "under normal operating conditions" but those qualifiers are absent
+   from the FRs). This creates a contradiction: the FRs are unconditional
+   ("shall deliver within 30 seconds"), but NFR-001 makes the constraint
+   conditional on normal operating conditions. One of these must be the
+   authoritative specification; having both creates ambiguity for
+   implementation and test planning.
+
+   Recommendation: Remove the latency bound from the FRs or add the p99/
+   normal-conditions qualifier there too, and let NFR-001 be the single
+   source for latency requirements.
+
+2. No acceptance criteria or measurability for NFR-002 (delivery rate)
+   "99.9% delivery rate measured over a rolling 30-day window" is stated, but
+   the denominator is undefined. 99.9% of what? Attempted deliveries?
+   Notifications that entered the system? Notifications that were not
+   explicitly cancelled by the user? The measurement methodology is
+   unspecified, making this requirement untestable as written.
+
+3. FR-006 is underspecified for retry behavior
+   "Exponential backoff" and "exhausting retries" are stated without any
+   bounds. There is no maximum retry count, no maximum backoff interval, and
+   no total time-to-failure defined. This leaves the implementation free to
+   retry for seconds or hours — both would satisfy the stated requirement.
+   A retry that spans hours would violate the spirit of the 30-second
+   delivery SLA but not the letter of FR-006.
+
+### Medium severity
+
+4. NFR-003 does not define "degradation"
+   "Without degradation in delivery latency or delivery rate" references two
+   metrics that are defined elsewhere (30 seconds, 99.9%), but the document
+   does not say whether NFR-003 requires the full SLA to hold at peak load or
+   merely that no additional degradation occurs relative to normal load. This
+   matters: if normal load achieves p95 < 5 seconds, does NFR-003 require
+   that to hold at 10k/min, or only that p99 stays under 30 seconds?
+
+5. FR-007 (user preferences) lacks scope definition
+   "Per-channel preferences, including enabling or disabling individual
+   notification types per channel" — "notification types" is not defined
+   anywhere in the document. The triggering events (message, task completion,
+   system alert) are implicitly the types, but this is never stated. If a
+   user disables "task" notifications for email, does FR-002 still apply? The
+   relationship between FR-007 and FR-001/FR-002/FR-003 is unspecified.
+
+6. Missing requirement: notification persistence / read state
+   The document specifies in-app notification delivery (FR-005) but says
+   nothing about whether notifications are stored, for how long, or whether
+   read/unread state is tracked. This is a significant omission for an in-app
+   channel — clients polling (per assumptions) need something to poll against.
+
+7. Assumption about event publishing is load-bearing and untested
+   The third assumption ("Triggering events are published as structured events
+   the notification service can consume") is an architectural dependency that
+   should be a constraint or a dependency, not an assumption. If this is not
+   true, the entire notification system cannot function. Assumptions should be
+   things that are plausible and low-risk to assume; this one, if wrong,
+   invalidates the design.
+
+### Low severity
+
+8. No versioning policy for preferences (FR-007)
+   It is unstated what happens to existing user preferences when new
+   notification types are added in future versions. This is an edge case but
+   worth noting as a gap for v1 design.
+
+9. "Approved transactional email provider" in Constraints is not actionable
+   The constraint names two examples (SendGrid, SES) but provides no
+   mechanism for determining what is "approved." This is aspirational rather
+   than constraining — a team could use an unapproved provider and argue the
+   constraint is subjective.
+
+10. Document version is 0.1.0 but status is Draft
+    Minor: the version/status combination is fine, but there is no review or
+    approval workflow defined in the metadata. For a requirements document
+    being used to drive design, it is unclear who has authority to promote
+    this from Draft to an approved state.
+
+---
+
+## Summary of findings
+
+| Severity | Count | Items                              |
+|----------|-------|------------------------------------|
+| High     | 3     | #1, #2, #3                         |
+| Medium   | 4     | #4, #5, #6, #7                     |
+| Low      | 3     | #8, #9, #10                        |
+
+The most critical fixes before this document drives design work:
+- Resolve the FR/NFR latency contradiction (#1)
+- Define the delivery rate denominator for NFR-002 (#2)
+- Add retry bounds to FR-006 (#3)
+- Elevate the event publishing dependency from assumption to constraint (#7)

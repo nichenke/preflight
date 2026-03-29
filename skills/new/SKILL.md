@@ -7,15 +7,15 @@ description: Create a new spec document with guided elicitation — walks throug
 
 Create a spec document by walking the user through structured elicitation, one question (or small group of related questions) at a time. Write the completed document and run an automated review.
 
-## 0. Resolve plugin root
+## 0. Verify project is initialized
 
-Run the following Bash command to verify `${CLAUDE_PLUGIN_ROOT}` is set:
+Run the following Bash command to verify the project has been scaffolded:
 
 ```bash
-echo "$CLAUDE_PLUGIN_ROOT"
+test -d .preflight/_templates && echo "OK" || echo "NOT_INITIALIZED"
 ```
 
-If the output is empty or the variable is unset, stop and tell the user: "CLAUDE_PLUGIN_ROOT is not set. This skill requires the preflight plugin to be installed in Claude Code."
+If the output is `NOT_INITIALIZED`, stop and tell the user: "No `.preflight/_templates/` directory found. Run `/preflight scaffold` first to initialize the project."
 
 ## 1. Resolve docs directory
 
@@ -74,7 +74,7 @@ Wait for the user's decision before proceeding.
 
 ## 4. Load the template
 
-Read the template from `${CLAUDE_PLUGIN_ROOT}/content/templates/{type}-template.md`. Use it to understand the target document structure — do NOT paste the template verbatim. The elicitation flow below builds the document section by section from the user's answers.
+Read the template from `.preflight/_templates/{type}-template.md`. Use it to understand the target document structure — do NOT paste the template verbatim. The elicitation flow below builds the document section by section from the user's answers.
 
 ## 5. Elicitation flows
 
@@ -356,7 +356,7 @@ After writing the document, run an automated review using rules from the **plugi
 
 ### 8.1 Load rules
 
-Read from `${CLAUDE_PLUGIN_ROOT}/content/rules-source/`:
+Read from `.preflight/_rules/`:
 
 **Always load:**
 - `universal-rules.md`
