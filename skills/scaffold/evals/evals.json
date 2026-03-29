@@ -1,0 +1,17 @@
+{
+  "skill_name": "scaffold",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "You are testing the /preflight scaffold skill. CLAUDE_PLUGIN_ROOT is set to /Users/nic/src/ai-home/pm-framework/.worktrees/plugin-conversion — export this before any bash commands: export CLAUDE_PLUGIN_ROOT=/Users/nic/src/ai-home/pm-framework/.worktrees/plugin-conversion\n\nCreate a fresh project directory at /tmp/preflight-scaffold-eval/ (use mkdir -p). Use that as your working directory for all file operations.\n\nRun /preflight scaffold. When asked for the docs directory, accept the default (docs/).\n\nAfter scaffolding completes, save:\n1. Directory listing of .preflight/ to outputs/preflight-structure.txt\n2. Contents of .preflight/config.yml to outputs/config.txt\n3. Contents of .claude/rules/preflight.md to outputs/rules-file.txt\n4. Directory listing of docs/ to outputs/docs-structure.txt",
+      "expected_output": ".preflight/_templates/, _rules/, _reference/ all created with files. .preflight/config.yml contains docs_dir: docs/. .claude/rules/preflight.md exists with EARS reference table and docs/ paths. docs/ contains constitution.md, glossary.md, decisions/adrs/adr-001-use-preflight.md.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "You are testing the /preflight scaffold skill's plugin-root guard. Do NOT export CLAUDE_PLUGIN_ROOT — it should be unset or empty.\n\nCreate a fresh project directory at /tmp/preflight-scaffold-guard/ (use mkdir -p). Use that as your working directory.\n\nRun /preflight scaffold. The skill should detect that CLAUDE_PLUGIN_ROOT is not set (content directory not reachable) and stop immediately with a clear error message.\n\nSave the skill's response/output to outputs/guard-output.txt",
+      "expected_output": "Skill stops at Step 0. Reports that plugin content directory was not found and tells the user the plugin may not be installed correctly. Does NOT create any directories or files.",
+      "files": []
+    }
+  ]
+}
