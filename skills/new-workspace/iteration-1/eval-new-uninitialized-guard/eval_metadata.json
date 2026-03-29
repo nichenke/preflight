@@ -1,9 +1,0 @@
-{
-  "eval_id": 3,
-  "eval_name": "new-uninitialized-guard",
-  "prompt": "Run new skill in uninitialized project — expect Step 0 guard to stop it",
-  "assertions": [
-    {"name": "guard-fires", "description": "guard-output.txt tells user to run /preflight scaffold"},
-    {"name": "no-elicitation", "description": "Skill does not proceed to ask doc type or elicitation questions"}
-  ]
-}

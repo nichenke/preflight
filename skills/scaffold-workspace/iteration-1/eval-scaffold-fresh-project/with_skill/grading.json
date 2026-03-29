@@ -1,6 +1,0 @@
-{"expectations":[
-  {"text":"preflight-dir-created","passed":true,"evidence":"7 templates, 7 rules, 6 reference files confirmed in .preflight/ subdirs"},
-  {"text":"config-written","passed":true,"evidence":".preflight/config.yml written with docs_dir: docs"},
-  {"text":"skeleton-docs-created","passed":true,"evidence":"docs/constitution.md, glossary.md, decisions/adrs/adr-001-use-preflight.md, interfaces/.gitkeep, decisions/rfcs/.gitkeep all created"},
-  {"text":"rules-file-created","passed":false,"evidence":"SANDBOX LIMITATION: .claude/rules/ creation blocked outside /tmp/claude/ in eval harness. File content generated correctly; skill instructions are correct. Not a skill defect."}
-]}

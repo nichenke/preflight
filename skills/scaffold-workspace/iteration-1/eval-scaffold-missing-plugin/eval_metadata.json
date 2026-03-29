@@ -1,9 +1,0 @@
-{
-  "eval_id": 2,
-  "eval_name": "scaffold-missing-plugin",
-  "prompt": "Run scaffold without CLAUDE_PLUGIN_ROOT — expect Step 0 guard error",
-  "assertions": [
-    {"name": "guard-fires", "description": "guard-output.txt contains error about plugin content not found"},
-    {"name": "no-dirs-created", "description": "No .preflight/ directory created in project"}
-  ]
-}

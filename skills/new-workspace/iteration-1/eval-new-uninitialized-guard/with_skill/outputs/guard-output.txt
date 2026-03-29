@@ -1,1 +1,0 @@
-No `.preflight/_templates/` directory found. Run `/preflight scaffold` first to initialize the project.

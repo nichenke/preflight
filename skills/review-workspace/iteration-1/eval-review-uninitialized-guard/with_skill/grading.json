@@ -1,4 +1,0 @@
-{"expectations":[
-  {"text":"guard-fires","passed":true,"evidence":"Section 4.0 test -d .preflight/_rules/ returned MISSING; skill halted with 'Run /preflight scaffold first'"},
-  {"text":"no-rules-loaded","passed":true,"evidence":"Skill stopped before loading any rules or evaluating any document"}
-]}

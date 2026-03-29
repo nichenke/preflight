@@ -1,5 +1,0 @@
-/tmp/preflight-scaffold-eval/docs/constitution.md
-/tmp/preflight-scaffold-eval/docs/decisions/adrs/adr-001-use-preflight.md
-/tmp/preflight-scaffold-eval/docs/decisions/rfcs/.gitkeep
-/tmp/preflight-scaffold-eval/docs/glossary.md
-/tmp/preflight-scaffold-eval/docs/interfaces/.gitkeep

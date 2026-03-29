@@ -1,3 +1,6 @@
 .worktrees/
 .claude/*.local.md
 .claude/*.local.json
+
+# Skill eval run artifacts
+skills/*-workspace/

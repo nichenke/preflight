@@ -1,5 +1,0 @@
-{"expectations":[
-  {"text":"result-pass","passed":true,"evidence":"Result: PASS — 0 Errors, 2 Warnings"},
-  {"text":"no-false-error","passed":true,"evidence":"Zero Error findings on a well-formed ADR"},
-  {"text":"rule-ids-cited","passed":true,"evidence":"Warnings cite ADR-R02 (passive framing) and UNIV-04 (vague adjectives)"}
-]}
