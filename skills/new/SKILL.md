@@ -7,6 +7,16 @@ description: Create a new spec document with guided elicitation — walks throug
 
 Create a spec document by walking the user through structured elicitation, one question (or small group of related questions) at a time. Write the completed document and run an automated review.
 
+## 0. Resolve plugin root
+
+Run the following Bash command to verify `${CLAUDE_PLUGIN_ROOT}` is set:
+
+```bash
+echo "$CLAUDE_PLUGIN_ROOT"
+```
+
+If the output is empty or the variable is unset, stop and tell the user: "CLAUDE_PLUGIN_ROOT is not set. This skill requires the preflight plugin to be installed in Claude Code."
+
 ## 1. Resolve docs directory
 
 Read `.preflight/config.yml` and extract `docs_dir`. Default to `docs/` if the file is missing or `docs_dir` is absent.
@@ -42,7 +52,7 @@ These doc types have a fixed path — one file per project:
 
 ### Sequential (ADR, RFC)
 
-1. Use Glob to scan `{docs_dir}/decisions/adrs/adr-*.md` (or `rfcs/rfc-*.md`).
+1. Use Glob to scan `{docs_dir}/decisions/adrs/adr-*.md` (or `rfcs/rfc-*.md`). The directory may not exist yet — if Glob returns no results, treat that as "no files exist" and start at ID 1. Section 7.3 creates the directory with `mkdir -p` before writing.
 2. Parse filenames to find the highest existing ID number. If no files exist, start at 1.
 3. Increment by 1 to get the next ID.
 4. Ask the user for a short slug (lowercase-hyphenated, e.g., "use-postgres").
@@ -95,7 +105,7 @@ Review the journeys and extract behavioral requirements. For each, guide the use
 - **Ubiquitous:** "The system shall [response]." (no keyword — always true)
 - **Complex:** combine While + When for preconditioned events.
 
-Assign sequential IDs starting from FR-001 (or continuing from the highest existing FR-NNN in `{docs_dir}/requirements.md` if it already exists). Present each requirement back to the user for confirmation before moving on.
+Assign sequential IDs starting from FR-001. If `{docs_dir}/requirements.md` already exists, read it first and find the highest existing FR-NNN — new IDs must continue that sequence (e.g., if FR-023 is the highest, start new IDs at FR-024). Present each requirement back to the user for confirmation before moving on.
 
 After the initial set, ask: "Are there additional functional requirements we haven't covered?"
 
@@ -363,8 +373,9 @@ Read from `${CLAUDE_PLUGIN_ROOT}/content/rules-source/`:
 | interface-contract | (none — universal rules only) |
 | test-strategy | (none — universal rules only) |
 
-**Always load cross-doc rules:**
-- `cross-doc-rules.md`
+**Conditionally load cross-doc rules:**
+- Use Grep to search the newly written document for ID reference patterns: `FR-\d`, `NFR-\d`, `ADR-\d`, `CONST-[A-Z]`
+- If any matches are found, also read `cross-doc-rules.md`
 
 ### 8.2 Evaluate and fix
 

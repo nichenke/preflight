@@ -7,6 +7,16 @@ description: Bootstrap or update a project's preflight directory structure — c
 
 Bootstrap or update a project's spec-driven development structure.
 
+## 0. Resolve plugin root
+
+Run the following Bash command to verify `${CLAUDE_PLUGIN_ROOT}` is set:
+
+```bash
+echo "$CLAUDE_PLUGIN_ROOT"
+```
+
+If the output is empty or the variable is unset, stop and tell the user: "CLAUDE_PLUGIN_ROOT is not set. This skill requires the preflight plugin to be installed in Claude Code."
+
 ## 1. Detect current state
 
 Use Bash to check whether `.preflight/` exists in the current project root:
@@ -34,6 +44,8 @@ Create the `.preflight/` directory structure and populate it from plugin content
 1. Glob `${CLAUDE_PLUGIN_ROOT}/content/templates/*`
 2. Create `.preflight/_templates/` with `mkdir -p`
 3. For each file found: Read it, Write it to `.preflight/_templates/{filename}`
+
+Note: `.preflight/_templates/` is a read-only reference copy for humans to browse (CONST-CI-02). The single source of truth is `content/templates/` in the plugin. Never edit files in `.preflight/_templates/` directly — run `/preflight scaffold` to update them from the plugin.
 
 **Rules:**
 1. Glob `${CLAUDE_PLUGIN_ROOT}/content/rules-source/*`
@@ -132,7 +144,7 @@ For each content category (templates, rules, reference):
 1. Glob `${CLAUDE_PLUGIN_ROOT}/content/{category}/*` to get the source file list
 2. For each source file, Read the source and Read the corresponding `.preflight/` copy
 3. If the local copy does not exist → report it as a new file to add
-4. If the local copy differs from the source → show the diff to the user using Bash: `diff -u .preflight/{subdir}/{file} ${CLAUDE_PLUGIN_ROOT}/content/{category}/{file}`
+4. If the local copy differs from the source → show the diff to the user using Bash: `diff -u .preflight/{subdir}/{file} ${CLAUDE_PLUGIN_ROOT}/content/{category}/{file} || true`
 5. If identical → skip silently
 
 The category-to-directory mapping:
