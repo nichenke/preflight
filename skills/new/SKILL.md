@@ -74,7 +74,7 @@ Wait for the user's decision before proceeding.
 
 ## 4. Load the template
 
-Read the template from `.preflight/_templates/{type}-template.md`. Use it to understand the target document structure — do NOT paste the template verbatim. The elicitation flow below builds the document section by section from the user's answers.
+Read the template from `${CLAUDE_PLUGIN_ROOT}/content/templates/{type}-template.md`. Use it to understand the target document structure — do NOT paste the template verbatim. The elicitation flow below builds the document section by section from the user's answers.
 
 ## 5. Elicitation flows
 
@@ -356,7 +356,7 @@ After writing the document, run an automated review using rules from the **plugi
 
 ### 8.1 Load rules
 
-Read from `.preflight/_rules/`:
+Read from `${CLAUDE_PLUGIN_ROOT}/content/rules-source/`:
 
 **Always load:**
 - `universal-rules.md`
