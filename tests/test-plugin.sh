@@ -155,6 +155,41 @@ for skill in "${EXPECTED_SKILLS[@]}"; do
 done
 
 # ============================================================
+section "Commands"
+# ============================================================
+
+cmd_file="$PLUGIN_ROOT/commands/preflight.md"
+if [[ -f "$cmd_file" ]]; then
+  pass "commands/preflight.md exists"
+else
+  fail "commands/preflight.md missing"
+fi
+
+if [[ -f "$cmd_file" ]]; then
+  fm=$(sed -n '/^---$/,/^---$/p' "$cmd_file" | head -30)
+
+  if echo "$fm" | grep -q '^description:'; then
+    pass "commands/preflight.md has frontmatter description"
+  else
+    fail "commands/preflight.md missing frontmatter description"
+  fi
+
+  if echo "$fm" | grep -q 'arguments:'; then
+    pass "commands/preflight.md declares arguments"
+  else
+    fail "commands/preflight.md missing arguments declaration"
+  fi
+
+  for action in scaffold new review; do
+    if grep -q "$action" "$cmd_file"; then
+      pass "commands/preflight.md references action: $action"
+    else
+      fail "commands/preflight.md missing reference to action: $action"
+    fi
+  done
+fi
+
+# ============================================================
 section "Skill file references"
 # ============================================================
 
