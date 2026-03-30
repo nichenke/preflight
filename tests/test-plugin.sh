@@ -158,36 +158,28 @@ done
 section "Commands"
 # ============================================================
 
-cmd_file="$PLUGIN_ROOT/commands/preflight.md"
-if [[ -f "$cmd_file" ]]; then
-  pass "commands/preflight.md exists"
-else
-  fail "commands/preflight.md missing"
-fi
-
-if [[ -f "$cmd_file" ]]; then
-  fm=$(sed -n '/^---$/,/^---$/p' "$cmd_file" | head -30)
-
-  if echo "$fm" | grep -q '^description:'; then
-    pass "commands/preflight.md has frontmatter description"
+for cmd in scaffold new review; do
+  cmd_file="$PLUGIN_ROOT/commands/${cmd}.md"
+  if [[ -f "$cmd_file" ]]; then
+    pass "commands/${cmd}.md exists"
   else
-    fail "commands/preflight.md missing frontmatter description"
+    fail "commands/${cmd}.md missing"
   fi
 
-  if echo "$fm" | grep -q 'arguments:'; then
-    pass "commands/preflight.md declares arguments"
-  else
-    fail "commands/preflight.md missing arguments declaration"
-  fi
-
-  for action in scaffold new review; do
-    if grep -q "$action" "$cmd_file"; then
-      pass "commands/preflight.md references action: $action"
+  if [[ -f "$cmd_file" ]]; then
+    fm=$(sed -n '/^---$/,/^---$/p' "$cmd_file" | head -20)
+    if echo "$fm" | grep -q '^description:'; then
+      pass "commands/${cmd}.md has frontmatter description"
     else
-      fail "commands/preflight.md missing reference to action: $action"
+      fail "commands/${cmd}.md missing frontmatter description"
     fi
-  done
-fi
+    if grep -q "preflight:${cmd}" "$cmd_file"; then
+      pass "commands/${cmd}.md delegates to preflight:${cmd} skill"
+    else
+      fail "commands/${cmd}.md missing delegation to preflight:${cmd} skill"
+    fi
+  fi
+done
 
 # ============================================================
 section "Skill file references"
