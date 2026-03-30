@@ -245,7 +245,7 @@ fi
 section "Project docs preserved"
 # ============================================================
 
-for f in specs/constitution.md specs/requirements.md decisions/adrs/adr-002-convert-to-plugin.md decisions/adrs/adr-003-plugin-quality-gates.md; do
+for f in specs/constitution.md specs/requirements.md specs/decisions/adrs/adr-002-convert-to-plugin.md specs/decisions/adrs/adr-003-plugin-quality-gates.md; do
   if [[ -f "$PLUGIN_ROOT/$f" ]]; then
     pass "project doc: $f"
   else

@@ -15,19 +15,15 @@ content/
   rules-source/               # Review rules (copied to .preflight/_rules/)
   reference/                  # Framework reference material (copied to .preflight/_reference/)
   scaffolds/                  # Starter files for new projects
-specs/                        # This plugin's own specs (requirements, constitution)
-decisions/                    # This plugin's own ADRs and RFCs
+specs/                        # This plugin's own specs (requirements, constitution, decisions)
 docs/                         # Design docs and plans for this plugin
 tests/                        # Automated content integrity tests
 ```
 
 ## Before modifying plugin behavior
 
-1. Read `specs/constitution.md` — overrides everything
-2. Read `specs/requirements.md` — EARS requirements with FR/NFR IDs
-3. Read `decisions/adrs/` — accepted ADRs constrain choices
-4. Any behavioral change requires a version bump in plugin.json (CONST-PROC-01)
-5. Any behavioral requirement change requires an ADR (CONST-PROC-02)
+- Any behavioral change requires a version bump in plugin.json (CONST-PROC-01)
+- Any behavioral requirement change requires an ADR (CONST-PROC-02)
 
 ## Content files
 

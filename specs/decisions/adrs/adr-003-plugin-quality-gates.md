@@ -1,6 +1,8 @@
 ---
 status: Accepted
 date: 2026-03-28
+owner: nic
+version: 1.0.0
 deciders: [nic]
 consulted: []
 informed: []

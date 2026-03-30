@@ -2,8 +2,8 @@
 status: Draft
 version: 0.1.0
 owner: nic
+date: 2026-03-25
 stakeholders: []
-last_updated: 2026-03-25
 ---
 
 # Preflight — Requirements Specification
@@ -70,6 +70,9 @@ tested, and synced across the repo and any Notion upstream.
   4. Plugin creates the file in the correct location with filled frontmatter
 - Success: Well-structured document created in the right location
 - Failure: File already exists at target path — plugin reports and asks how to proceed
+- Failure: Unrecognized doc type — plugin asks for clarification
+- Failure: `.preflight/` directory missing — plugin directs user to run `/preflight scaffold` first
+- Failure: Elicitation abandoned mid-flow — no file created, no partial artifacts left behind
 
 ### Journey 3: Review a document
 
@@ -94,6 +97,20 @@ tested, and synced across the repo and any Notion upstream.
   5. Plugin never touches project-specific files (constitution, requirements, ADRs, etc.)
 - Success: Framework files updated, project files untouched
 - Failure: Merge conflicts in customized templates — plugin shows diff, user resolves
+- Failure: Plugin content directory missing — plugin reports installation issue and stops
+
+### Journey 5: Evolve framework content
+
+- Trigger: Plugin author needs to add or modify templates, rules, or reference material
+- Steps:
+  1. Author edits files in `content/` (single source of truth per CONST-CI-02)
+  2. Author runs content integrity tests to verify structure and frontmatter
+  3. Author bumps version in plugin.json (CONST-PROC-01)
+  4. Author runs `/preflight scaffold` locally to verify copy behavior
+  5. Author opens PR, passes plugin-dev validation and e2e tests
+- Success: Updated plugin released, existing projects pick up changes via `/preflight scaffold`
+- Failure: Content integrity tests fail — author fixes before proceeding
+- Failure: Behavioral change without ADR — PR review catches governance violation (CONST-PROC-02)
 
 ## 4. Functional Requirements
 
@@ -137,11 +154,11 @@ tested, and synced across the repo and any Notion upstream.
 - NFR-001: The plugin shall have no external dependencies — no npm, no pip, no binaries. All content is markdown files and shell scripts within the plugin directory.
 - NFR-002: The `/preflight scaffold` skill shall complete in under 5 seconds for a new project.
 - NFR-003: The auto-loaded rules file shall not exceed 80 lines — context budget must be managed.
-- NFR-004: Each skill shall be validated with /skill-creator evals before shipping, with passing scores for rule following, activation ordering, and triggering accuracy.
+- NFR-004: Each skill shall be validated with /skill-creator evals before shipping, scoring ≥80% for rule following, activation ordering, and triggering accuracy.
 - NFR-005: The plugin shall include automated content integrity tests (bash) that verify all expected files exist, have valid frontmatter, and contain required structural elements. Tests shall run without Claude Code or external dependencies.
-- NFR-006: The plugin structure shall pass plugin-dev validation (manifest, skill frontmatter, file references) before each release.
+- NFR-006: The plugin structure shall pass plugin-dev validation with zero blocking findings (manifest, skill frontmatter, file references) before each release.
 - NFR-007: Each release shall pass functional end-to-end tests covering: fresh scaffold, scaffold with custom docs dir, scaffold update without clobbering (FR-008/FR-009), `/preflight new` for at least ADR and requirements types, `/preflight review` on valid and invalid documents, and ADR impact propagation (FR-023).
-- NFR-008: All skill files shall pass code review (/simplify or equivalent) before shipping — checking for consistency across skills, edge case coverage, and frontmatter triggering quality.
+- NFR-008: All skill files shall pass code review with zero blocking findings (/simplify or equivalent) before shipping — checking for consistency across skills, edge case coverage, and frontmatter triggering quality.
 
 ## 6. Constraints
 
@@ -167,7 +184,7 @@ tested, and synced across the repo and any Notion upstream.
 | Skill activation accuracy | N/A (no skills today) | >90% correct triggering | /skill-creator eval suite |
 | Rule-following accuracy | N/A | >85% of rules followed without reminder | /skill-creator eval on generated docs |
 | Content integrity tests | N/A | 0 failures | `tests/test-content-integrity.sh` exit code |
-| Functional test coverage | N/A | All 6 scenarios pass (NFR-007) | Manual test run before release |
+| Functional test coverage | N/A | All 6 scenarios pass (NFR-007) | Automated e2e test suite exit code |
 
 ## 9. Out of Scope
 
