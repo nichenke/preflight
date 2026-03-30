@@ -1,7 +1,7 @@
 {
   "name": "preflight",
   "description": "Spec-driven development framework — scaffold project docs, guided elicitation for requirements/ADRs/RFCs, and rule-based review",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "Nic Henke",
     "email": "nichenke@gmail.com"

@@ -8,7 +8,7 @@
       "name": "preflight",
       "description": "Spec-driven development framework — scaffold project docs, guided elicitation for requirements/ADRs/RFCs, and rule-based review",
       "source": "./",
-      "version": "0.1.0"
+      "version": "0.3.0"
     }
   ]
 }
