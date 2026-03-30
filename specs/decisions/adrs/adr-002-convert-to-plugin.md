@@ -1,6 +1,8 @@
 ---
 status: Accepted
 date: 2026-03-28
+owner: nic
+version: 1.0.0
 deciders: [nic]
 consulted: []
 informed: []
@@ -12,7 +14,7 @@ informed: []
 
 The PM Documentation Framework is currently distributed as a git repo that users copy into their projects. This requires editing CLAUDE.md to inject agent instructions, manually copying templates and rules, and hoping the content stays current across projects. The framework's rules are advisory — loaded via CLAUDE.md but not enforced. Updating the framework in existing projects means re-running a bootstrap prompt or manually diffing files.
 
-Claude Code's plugin system offers native integration: auto-loaded rules via `.claude/rules/`, skills for guided workflows, and a versioned install/update path. Converting to a plugin would eliminate CLAUDE.md edits in target projects (CONST-DIST-01) and enable guided elicitation workflows that manual template copying can't provide.
+Claude Code's plugin system provides auto-loaded rules via `.claude/rules/`, skills for guided workflows, and a versioned install/update path. Converting to a plugin would eliminate CLAUDE.md edits in target projects (CONST-DIST-01) and add guided elicitation workflows to the authoring process.
 
 ## Decision Drivers
 
