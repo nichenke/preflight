@@ -352,7 +352,7 @@ Report the file path to the user.
 
 ## 8. Post-creation review
 
-After writing the document, run an automated review using rules from the **plugin source** (not the project copy, which may be stale).
+After writing the document, run an automated review using rules from the project's `.preflight/_rules/` directory.
 
 ### 8.1 Load rules
 

@@ -143,14 +143,41 @@ for skill in "${EXPECTED_SKILLS[@]}"; do
       fail "  missing frontmatter description: ${skill}"
     fi
 
-    # Check skill references ${CLAUDE_PLUGIN_ROOT} correctly (not hardcoded paths)
-    if grep -q 'CLAUDE_PLUGIN_ROOT' "$skill_file" || [[ "$skill" == "review" ]]; then
-      pass "  uses \${CLAUDE_PLUGIN_ROOT} or reads from .preflight/: ${skill}"
+    # Check skill reads from .preflight/ project directory (not hardcoded plugin paths)
+    if grep -q '\.preflight/' "$skill_file"; then
+      pass "  reads from .preflight/: ${skill}"
     else
-      fail "  missing \${CLAUDE_PLUGIN_ROOT} references: ${skill}"
+      fail "  missing .preflight/ references: ${skill}"
     fi
   else
     fail "skill file missing: ${skill}/SKILL.md"
+  fi
+done
+
+# ============================================================
+section "Commands"
+# ============================================================
+
+for cmd in scaffold new review; do
+  cmd_file="$PLUGIN_ROOT/commands/${cmd}.md"
+  if [[ -f "$cmd_file" ]]; then
+    pass "commands/${cmd}.md exists"
+  else
+    fail "commands/${cmd}.md missing"
+  fi
+
+  if [[ -f "$cmd_file" ]]; then
+    fm=$(sed -n '/^---$/,/^---$/p' "$cmd_file" | head -20)
+    if echo "$fm" | grep -q '^description:'; then
+      pass "commands/${cmd}.md has frontmatter description"
+    else
+      fail "commands/${cmd}.md missing frontmatter description"
+    fi
+    if grep -q "preflight:${cmd}" "$cmd_file"; then
+      pass "commands/${cmd}.md delegates to preflight:${cmd} skill"
+    else
+      fail "commands/${cmd}.md missing delegation to preflight:${cmd} skill"
+    fi
   fi
 done
 
@@ -168,19 +195,19 @@ for cat in templates rules-source reference scaffolds; do
   fi
 done
 
-# new skill should reference templates for elicitation
+# new skill should read templates from project .preflight/ directory
 new_file="$PLUGIN_ROOT/skills/new/SKILL.md"
-if grep -q 'content/templates' "$new_file"; then
-  pass "new skill references content/templates"
+if grep -q '\.preflight/_templates' "$new_file"; then
+  pass "new skill reads templates from .preflight/_templates/"
 else
-  fail "new skill missing reference to content/templates"
+  fail "new skill missing reference to .preflight/_templates/"
 fi
 
-# new skill should reference rules-source for post-creation review
-if grep -q 'content/rules-source' "$new_file"; then
-  pass "new skill references content/rules-source for post-creation review"
+# new skill should read rules from project .preflight/ directory
+if grep -q '\.preflight/_rules' "$new_file"; then
+  pass "new skill reads rules from .preflight/_rules/"
 else
-  fail "new skill missing reference to content/rules-source"
+  fail "new skill missing reference to .preflight/_rules/"
 fi
 
 # review skill should read from .preflight/_rules/ (project copy)
