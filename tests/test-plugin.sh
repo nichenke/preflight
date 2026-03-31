@@ -294,7 +294,7 @@ done
 section "Project docs preserved"
 # ============================================================
 
-for f in specs/constitution.md specs/requirements.md specs/decisions/adrs/adr-002-convert-to-plugin.md specs/decisions/adrs/adr-003-plugin-quality-gates.md specs/decisions/rfcs/rfc-001-reviewer-agents.md; do
+for f in specs/constitution.md specs/requirements.md specs/decisions/adrs/adr-002-convert-to-plugin.md specs/decisions/adrs/adr-003-plugin-quality-gates.md specs/decisions/adrs/adr-004-reviewer-agent-architecture.md specs/decisions/rfcs/rfc-001-reviewer-agents.md; do
   if [[ -f "$PLUGIN_ROOT/$f" ]]; then
     pass "project doc: $f"
   else
