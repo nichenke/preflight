@@ -90,17 +90,14 @@ Each agent file has YAML frontmatter (name, description, tools: \[Read, Glob, Gr
 
 Confidence score (0–100):
 
-- 0–49: Do not report (false positive or too uncertain)
-- 50–79: Do not report (valid but below threshold)
-- 80–89: Report as Suggestion
-- 90–99: Report as Important
-- 100: Report as Critical
+- 0–79: Do not report (below threshold)
+- 80–100: Report — tier determined by severity × confidence jointly (see below)
 
-Severity tiers map to existing review output:
+Severity tiers combine rule severity and confidence (supersedes the original confidence-only scheme per ADR-004 spike findings):
 
-- **Critical** (confidence 100): must fix — maps to Error severity rules at maximum confidence
-- **Important** (confidence 90–99): should fix — high-confidence violations of Warning-severity rules, or lower-confidence Error violations
-- **Suggestions** (confidence 80–89): nice to have — valid findings below Important threshold
+- **Critical**: Error-severity rule + confidence ≥95, or structural finding with downstream breakage at confidence ≥95
+- **Important**: Error-severity rule + confidence 80–94, Warning-severity rule + confidence ≥90, or structural finding with significant impact at confidence ≥90
+- **Suggestions**: Warning-severity rule + confidence 80–89, or structural finding at confidence 80–89
 - **Strengths**: what the document does well — quality stage only, no rule mapping
 
 ### Updated review skill flow
@@ -187,10 +184,12 @@ The hook operates as guidance, not enforcement — it surfaces the option to cap
 
 ## Success Criteria
 
-- All 7 reviewer agent files exist with valid frontmatter and pass plugin structure validation (NFR-006)
+- All reviewer agent files exist with valid frontmatter and pass plugin structure validation (NFR-006)
+- Phase 1 calibration: run the ensemble reviewer against at least one reference document (e.g., this RFC) and verify output is at least as good as the current monolithic skill — finding count, false positive rate, and actionability
 - Hook tests pass: exit 0 in all cases, no output outside preflight projects, correct system message in preflight projects (NFR-005)
-- `tests/test-plugin.sh` passes with new Hooks section (NFR-005)
+- `tests/test-plugin.sh` passes with new Hooks and Reviewer agents sections (NFR-005)
 - Phase 2 (follow-on): review skill evals show ≥85% rule-following accuracy with confidence filtering, false positive rate ≤15% on well-formed documents (NFR-004)
+- Note: The ExitPlanMode hook is bundled in this RFC because it was co-designed with the review skill orchestration and shares the same phase 1 delivery. It is a distinct feature with independent rollback.
 
 ---
 

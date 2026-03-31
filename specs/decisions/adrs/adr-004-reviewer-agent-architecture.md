@@ -30,7 +30,7 @@ determine which architecture the review skill should adopt.
 - FR-017 requires the review skill to produce actionable findings with confidence signals
 - FR-018 requires both universal and doc-type-specific rule checking
 - NFR-004 requires >=85% rule-following accuracy with <=15% false positive rate
-- CONST-QA-01 requires skills to be measurably better than the manual workflow
+- CONST-QA-01 requires skills to pass a defined eval suite before shipping
 - The spike demonstrated that rule-based and adversarial approaches find orthogonal
   defect classes with near-zero overlap — neither subsumes the other
 
@@ -42,10 +42,10 @@ determine which architecture the review skill should adopt.
 
 ## Decision Outcome
 
-Chosen option: "Ensemble: universal rule-based + adversarial complement", because the
-spike shows that rule-based and adversarial review find fundamentally different defect
-classes, and combining them achieves higher recall than either alone without sacrificing
-precision.
+We will adopt the ensemble architecture: universal rule-based (checklist-reviewer) as
+primary with adversarial layered (bogey-reviewer) as complement, because the spike shows
+that rule-based and adversarial review find fundamentally different defect classes, and
+combining them achieves higher recall than either alone without sacrificing precision.
 
 ### Consequences
 
@@ -83,10 +83,11 @@ Full results: `docs/spike/results/aggregate-v2-opus.md` (branch: feature/reviewe
 
 - Phase 2 implementation uses the ensemble architecture: `skills/review/SKILL.md`
   dispatches impl-c first, then impl-d, merges findings
-- Review skill evals meet NFR-004 targets (>=85% accuracy, <=15% false positive rate)
-  on the 16-document spike corpus
-- Impl-d suppression calibration is addressed before or during Phase 2 implementation
-  (target: structural/epistemic finding recall, not global suppression rate)
+- Review skill evals meet NFR-004 targets: rule-following accuracy ≥80%,
+  activation ordering accuracy ≥80%, triggering accuracy ≥80%, false positive
+  rate ≤15% on the 16-document spike corpus
+- Impl-d structural/epistemic finding recall ≥40% on the 16-document spike corpus,
+  measured using the v2 severity-weighted rubric, before Phase 2 merges
 
 ## Pros and Cons of the Options
 
