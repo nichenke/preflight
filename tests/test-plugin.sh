@@ -155,6 +155,41 @@ for skill in "${EXPECTED_SKILLS[@]}"; do
 done
 
 # ============================================================
+section "Reviewer agents"
+# ============================================================
+
+EXPECTED_AGENTS=(checklist-reviewer bogey-reviewer)
+for agent in "${EXPECTED_AGENTS[@]}"; do
+  agent_file="$PLUGIN_ROOT/agents/reviewers/${agent}.md"
+  if [[ -f "$agent_file" ]]; then
+    pass "agent file: ${agent}.md"
+
+    # Check frontmatter has required fields
+    fm=$(sed -n '/^---$/,/^---$/p' "$agent_file" | head -20)
+
+    if echo "$fm" | grep -q '^name:'; then
+      pass "  frontmatter name: ${agent}"
+    else
+      fail "  missing frontmatter name: ${agent}"
+    fi
+
+    if echo "$fm" | grep -q '^description:'; then
+      pass "  frontmatter description: ${agent}"
+    else
+      fail "  missing frontmatter description: ${agent}"
+    fi
+
+    if echo "$fm" | grep -q '^tools:'; then
+      pass "  frontmatter tools: ${agent}"
+    else
+      fail "  missing frontmatter tools: ${agent}"
+    fi
+  else
+    fail "agent file missing: ${agent}.md"
+  fi
+done
+
+# ============================================================
 section "Commands"
 # ============================================================
 
