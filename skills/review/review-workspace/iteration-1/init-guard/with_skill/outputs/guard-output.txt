@@ -1,1 +1,0 @@
-No `.preflight/_rules/` directory found. Run `/preflight scaffold` first to initialize the project.
