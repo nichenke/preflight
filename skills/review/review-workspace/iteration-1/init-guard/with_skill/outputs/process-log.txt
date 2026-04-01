@@ -1,0 +1,27 @@
+Review skill process log — init-guard eval (unscaffolded project)
+==================================================================
+
+Target directory: /tmp/preflight-uninitialized-review/
+Target document: docs/requirements.md
+
+Step 1 — Resolve docs directory
+  .preflight/config.yml: MISSING
+  Result: docs_dir = docs/ (default)
+
+Step 2 — Determine which file to review
+  File provided by eval task: docs/requirements.md
+  Resolved path: /tmp/preflight-uninitialized-review/docs/requirements.md
+
+Step 3 — Identify document type
+  Frontmatter `type` field: requirements
+  Result: doc_type = requirements
+
+Step 4.0 — Verify .preflight/_rules/ exists
+  Command: test -d .preflight/_rules/ && echo "EXISTS" || echo "MISSING"
+  Output: MISSING
+  Action: STOPPED. Told user to run /preflight scaffold first.
+
+Steps 4.1–10 — NOT REACHED (halted at 4.0 guard)
+
+Reviewer agents dispatched: 0
+Findings produced: 0

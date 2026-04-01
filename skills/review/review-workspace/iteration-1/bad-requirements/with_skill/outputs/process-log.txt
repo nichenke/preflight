@@ -1,0 +1,108 @@
+## Process Log: /preflight review docs/requirements.md
+
+### Step 1 — Resolve docs directory
+No .preflight/config.yml found. Defaulted to docs/.
+
+### Step 2 — Determine file to review
+File argument provided: docs/requirements.md
+Resolved path: /Users/nic/src/ai-home/preflight/.worktrees/feature-reviewer-agents/tests/fixtures/scaffolded-project/docs/requirements.md
+
+### Step 3 — Identify document type
+YAML frontmatter contains `type: requirements`. Confirmed by path match: docs/requirements.md.
+Doc type: requirements
+
+### Step 4 — Load rules
+4.0 — .preflight/_rules/ directory: EXISTS
+4.2 — Rules files loaded:
+  - .preflight/_rules/universal-rules.md (always loaded)
+  - .preflight/_rules/requirements-rules.md (type-specific for requirements)
+  - .preflight/_rules/cross-doc-rules.md (conditional — FR-NNN and NFR-NNN patterns found in document)
+Cross-doc trigger patterns found: FR-001, FR-002, FR-005, NFR-001, NFR-002, NFR-003, NFR-004
+
+### Step 5 — Discover related documents
+1. docs/constitution.md — EXISTS, added to related docs list
+2. Grep for ADR-(\d+), RFC-(\d+) references — none found
+3. No ADR/RFC files to resolve
+4. FR/NFR references found but requirements.md is the doc being reviewed — skip self-reference
+5. Related documents (1 total): docs/constitution.md
+
+### Step 6 — Dispatch checklist-reviewer
+Agent prompt: agents/reviewers/checklist-reviewer.md
+Plugin root: /Users/nic/src/ai-home/preflight/.worktrees/feature-reviewer-agents
+Parameters passed:
+  - Document: /Users/nic/src/ai-home/preflight/.worktrees/feature-reviewer-agents/tests/fixtures/scaffolded-project/docs/requirements.md
+  - Doc type: requirements
+  - Docs directory: docs/
+  - Rules directory: .preflight/_rules/
+  - Rules files: universal-rules.md, requirements-rules.md, cross-doc-rules.md
+
+Note: Agent tool not available in this environment. Executed checklist-reviewer logic inline.
+
+Checklist-reviewer results:
+  Stage 1 (Rule compliance):
+    - UNIV-01: VIOLATED — missing status, date, owner, version in frontmatter (confidence 98, Critical)
+    - UNIV-02: PASS
+    - UNIV-03: PASS
+    - UNIV-04: VIOLATED — "fast", "secure", "good" unquantified (confidence 98, Important)
+    - UNIV-05: PASS
+    - REQ-R01: VIOLATED — 2 requirements use "should"/"can" instead of EARS (confidence 95, Important)
+    - REQ-R02: VIOLATED — 2 requirements missing IDs, sequence gap (confidence 98, Critical)
+    - REQ-R03: Evaluated — AWS constraint in Constraints section, below confidence threshold
+    - REQ-R04: VIOLATED — 3 NFRs lack quantitative criteria (confidence 98, Important)
+    - REQ-R05: VIOLATED — no failure modes documented (confidence 95, Important)
+    - REQ-R06: VIOLATED — no success measures section (confidence 92, Important)
+    - REQ-R07: N/A — not a change review
+    - XDOC-01 through XDOC-08: N/A or PASS (no architecture doc to validate against)
+    - XDOC-09: VIOLATED — no architecture/test docs reference these requirements (confidence 82, Suggestion)
+  Stage 2 (Quality assessment):
+    - Untestable language: converges with REQ-R01 finding
+    - Missing Out of Scope section (confidence 90, Suggestion)
+    - Vague budget constraint (confidence 92, Important)
+
+### Step 7 — Dispatch bogey-reviewer
+Agent prompt: agents/reviewers/bogey-reviewer.md
+Plugin root: /Users/nic/src/ai-home/preflight/.worktrees/feature-reviewer-agents
+Parameters passed:
+  - Document: (same as above)
+  - Doc type: requirements
+  - Docs directory: docs/
+  - Rules directory: .preflight/_rules/
+  - Related documents: docs/constitution.md
+
+Note: Agent tool not available in this environment. Executed bogey-reviewer logic inline.
+
+Bogey-reviewer results:
+  Layer 1 — Cross-doc assumption conflicts:
+    No genuine cross-doc assumption conflicts identified. Constitution states standards;
+    requirements fail to meet them (compliance failure, not conflicting assumptions).
+
+  Layer 2 — Hypothesis investigation:
+    H1 (Unverifiable requirement): FIRED — NFR-001/002/003 are unverifiable (confidence 96)
+    H2 (Silent conflict): FIRED — requirements silently violate CONST-QUAL-01 (confidence 93)
+    H3 (False hard constraint): Investigated — "must run on AWS" candidate identified
+
+  Layer 3 — Validated findings:
+    Finding 1: unverifiable-nfrs (confidence 96, Critical)
+      Passed all 4 gates. Converges with UNIV-04 and REQ-R04 from checklist.
+    Finding 2: silent-constitution-violation (confidence 93, Important)
+      Passed all 4 gates. Converges with REQ-R01 from checklist.
+
+  Suppressed:
+    - AWS false hard constraint — suppressed at STEELMAN: "AWS may be an organizational
+      mandate not documented here; constraints section is the appropriate place for
+      platform decisions."
+
+### Step 8 — Merge and deduplicate
+Deduplication actions:
+  - bogey "unverifiable-nfrs" (96) merges with checklist UNIV-04 (98) and REQ-R04 (98)
+    → Kept checklist versions with rule IDs, noted convergence
+  - bogey "silent-constitution-violation" (93) merges with checklist REQ-R01 (95)
+    → Kept checklist version with rule ID, noted convergence
+
+Final merged count: 2 Critical, 6 Important, 2 Suggestions (10 total)
+
+### Step 9 — Format report
+Report written to review-output.txt
+
+### Step 10 — Constraints
+Document was NOT modified. Advisory only.

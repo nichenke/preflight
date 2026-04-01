@@ -1,0 +1,10 @@
+{
+  "eval_id": 3,
+  "eval_name": "init-guard",
+  "prompt": "Review in unscaffolded directory — should stop with error",
+  "assertions": [
+    {"text": "Skill stopped before dispatching any reviewer agents", "type": "process"},
+    {"text": "Error message mentions running /preflight scaffold", "type": "rule_following"},
+    {"text": "No review findings were produced", "type": "constraint"}
+  ]
+}

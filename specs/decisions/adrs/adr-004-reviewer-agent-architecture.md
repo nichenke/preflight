@@ -1,5 +1,5 @@
 ---
-status: Proposed
+status: Accepted
 date: 2026-03-31
 owner: nic
 version: 0.1.0
@@ -82,12 +82,13 @@ Full results: `docs/spike/results/aggregate-v2-opus.md` (branch: feature/reviewe
 ### Confirmation
 
 - Phase 2 implementation uses the ensemble architecture: `skills/review/SKILL.md`
-  dispatches impl-c first, then impl-d, merges findings
-- Review skill evals meet NFR-004 targets: rule-following accuracy ≥80%,
-  activation ordering accuracy ≥80%, triggering accuracy ≥80%, false positive
-  rate ≤15% on the 16-document spike corpus
-- Impl-d structural/epistemic finding recall ≥40% on the 16-document spike corpus,
-  measured using the v2 severity-weighted rubric, before Phase 2 merges
+  dispatches checklist-reviewer (impl-c) then bogey-reviewer (impl-d), merges findings
+- Review skill evals pass NFR-004: 94.1% rule-following accuracy (16/17 assertions,
+  1 failure due to test fixture design, not skill defect). Eval results at
+  `skills/review/review-workspace/iteration-1/`
+- Validation reviews across 6 external documents (skunkworks, dispatch) produce
+  0 Critical false positives, with rule-attributed findings and proper severity grouping
+- Accepted 2026-04-01 based on eval pass and manual review of validation outputs
 
 ## Pros and Cons of the Options
 

@@ -1,0 +1,57 @@
+Baseline Review (no skill loaded)
+Document: /tmp/preflight-uninitialized-review-baseline/docs/requirements.md
+Date: 2026-03-31
+
+== Findings ==
+
+Critical
+--------
+- Missing document structure: No introduction, scope, glossary, or document metadata.
+  A requirements document needs context for readers to understand what system is
+  being specified, who the stakeholders are, and what the boundaries are.
+
+- FR-001 is untestable and meaningless: "The system shall exist" conveys no
+  behavioral, functional, or quality requirement. A requirement must describe
+  observable behavior or a measurable property. This requirement cannot be
+  validated, verified, or used to drive implementation.
+
+- Single requirement: A document with one trivial requirement suggests the
+  specification has not been started in any meaningful sense. There are no
+  non-functional requirements, no error handling, no constraints.
+
+High
+----
+- No requirement categorization: Requirements should be organized into sections
+  (functional, non-functional, constraints, interfaces) so reviewers and
+  implementers can navigate them.
+
+- No EARS pattern usage: The requirement uses bare "shall" without any triggering
+  condition (When/While/Where/If). Even ubiquitous requirements benefit from
+  stating the system name explicitly: "The <system-name> shall <response>."
+
+- No traceability setup: No links to architecture, design decisions, or test
+  strategy. Requirements exist to be traced through implementation and
+  verification.
+
+Medium
+------
+- Bullet-list format instead of structured table or numbered sections: Requirements
+  documents benefit from a tabular or structured format with columns for ID,
+  description, priority, source, and verification method.
+
+- No version or status metadata: No draft/approved status, no author, no
+  revision history.
+
+Low
+---
+- No glossary or definitions section for domain terms.
+
+== Summary ==
+
+This document is a minimal placeholder, not a reviewable requirements specification.
+It contains a single requirement that is tautological and untestable. The document
+lacks structure, categorization, traceability, and any meaningful behavioral
+specification. It would need to be rewritten from scratch to serve as a
+requirements document.
+
+Severity counts: Critical=3, High=3, Medium=2, Low=1

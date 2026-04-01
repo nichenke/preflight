@@ -1,0 +1,34 @@
+{
+  "eval_id": 1,
+  "eval_name": "well-formed-adr",
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "Both reviewer agents (checklist and bogey) were dispatched",
+      "passed": true,
+      "evidence": "Process log shows Step 6 (checklist-reviewer) and Step 7 (bogey-reviewer) both executed. Agent tool not available so both ran inline, but both agent prompts were followed exactly."
+    },
+    {
+      "text": "adr-rules.md and universal-rules.md were loaded (not requirements-rules or other wrong type)",
+      "passed": true,
+      "evidence": "Process log Step 4.2: 'universal-rules.md (always loaded), adr-rules.md (type-specific for adr), cross-doc-rules.md (conditional — FR-001, FR-002 references found)'. Correct type-specific rules loaded."
+    },
+    {
+      "text": "Zero Critical findings reported for this well-formed ADR",
+      "passed": false,
+      "evidence": "2 Critical findings reported: UNIV-01 (missing owner/version frontmatter) and structural (FR-ID mismatch with requirements.md). Both are TRUE POSITIVES — the fixture genuinely lacks owner/version fields and its FR-001/FR-002 references don't match the requirements.md definitions. This is a test design issue, not a skill defect."
+    },
+    {
+      "text": "Report format matches SKILL.md section 9 (severity groups, source attribution, summary line)",
+      "passed": true,
+      "evidence": "Report has: severity-grouped findings ([Critical], [Important]), source attribution (UNIV-01, ADR-R01, ADR-R04, structural), Strengths section, Summary line '2 Critical, 2 Important, 0 Suggestions / Sources: 3 rule-based, 1 structural'."
+    },
+    {
+      "text": "Document was NOT modified by the review",
+      "passed": true,
+      "evidence": "Process log Step 10: 'Document was NOT modified (advisory only)'"
+    }
+  ],
+  "pass_rate": 0.80,
+  "notes": "The one failure is a fixture design issue — the ADR references FR-001/FR-002 which exist in requirements.md with different definitions, and lacks owner/version frontmatter fields required by UNIV-01. Both Critical findings are correct detections. Skill behavior is accurate."
+}

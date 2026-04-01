@@ -1,0 +1,86 @@
+Preflight Review Process Log
+============================
+Document: docs/decisions/adrs/adr-001-use-markdown-templates.md
+Project root: /Users/nic/src/ai-home/preflight/.worktrees/feature-reviewer-agents/tests/fixtures/scaffolded-project/
+Plugin root: /Users/nic/src/ai-home/preflight/.worktrees/feature-reviewer-agents/
+
+Step 1 — Resolve docs directory
+  .preflight/config.yml: not present
+  Resolved docs_dir: docs/
+
+Step 2 — Determine file to review
+  File argument provided: docs/decisions/adrs/adr-001-use-markdown-templates.md
+  Resolved absolute path: /Users/nic/src/ai-home/preflight/.worktrees/feature-reviewer-agents/tests/fixtures/scaffolded-project/docs/decisions/adrs/adr-001-use-markdown-templates.md
+
+Step 3 — Identify document type
+  Frontmatter `type` field: adr
+  Path pattern match: docs/decisions/adrs/ -> adr (confirms frontmatter)
+  Final doc type: adr
+
+Step 4 — Load rules
+  4.0 Verify .preflight/_rules/ exists: EXISTS
+  4.2 Rules files loaded:
+    - .preflight/_rules/universal-rules.md (always loaded)
+    - .preflight/_rules/adr-rules.md (type-specific for adr)
+    - .preflight/_rules/cross-doc-rules.md (conditional — FR-001, FR-002 references found via grep)
+  Cross-reference patterns found: FR-001, FR-002 on line 41
+
+Step 5 — Discover related documents
+  1. docs/constitution.md — exists, added
+  2. Grep for ADR/RFC/FR/NFR references:
+     - FR-001 referenced -> check docs/requirements.md
+     - FR-002 referenced -> check docs/requirements.md
+  3. No other ADR references to resolve (only ADR-001 itself)
+  4. No RFC references
+  5. docs/requirements.md — exists, added (FR references found)
+  Related documents (2 total, under cap of 5):
+    - docs/constitution.md
+    - docs/requirements.md
+
+Step 6 — Dispatch checklist-reviewer
+  Agent tool not available; executed checklist-reviewer.md logic inline
+  Rules evaluated:
+    UNIV-01: VIOLATION (missing owner, version in frontmatter) — confidence 97 -> Critical
+    UNIV-02: PASS (FR-001, FR-002 referenced by ID)
+    UNIV-03: PASS (no empty sections)
+    UNIV-04: PASS (no unquantified vague adjectives)
+    UNIV-05: PASS (no TODO/FIXME/HACK)
+    ADR-R01: VIOLATION (status "accepted" vs enum "Accepted") — confidence 82 -> Important
+    ADR-R02: PASS (context is neutral, decision uses active voice)
+    ADR-R03: PASS (three options listed)
+    ADR-R04: VIOLATION (no per-option pros/cons) — confidence 95 -> Important
+    ADR-R05: PASS (negative consequence listed)
+    ADR-R06: PASS (decision drivers present and concrete)
+    ADR-R07: PASS (single decision)
+    XDOC-07: PASS (no conflict with constitution)
+  Anti-patterns checked:
+    Decision without alternatives: not fired
+    Retroactive justification: not fired
+    Consequence-free decisions: not fired
+    Scope creep: not fired
+    Opinion in Context: not fired
+    Title as question: not fired
+
+Step 7 — Dispatch bogey-reviewer
+  Agent tool not available; executed bogey-reviewer.md logic inline
+  Layer 1 — Cross-doc assumption conflicts:
+    FOUND: FR-001/FR-002 descriptions in ADR do not match definitions in requirements.md
+  Layer 2 — Hypothesis investigation:
+    H1 (Unverifiable requirement): Not fired — ADR decision is verifiable
+    H2 (Silent conflict): FIRED — FR-ID mismatch between ADR and requirements.md
+    H3 (False hard constraint): Not fired — decision among alternatives, not a hard constraint
+  Layer 3 — Validated findings:
+    FR-ID mismatch: VERIFY pass, YAGNI pass, STEELMAN fail (no valid interpretation), CONFIDENCE 96 -> Critical
+  Suppressed findings: none
+
+Step 8 — Merge and deduplicate
+  Checklist findings: 3 (UNIV-01, ADR-R01, ADR-R04)
+  Bogey Layer 3 findings: 1 (fr-id-mismatch)
+  Deduplication: no overlapping findings between sources
+  Total merged: 4 findings
+
+Step 9 — Format report
+  Report written to review-output.txt
+
+Step 10 — Constraints
+  Document was NOT modified (advisory only)

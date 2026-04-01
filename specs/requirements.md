@@ -144,6 +144,7 @@ tested, and synced across the repo and any Notion upstream.
 - FR-018: When reviewing a document, the plugin shall check universal rules (UNIV-01 through UNIV-05) and cross-doc rules (XDOC-01 through XDOC-09) in addition to type-specific rules.
 - FR-019: When reviewing a document, the plugin shall report findings grouped by severity (Error, Warning) with rule IDs and specific fix suggestions.
 - FR-020: If a reviewed document has zero Error findings, the plugin shall report it as passing review.
+- FR-025: When the user runs `/preflight review` on a document inside a sub-project that lacks its own `.preflight/_rules/`, the plugin shall walk up the directory tree to find the nearest ancestor `.preflight/_rules/` and use those rules — without requiring the sub-project to be independently scaffolded.
 
 ### Rules auto-loading
 
