@@ -105,15 +105,22 @@ For each hypothesis (H1, H2, H3): finding with evidence, or "Not fired — [expl
 
 ### Section 3: Layer 3 — Validated findings
 
-Findings that passed all four gates, in severity order. Use this format for each:
+Findings that passed all four gates, in severity order. Use EXACTLY this format for each finding — no blockquotes, no indentation changes, no wrapping in headers:
 
 ```
 **[{severity}] {slug}** (confidence: {N}, structural)
 {Description — what's wrong, with quoted evidence from the document}
 **Consequence:** {What breaks, misleads, or degrades if this is not addressed}
-**Fix:** {One concrete, actionable step}
+**Fix:** {One concrete, actionable step scoped to the document being reviewed}
 [Convergence: also flagged by Layer {N}] (if applicable)
 ```
+
+Where:
+- The description MUST include a direct quote from the document
+- The consequence MUST name a specific downstream failure
+- The fix MUST be scoped to the document being reviewed — do not suggest changes to higher-authority documents (e.g., do not suggest amending the constitution to fix an ADR issue)
+
+Separate each finding with a `---` line.
 
 Severity mapping:
 - Confidence 95–100 with downstream breakage → **Critical**

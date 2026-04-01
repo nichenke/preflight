@@ -66,9 +66,20 @@ Quality findings use severity:
 
 ---
 
+## Fix suggestion scope
+
+Fix suggestions must respect the document authority hierarchy:
+- **Constitution** fixes: make principles more structurally testable, not more specific. Push thresholds and enumerations down to requirements. Never suggest embedding numbers, file lists, or implementation details in a constitutional principle.
+- **Requirements** fixes: do not suggest amending the constitution. If there is a gap between constitution and requirements, the requirements should implement the constitutional principle — not the other way around.
+- **ADR/RFC** fixes: do not suggest changes to requirements or constitution to resolve an ADR/RFC issue. The fix should be within the document being reviewed.
+
+The authority chain flows downward: constitution (principles) → requirements (thresholds, enumerations) → ADRs/RFCs (decisions, proposals) → architecture (mechanisms). Fixes push detail DOWN the hierarchy, never UP.
+
+---
+
 ## Output format
 
-Return findings as a structured list. Each finding has exactly these fields:
+Return findings as a structured list. Use EXACTLY this format for each finding — no blockquotes, no indentation changes, no wrapping in headers:
 
 ```
 **[{severity}] {slug}** (confidence: {N}, {rule_id or "quality"})
@@ -81,6 +92,11 @@ Where:
 - `slug` is a short kebab-case identifier for the finding (e.g., `missing-rollback-plan`, `vague-nfr-target`)
 - `severity` is Critical, Important, or Suggestion
 - `rule_id` is the ID from the rules table (e.g., UNIV-03, ADR-R02) or "quality" for anti-pattern findings
+- The description MUST include a direct quote from the document (in quotes or a `>` blockquote)
+- The consequence MUST name a specific downstream failure, not a generic quality concern
+- The fix MUST be a single actionable step scoped to the document being reviewed
+
+Separate each finding with a `---` line.
 
 After all findings, add a **Strengths** section noting 1–3 things the document does well. Focus on substantive quality, not generic praise.
 
