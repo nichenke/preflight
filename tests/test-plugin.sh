@@ -155,6 +155,41 @@ for skill in "${EXPECTED_SKILLS[@]}"; do
 done
 
 # ============================================================
+section "Reviewer agents"
+# ============================================================
+
+EXPECTED_AGENTS=(checklist-reviewer bogey-reviewer)
+for agent in "${EXPECTED_AGENTS[@]}"; do
+  agent_file="$PLUGIN_ROOT/agents/reviewers/${agent}.md"
+  if [[ -f "$agent_file" ]]; then
+    pass "agent file: ${agent}.md"
+
+    # Check frontmatter has required fields
+    fm=$(sed -n '/^---$/,/^---$/p' "$agent_file" | head -20)
+
+    if echo "$fm" | grep -q '^name:'; then
+      pass "  frontmatter name: ${agent}"
+    else
+      fail "  missing frontmatter name: ${agent}"
+    fi
+
+    if echo "$fm" | grep -q '^description:'; then
+      pass "  frontmatter description: ${agent}"
+    else
+      fail "  missing frontmatter description: ${agent}"
+    fi
+
+    if echo "$fm" | grep -q '^tools:'; then
+      pass "  frontmatter tools: ${agent}"
+    else
+      fail "  missing frontmatter tools: ${agent}"
+    fi
+  else
+    fail "agent file missing: ${agent}.md"
+  fi
+done
+
+# ============================================================
 section "Commands"
 # ============================================================
 
@@ -242,10 +277,59 @@ else
 fi
 
 # ============================================================
+section "Hooks"
+# ============================================================
+
+if [[ -f "$PLUGIN_ROOT/hooks/hooks.json" ]]; then
+  pass "hooks/hooks.json exists"
+else
+  fail "hooks/hooks.json missing"
+fi
+
+if python3 -c "import json, sys; json.load(open('$PLUGIN_ROOT/hooks/hooks.json'))" 2>/dev/null; then
+  pass "hooks/hooks.json is valid JSON"
+else
+  fail "hooks/hooks.json is invalid JSON"
+fi
+
+if python3 -c "
+import json, sys
+d = json.load(open('$PLUGIN_ROOT/hooks/hooks.json'))
+has_desc = 'description' in d
+has_hooks = 'hooks' in d
+sys.exit(0 if has_desc and has_hooks else 1)
+" 2>/dev/null; then
+  pass "hooks/hooks.json has required fields (description, hooks)"
+else
+  fail "hooks/hooks.json missing required fields"
+fi
+
+if [[ -f "$PLUGIN_ROOT/hooks/exit-plan-mode.sh" ]]; then
+  pass "hooks/exit-plan-mode.sh exists"
+else
+  fail "hooks/exit-plan-mode.sh missing"
+fi
+
+if [[ -x "$PLUGIN_ROOT/hooks/exit-plan-mode.sh" ]]; then
+  pass "hooks/exit-plan-mode.sh is executable"
+else
+  fail "hooks/exit-plan-mode.sh is not executable"
+fi
+
+# Verify no external binary dependencies (NFR-001)
+for binary in jq node npm python3; do
+  if grep -q "\b${binary}\b" "$PLUGIN_ROOT/hooks/exit-plan-mode.sh" 2>/dev/null; then
+    fail "hooks/exit-plan-mode.sh uses external binary: ${binary} (violates NFR-001)"
+  else
+    pass "hooks/exit-plan-mode.sh: no dependency on ${binary}"
+  fi
+done
+
+# ============================================================
 section "Project docs preserved"
 # ============================================================
 
-for f in specs/constitution.md specs/requirements.md specs/decisions/adrs/adr-002-convert-to-plugin.md specs/decisions/adrs/adr-003-plugin-quality-gates.md; do
+for f in specs/constitution.md specs/requirements.md specs/decisions/adrs/adr-002-convert-to-plugin.md specs/decisions/adrs/adr-003-plugin-quality-gates.md specs/decisions/adrs/adr-004-reviewer-agent-architecture.md specs/decisions/rfcs/rfc-001-reviewer-agents.md; do
   if [[ -f "$PLUGIN_ROOT/$f" ]]; then
     pass "project doc: $f"
   else

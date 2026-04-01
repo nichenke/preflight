@@ -17,16 +17,16 @@ Framework project. All agents, all features, and all code must comply. Amendment
 an ADR with explicit ratification.
 
 ## Content Integrity
-- [CONST-CI-01] All framework content must be usable without Notion access — the git repo is the standalone distribution
+- [CONST-CI-01] The git repository is the canonical source for all framework content
 - [CONST-CI-02] Templates are the single source of truth for document structure — do not duplicate template content in other files
 - [CONST-CI-03] Rule IDs are stable — renumbering or removing IDs requires an ADR
 
 ## Distribution
 - [CONST-DIST-01] Rules auto-load via `.claude/rules/`, never require CLAUDE.md edits in target projects
-- [CONST-DIST-02] Plugin installation must not overwrite project-specific files (constitution, glossary, requirements, ADRs, RFCs)
+- [CONST-DIST-02] Plugin installation must not overwrite project-authored documents
 
 ## Quality
-- [CONST-QA-01] Skills must demonstrate measurable effectiveness improvement over manual workflow before shipping
+- [CONST-QA-01] Skills must pass a defined eval suite before shipping
 - [CONST-QA-02] Evals must cover rule following, activation ordering, and skill triggering accuracy
 - [CONST-QA-03] Plugin releases must pass automated content integrity tests
 - [CONST-QA-04] Plugin releases must pass plugin structure validation
@@ -40,5 +40,5 @@ an ADR with explicit ratification.
 ## Amendment Log
 | Version | Date | ADR | Change Summary |
 |---------|------|-----|----------------|
-| 1.0.0 | 2026-03-25 | ADR-001 | Initial ratification (pre-plugin, ADR not migrated) |
+| 1.0.0 | 2026-03-25 | (bootstrap) | Initial ratification — pre-plugin era, no ADR exists |
 | 1.1.0 | 2026-03-28 | ADR-003 | Add CONST-QA-03 through CONST-QA-05 — automated quality gates for plugin releases |

@@ -129,13 +129,14 @@ tested, and synced across the repo and any Notion upstream.
 ### New document creation
 
 - FR-010: When the user runs `/preflight new`, the plugin shall prompt for doc type if not specified.
-- FR-011: When the user runs `/preflight new <type>`, the plugin shall walk through guided elicitation appropriate to that doc type before creating the file.
+- FR-011: When the user runs `/preflight new <type>`, the plugin shall walk through all sections defined in the doc type's template before creating the file.
 - FR-012: When creating a requirements spec, the plugin shall guide the user through: problem statement, personas, user journeys with failure modes, EARS functional requirements, non-functional requirements with quantitative criteria, constraints, assumptions, success measures, and out-of-scope items.
 - FR-013: When creating an ADR, the plugin shall guide the user through: context, decision drivers, at least two options with pros and cons, decision outcome with consequences, and confirmation criteria.
 - FR-014: When creating an RFC, the plugin shall guide the user through: executive summary, problem statement with measurable evidence, scope, proposed solution, at least one alternative, migration/rollout plan with rollback, risks, and success criteria.
 - FR-015: When the plugin creates a new document, the plugin shall populate YAML frontmatter with status, date, owner, and version.
 - FR-016: When the plugin creates a new document, the plugin shall assign the next sequential ID for that doc type.
-- FR-023: When creating an ADR, after the document is written, the plugin shall identify downstream docs (requirements, architecture, constitution, interfaces) that need updates to reflect the decision, propose specific changes, and apply approved changes. The plugin shall flag any ADR consequences that cannot be traced to a downstream doc.
+- FR-023: When creating an ADR, after the document is written, the plugin shall identify downstream docs (requirements, architecture, constitution, interfaces) that need updates to reflect the decision, propose specific changes, and apply approved changes.
+- FR-024: When creating an ADR, the plugin shall flag any ADR consequences that cannot be traced to a downstream doc.
 
 ### Review
 
@@ -143,11 +144,12 @@ tested, and synced across the repo and any Notion upstream.
 - FR-018: When reviewing a document, the plugin shall check universal rules (UNIV-01 through UNIV-05) and cross-doc rules (XDOC-01 through XDOC-09) in addition to type-specific rules.
 - FR-019: When reviewing a document, the plugin shall report findings grouped by severity (Error, Warning) with rule IDs and specific fix suggestions.
 - FR-020: If a reviewed document has zero Error findings, the plugin shall report it as passing review.
+- FR-025: When the user runs `/preflight review` on a document inside a sub-project that lacks its own `.preflight/_rules/`, the plugin shall walk up the directory tree to find the nearest ancestor `.preflight/_rules/` and use those rules — without requiring the sub-project to be independently scaffolded.
 
 ### Rules auto-loading
 
 - FR-021: The plugin shall auto-load framework rules into agent context via `.claude/rules/` without requiring CLAUDE.md edits in the target project.
-- FR-022: The auto-loaded rules shall include: the read-before-coding sequence (constitution, requirements, architecture, interfaces — ADRs excluded, referenced only when modifying requirements or architecture), requirements change governance (REQ-R07), and EARS quick reference.
+- FR-022: When the plugin installs rules via `/preflight scaffold`, the plugin shall include in the auto-loaded rules file: the read-before-coding sequence (constitution, requirements, architecture, interfaces — ADRs excluded, referenced only when modifying requirements or architecture), requirements change governance (REQ-R07), and EARS quick reference.
 
 ## 5. Non-Functional Requirements
 

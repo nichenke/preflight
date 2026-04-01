@@ -3,20 +3,94 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "You are testing the /preflight review skill. A pre-scaffolded project exists at /Users/nic/src/ai-home/pm-framework/.worktrees/plugin-conversion/skills/test-fixtures/scaffolded-project/. Use that directory as your working directory for all file operations.\n\nRun /preflight review docs/decisions/adrs/adr-002-valid-decision.md\n\nThis is a well-formed ADR. The review should either PASS or report only warnings — no errors.\n\nSave the full review output to outputs/review-output.txt",
-      "expected_output": "Review runs successfully. Loads universal-rules.md and adr-rules.md. Result is PASS or 0 Errors with some warnings. No false positives on the well-formed document. Report includes rule IDs for any findings.",
+      "prompt": "You are testing the /preflight review skill. A pre-scaffolded project exists at /Users/nic/src/ai-home/preflight/.worktrees/feature-reviewer-agents/tests/fixtures/scaffolded-project/. Use that directory as your working directory for all file operations.\n\nRun /preflight review docs/decisions/adrs/adr-001-use-markdown-templates.md\n\nThis is a well-formed ADR with proper MADR structure, frontmatter, all required sections, and valid cross-references. The review should find no Critical findings. Minor suggestions are acceptable.\n\nSave the full review output to outputs/review-adr-good.txt",
+      "expected_output": "Review runs successfully. Dispatches both checklist-reviewer and bogey-reviewer agents. Loads universal-rules.md and adr-rules.md. Result has 0 Critical findings. May have suggestions. Report format matches SKILL.md section 9. Findings cite rule IDs or 'structural' source.",
+      "assertions": [
+        {
+          "text": "Both reviewer agents (checklist and bogey) were dispatched",
+          "type": "process"
+        },
+        {
+          "text": "adr-rules.md and universal-rules.md were loaded (not requirements-rules or other wrong type)",
+          "type": "rule_following"
+        },
+        {
+          "text": "Zero Critical findings reported for this well-formed ADR",
+          "type": "accuracy"
+        },
+        {
+          "text": "Report format matches SKILL.md section 9 (severity groups, source attribution, summary line)",
+          "type": "format"
+        },
+        {
+          "text": "Document was NOT modified by the review",
+          "type": "constraint"
+        }
+      ],
       "files": []
     },
     {
       "id": 2,
-      "prompt": "You are testing the /preflight review skill. A pre-scaffolded project exists at /Users/nic/src/ai-home/pm-framework/.worktrees/plugin-conversion/skills/test-fixtures/scaffolded-project/. Use that directory as your working directory for all file operations.\n\nRun /preflight review docs/requirements.md\n\nThis document has intentional violations:\n- Two requirements missing FR-NNN IDs (prose sentences instead of requirements)\n- Two requirements using 'should' and 'can' instead of 'shall' (non-EARS pattern)\n- Three NFRs with vague non-measurable criteria (NFR-001, NFR-002, NFR-003)\n\nThe review should find these violations and report them with specific rule IDs. It must NOT modify the document.\n\nSave the full review output to outputs/review-output.txt",
-      "expected_output": "Review finds multiple violations. Reports Errors or Warnings for: missing IDs, non-EARS language (should/can instead of shall), vague NFR criteria. Each finding cites a specific rule ID. Document is not modified. Summary line shows N Errors, M Warnings.",
+      "prompt": "You are testing the /preflight review skill. A pre-scaffolded project exists at /Users/nic/src/ai-home/preflight/.worktrees/feature-reviewer-agents/tests/fixtures/scaffolded-project/. Use that directory as your working directory for all file operations.\n\nRun /preflight review docs/requirements.md\n\nThis requirements document has these intentional violations:\n- 2 requirements missing FR-NNN IDs (prose sentences without IDs)\n- 2 requirements using 'should' and 'can' instead of 'shall' (non-EARS language)\n- 3 NFRs with vague, non-measurable criteria (NFR-001 'fast', NFR-002 'secure', NFR-003 'good uptime')\n\nThe review should catch most of these. It must NOT modify the document.\n\nSave the full review output to outputs/review-requirements-bad.txt",
+      "expected_output": "Review finds multiple violations. Reports findings for: missing IDs, non-EARS language (should/can), vague NFRs. Each finding cites a rule ID. Document not modified. Summary shows counts by severity.",
+      "assertions": [
+        {
+          "text": "Both reviewer agents (checklist and bogey) were dispatched",
+          "type": "process"
+        },
+        {
+          "text": "requirements-rules.md and universal-rules.md were loaded",
+          "type": "rule_following"
+        },
+        {
+          "text": "cross-doc-rules.md was loaded (doc references FR-NNN and NFR-NNN IDs)",
+          "type": "rule_following"
+        },
+        {
+          "text": "At least one finding about missing requirement IDs",
+          "type": "accuracy"
+        },
+        {
+          "text": "At least one finding about non-EARS language (should/can instead of shall)",
+          "type": "accuracy"
+        },
+        {
+          "text": "At least one finding about vague/non-measurable NFR criteria",
+          "type": "accuracy"
+        },
+        {
+          "text": "Total findings >= 4 (out of 7 planted defects)",
+          "type": "recall"
+        },
+        {
+          "text": "Report format matches SKILL.md section 9 with severity grouping and summary line",
+          "type": "format"
+        },
+        {
+          "text": "Document was NOT modified by the review",
+          "type": "constraint"
+        }
+      ],
       "files": []
     },
     {
       "id": 3,
-      "prompt": "You are testing the /preflight review skill's initialization guard. Run /preflight review on any document in a directory that has NOT been scaffolded — use /tmp/preflight-uninitialized-review/ as your working directory (create it fresh with mkdir -p). Do not create any .preflight/ directory there.\n\nThe skill should detect that .preflight/_rules/ does not exist and stop with a clear error message telling the user to run /preflight scaffold first.\n\nSave the skill's response/output to outputs/guard-output.txt",
-      "expected_output": "Skill stops at section 4.0 guard with a message telling the user to run /preflight scaffold first. Does NOT attempt to load rules or review any document.",
+      "prompt": "You are testing the /preflight review skill's initialization guard. Use /tmp/preflight-uninitialized-review/ as your working directory. Create it fresh:\n\nmkdir -p /tmp/preflight-uninitialized-review/docs\n\nCreate a minimal doc at docs/requirements.md with content '# Requirements\\n\\n- FR-001: The system shall exist.'\n\nDo NOT create any .preflight/ directory.\n\nNow run /preflight review docs/requirements.md\n\nThe skill should detect that .preflight/_rules/ does not exist and stop with a clear error telling the user to run /preflight scaffold first.\n\nSave the skill's response to outputs/guard-output.txt",
+      "expected_output": "Skill stops at section 4.0 guard. Message tells user to run /preflight scaffold first. Does NOT attempt to load rules, dispatch agents, or review any document.",
+      "assertions": [
+        {
+          "text": "Skill stopped before dispatching any reviewer agents",
+          "type": "process"
+        },
+        {
+          "text": "Error message mentions running /preflight scaffold",
+          "type": "rule_following"
+        },
+        {
+          "text": "No review findings were produced",
+          "type": "constraint"
+        }
+      ],
       "files": []
     }
   ]
