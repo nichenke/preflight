@@ -1,5 +1,9 @@
 # Preflight — project spec rules
 
+## Branch workflow
+
+All changes go through feature branches and PRs — never commit directly to main, never merge without a PR.
+
 ## Before writing code
 
 Read these files in order — skip any that don't exist:
