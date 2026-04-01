@@ -1,5 +1,5 @@
 ---
-status: Proposed
+status: Accepted
 date: 2026-04-01
 owner: nic
 version: 0.1.0
