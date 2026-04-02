@@ -12,6 +12,10 @@ Read these files in order — skip any that don't exist:
 Check `specs/decisions/adrs/` only when modifying requirements or architecture
 — ADR decisions should already be reflected in those docs.
 
+## Issue-to-spec traceability
+
+Every proposed behavioral fix must trace to a requirement ID (FR/NFR/CONST) or explicitly identify a missing requirement — a fix without spec traceability indicates a spec gap, not just a code gap.
+
 ## Requirements change governance
 
 No behavioral requirement change without an ADR. If a change to requirements.md

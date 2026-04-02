@@ -112,6 +112,19 @@ tested, and synced across the repo and any Notion upstream.
 - Failure: Content integrity tests fail — author fixes before proceeding
 - Failure: Behavioral change without ADR — PR review catches governance violation (CONST-PROC-02)
 
+### Journey 6: Maintain the plugin repo (Persona: plugin author)
+
+- Trigger: Plugin author needs to triage issues, enforce workflow, or assess repo health
+- Steps:
+  1. Author triages open GitHub issues against current specs and constitution
+  2. For each issue: verifies root cause against current code, maps to spec coverage (FR/NFR/CONST), classifies governance needs (ADR or not per REQ-R07)
+  3. Author proposes fixes with dependency-ordered decomposition, each item tracing to a requirement ID
+  4. Workflow invariants (worktrees, feature branches, PRs) are enforced by hooks — deterministic, not advisory
+  5. Author commits work on feature branches via worktrees, never directly to main
+- Success: Issues triaged with structured assessment, fixes traced to specs, workflow enforced deterministically
+- Failure: Issue root cause no longer valid — author closes issue with disconfirming evidence
+- Failure: Fix requires spec changes with no existing FR — author identifies the spec gap and creates an ADR before proceeding
+
 ## 4. Functional Requirements
 
 ### Scaffold
@@ -150,6 +163,13 @@ tested, and synced across the repo and any Notion upstream.
 
 - FR-021: The plugin shall auto-load framework rules into agent context via `.claude/rules/` without requiring CLAUDE.md edits in the target project.
 - FR-022: When the plugin installs rules via `/preflight scaffold`, the plugin shall include in the auto-loaded rules file: the read-before-coding sequence (constitution, requirements, architecture, interfaces — ADRs excluded, referenced only when modifying requirements or architecture), requirements change governance (REQ-R07), and EARS quick reference.
+
+### Maintainer workflow (Persona: plugin author) — ADR-005
+
+- FR-026: The plugin repo shall provide a local issue-triage skill (`.claude/skills/`) that produces structured assessments with evidence-backed validity verdicts, spec gap maps, governance classifications, and dependency-ordered fix decompositions.
+- FR-027: Every proposed behavioral fix shall trace to a requirement ID (FR/NFR/CONST) or explicitly identify a missing requirement — enforced by an auto-loaded rule in `.claude/rules/`.
+- FR-028: The plugin repo shall enforce git workflow invariants (worktrees, feature branches, PRs — no direct commits to main) via PreToolUse hooks that block violations deterministically.
+- FR-029: While a git workflow hook blocks a tool use, the hook shall report which invariant was violated and what the correct workflow is.
 
 ## 5. Non-Functional Requirements
 
