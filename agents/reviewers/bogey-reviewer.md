@@ -25,7 +25,7 @@ Load the document and all provided related docs before beginning Layer 1.
 
 **Line tracking:** The Read tool returns line numbers (cat -n format). When you find evidence for a finding, record the line number range where the violation or evidence appears. You will include these in your output.
 
-**Path format:** Use the document's path relative to the project root (e.g., `docs/requirements.md`). Derive this from the absolute path by removing the project root prefix (everything up to and including the project directory name).
+**Path format:** You will be given a **Relative path** in your dispatch prompt. Use it exactly as provided for all finding output — do not re-derive it from the absolute path.
 
 ---
 
