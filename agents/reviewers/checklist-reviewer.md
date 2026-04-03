@@ -19,6 +19,10 @@ You will be told:
 
 Read the document and all specified rules files before beginning.
 
+**Line tracking:** The Read tool returns line numbers (cat -n format). When you find evidence for a finding, record the line number range where the violation or evidence appears in the document. You will include these in your output.
+
+**Path format:** Use the document's path relative to the project root (e.g., `docs/requirements.md`). Derive this from the absolute path by removing the project root prefix (everything up to and including the project directory name).
+
 ---
 
 ## Stage 1 — Rule compliance
@@ -82,7 +86,7 @@ The authority chain flows downward: constitution (principles) → requirements (
 Return findings as a structured list. Use EXACTLY this format for each finding — no blockquotes, no indentation changes, no wrapping in headers:
 
 ```
-**[{severity}] {slug}** (confidence: {N}, {rule_id or "quality"})
+**[{severity}] {slug}** (confidence: {N}, {rule_id or "quality"}) — `{relative_path}:L{start}-L{end}`
 {Description — what's wrong, with quoted evidence from the document}
 **Consequence:** {What breaks, misleads, or degrades if this is not addressed}
 **Fix:** {One concrete, actionable step to resolve the violation}
@@ -92,6 +96,8 @@ Where:
 - `slug` is a short kebab-case identifier for the finding (e.g., `missing-rollback-plan`, `vague-nfr-target`)
 - `severity` is Critical, Important, or Suggestion
 - `rule_id` is the ID from the rules table (e.g., UNIV-03, ADR-R02) or "quality" for anti-pattern findings
+- `relative_path` is the document path relative to the project root (e.g., `docs/requirements.md`)
+- `L{start}-L{end}` is the line range where the evidence appears, using line numbers from the Read tool. For single-line evidence use `L{N}-L{N}`. For a missing element (e.g., absent section), use the line range of the nearest relevant context (the section that should contain it, or the end of the document)
 - The description MUST include a direct quote from the document (in quotes or a `>` blockquote)
 - The consequence MUST name a specific downstream failure, not a generic quality concern
 - The fix MUST be a single actionable step scoped to the document being reviewed

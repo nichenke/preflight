@@ -98,6 +98,7 @@ Use the Agent tool to dispatch a subagent with this prompt:
 > You are the checklist-reviewer. Read the agent prompt at `{plugin_root}/agents/reviewers/checklist-reviewer.md` and follow it exactly.
 >
 > **Document to review:** {absolute_path_to_document}
+> **Relative path (for findings output):** {path_relative_to_project_root}
 > **Document type:** {doc_type}
 > **Docs directory:** {docs_dir}
 > **Rules directory:** .preflight/_rules/
@@ -112,6 +113,7 @@ Use the Agent tool to dispatch a subagent with this prompt:
 > You are the bogey-reviewer. Read the agent prompt at `{plugin_root}/agents/reviewers/bogey-reviewer.md` and follow it exactly.
 >
 > **Document to review:** {absolute_path_to_document}
+> **Relative path (for findings output):** {path_relative_to_project_root}
 > **Document type:** {doc_type}
 > **Docs directory:** {docs_dir}
 > **Rules directory:** .preflight/_rules/
@@ -139,15 +141,15 @@ Document type: {doc_type} | Rules: {list of rules files loaded}
 
 ### Findings
 
-**[Critical] {slug}** (confidence: {N}, {source})
+**[Critical] {slug}** (confidence: {N}, {source}) — `{relative_path}:L{start}-L{end}`
 {description with quoted evidence}
 **Consequence:** {what breaks or misleads}
 **Fix:** {one actionable step}
 
-**[Important] {slug}** (confidence: {N}, {source})
+**[Important] {slug}** (confidence: {N}, {source}) — `{relative_path}:L{start}-L{end}`
 ...
 
-**[Suggestion] {slug}** (confidence: {N}, {source})
+**[Suggestion] {slug}** (confidence: {N}, {source}) — `{relative_path}:L{start}-L{end}`
 ...
 
 ### Strengths
@@ -158,7 +160,7 @@ Document type: {doc_type} | Rules: {list of rules files loaded}
 Sources: {K} rule-based, {J} structural/cross-doc
 ```
 
-Where `{source}` is the rule ID (e.g., UNIV-03, ADR-R02) for checklist findings or `structural` for bogey findings.
+Where `{source}` is the rule ID (e.g., UNIV-03, ADR-R02) for checklist findings or `structural` for bogey findings. The `— \`{relative_path}:L{start}-L{end}\`` location reference comes directly from the agent output — preserve it exactly as emitted.
 
 If no findings from either agent: report **PASS — no findings above confidence threshold**.
 
