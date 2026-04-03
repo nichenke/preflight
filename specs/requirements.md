@@ -158,6 +158,7 @@ tested, and synced across the repo and any Notion upstream.
 - FR-019: When reviewing a document, the plugin shall report findings grouped by severity (Error, Warning) with rule IDs and specific fix suggestions.
 - FR-020: If a reviewed document has zero Error findings, the plugin shall report it as passing review.
 - FR-025: When the user runs `/preflight review` on a document inside a sub-project that lacks its own `.preflight/_rules/`, the plugin shall walk up the directory tree to find the nearest ancestor `.preflight/_rules/` and use those rules — without requiring the sub-project to be independently scaffolded.
+- FR-030: When reviewing a document, each finding shall include the file path (relative to project root) and line range (`L{start}-L{end}`) where the evidence appears, formatted as `— \`{path}:L{start}-L{end}\`` on the finding header line (ADR-006).
 
 ### Rules auto-loading
 

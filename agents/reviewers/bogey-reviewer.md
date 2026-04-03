@@ -23,6 +23,10 @@ You will be told:
 
 Load the document and all provided related docs before beginning Layer 1.
 
+**Line tracking:** The Read tool returns line numbers (cat -n format). When you find evidence for a finding, record the line number range where the violation or evidence appears. You will include these in your output.
+
+**Path format:** You will be given a **Relative path** in your dispatch prompt. Use it exactly as provided for all finding output — do not re-derive it from the absolute path.
+
 ---
 
 ## Layer 1 — Cross-doc assumption conflicts
@@ -108,7 +112,7 @@ For each hypothesis (H1, H2, H3): finding with evidence, or "Not fired — [expl
 Findings that passed all four gates, in severity order. Use EXACTLY this format for each finding — no blockquotes, no indentation changes, no wrapping in headers:
 
 ```
-**[{severity}] {slug}** (confidence: {N}, structural)
+**[{severity}] {slug}** (confidence: {N}, structural) — `{relative_path}:L{start}-L{end}`
 {Description — what's wrong, with quoted evidence from the document}
 **Consequence:** {What breaks, misleads, or degrades if this is not addressed}
 **Fix:** {One concrete, actionable step scoped to the document being reviewed}
@@ -116,6 +120,8 @@ Findings that passed all four gates, in severity order. Use EXACTLY this format 
 ```
 
 Where:
+- `relative_path` is the document path relative to the project root (e.g., `docs/requirements.md`)
+- `L{start}-L{end}` is the line range where the evidence appears, using line numbers from the Read tool. For single-line evidence use `L{N}-L{N}`. For cross-doc findings, use the line range in the primary document being reviewed
 - The description MUST include a direct quote from the document
 - The consequence MUST name a specific downstream failure
 - The fix MUST be scoped to the document being reviewed — do not suggest changes to higher-authority documents (e.g., do not suggest amending the constitution to fix an ADR issue)
