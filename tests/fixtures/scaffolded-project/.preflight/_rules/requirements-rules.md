@@ -16,6 +16,7 @@ source: PM Documentation Framework (Notion)
 | REQ-R05 | Each user journey SHALL have at least one failure mode documented | Warning |
 | REQ-R06 | Success measures SHALL include baseline, target, and measurement method | Warning |
 | REQ-R07 | Any change to requirements.md that alters system behavior, scope, or quantitative targets SHALL be accompanied by an ADR that references affected FR/NFR IDs and lists downstream documents needing updates | Error |
+| REQ-R08 | Requirements SHALL NOT contain current implementation status, known gaps, or work items — those belong in issue trackers or project plans, not specification text | Warning |
 
 ## Requirements Change Governance
 
@@ -50,3 +51,4 @@ ADR. If it only makes existing intent clearer, it doesn't.
 - **Untestable language**: "The system should generally try to..." — remove hedging
 - **Silent scope changes**: Editing requirements without an ADR — if behavior changes, the rationale must be recorded (REQ-R07)
 - **Empty Out of Scope**: Every requirements doc should explicitly state what's excluded
+- **Implementation status in spec**: Requirements that describe what's currently broken or what tools lack coverage are mixing specification with project status. "Each stage SHALL have tests" is a requirement; "MineReflections has zero tests" is a work item.
