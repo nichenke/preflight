@@ -60,7 +60,7 @@ Create skeleton documents in `{docs_dir}`:
 3. Use Bash: `mkdir -p {docs_dir}/interfaces` then write an empty file `{docs_dir}/interfaces/.gitkeep`
 4. Read `${CLAUDE_PLUGIN_ROOT}/content/scaffolds/adr-001-use-preflight.md` → Write to `{docs_dir}/decisions/adrs/adr-001-use-preflight.md` (create dirs with `mkdir -p` first)
 5. Use Bash: `mkdir -p {docs_dir}/decisions/rfcs` then write an empty file `{docs_dir}/decisions/rfcs/.gitkeep`
-6. Read `${CLAUDE_PLUGIN_ROOT}/content/scaffolds/agents-md-skeleton.md` → replace every `{docs_dir}` with the actual chosen path → Write to `AGENTS.md` at the project root. This file configures OpenAI Codex auto-review to use the project's governing documents.
+6. Check if `AGENTS.md` already exists at the project root. If it does, skip this step (do not overwrite). If it does not exist, read `${CLAUDE_PLUGIN_ROOT}/content/scaffolds/agents-md-skeleton.md` → replace every `{docs_dir}` with the actual chosen path → Write to `AGENTS.md` at the project root. This file configures OpenAI Codex auto-review to use the project's governing documents.
 
 ### 2.4 Write .preflight/config.yml
 
@@ -123,7 +123,7 @@ Print a summary of everything created. Group by category:
 - `.preflight/` framework files (count of templates, rules, reference files)
 - Project docs in `{docs_dir}/`
 - `.claude/rules/preflight.md`
-- `AGENTS.md` (Codex auto-review configuration)
+- `AGENTS.md` (Codex auto-review configuration — skipped if already present)
 
 Remind the user to commit these files and that they can run `/preflight new` to create their first spec document.
 
