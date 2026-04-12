@@ -7,105 +7,76 @@ date: 2026-04-11
 
 # Preflight — Test Strategy
 
-## Testing pyramid
+## Philosophy
 
-### Content integrity tests (unit-level)
+Preflight is a file-based plugin with no runtime — testing focuses on structural
+correctness (do the right files exist with the right content?) and behavioral
+correctness (do the skills produce the right output?). There are no APIs to mock,
+no databases to seed, no services to deploy.
 
-Shell scripts that verify the plugin's structural correctness without requiring Claude Code or any external dependencies.
+The constraint shaping everything: tests must run without Claude Code or external
+dependencies (NFR-005). This rules out test frameworks, package managers, and anything
+that requires installation. Shell scripts with standard POSIX tools are the current
+implementation choice.
 
-**Implementation:** Bash scripts using standard POSIX tools. The current implementation uses bash for structured text validation, but the test runner technology is an implementation choice — the requirement is that tests run without Claude Code or external dependencies (NFR-005).
+## Testing levels
 
-**Test files:**
-- `tests/test-plugin.sh` — content integrity and plugin structure validation (99 assertions)
-- `tests/test-hooks.sh` — hook behavior unit tests
+### Content integrity (automated, pre-commit)
 
-**What they cover:**
-- Plugin manifest exists and has required fields (name, description, version as semver)
-- All content directories exist (`content/templates/`, `content/rules-source/`, `content/reference/`, `content/scaffolds/`)
-- All template files exist and have valid YAML frontmatter with required fields (`type`, `doc_type`, `version`, `source`)
-- All rules files exist and have valid frontmatter
-- All reference files exist
-- All scaffold files exist
-- Skill files exist with valid frontmatter
-- File references in skills resolve to actual files
-- Test fixtures match source content (`.preflight/_rules/` mirrors `content/rules-source/`)
-- Project docs exist and have valid frontmatter
-- Hook scripts exist, are executable, and behave correctly
+Shell scripts verify the plugin's structural invariants: every expected file exists,
+has valid YAML frontmatter with required fields, and content mirrors stay in sync with
+their sources. These tests are fast, deterministic, and catch the most common class of
+breakage — forgetting to update a fixture after changing a source file.
 
-**Run:** `bash tests/test-plugin.sh && bash tests/test-hooks.sh`
+This level covers CONST-QA-03 (automated content integrity tests) and validates the
+structural aspects of most FRs (file existence, frontmatter validity, reference resolution).
 
-### Skill eval tests (integration-level)
+### Skill evals (semi-automated, pre-release)
 
-Each skill is validated with `/skill-creator` evals before shipping (NFR-004). Evals measure:
-- Rule following: does the skill follow its SKILL.md instructions? (target: ≥85%)
-- Activation ordering: does the skill execute steps in the correct order?
-- Triggering accuracy: does the skill activate on the right inputs?
+Each skill is validated with `/skill-creator` evals measuring rule following (≥85%),
+activation ordering, and triggering accuracy (NFR-004, CONST-QA-01/02). Evals run
+against the skill's SKILL.md instructions — they test whether the agent follows the
+skill definition, not whether the skill definition is correct.
 
-**Run:** `/skill-creator eval` per skill
+### Plugin structure validation (semi-automated, pre-release)
 
-### Plugin structure validation (integration-level)
+Plugin-dev validation checks manifest completeness, skill frontmatter, file references,
+and agent definitions (NFR-006, CONST-QA-04). This catches structural issues at the
+plugin packaging level that content integrity tests don't cover.
 
-The plugin structure passes `plugin-dev` validation with zero blocking findings before each release (NFR-006). This checks:
-- Manifest completeness and correctness
-- Skill frontmatter validity
-- File reference resolution
-- Agent definition validity
+### Functional end-to-end (manual, pre-release)
 
-### Functional end-to-end tests (system-level)
+Six scenarios exercised manually in a test project (NFR-009–NFR-014, CONST-QA-05):
+fresh scaffold, custom docs dir, scaffold update without clobbering, `/preflight new`
+for multiple doc types, `/preflight review` on valid and invalid documents, and ADR
+impact propagation. These test the full skill behavior including agent interaction.
 
-Each release must pass 6 e2e test scenarios (NFR-009–NFR-014):
+E2e automation is a future goal — the current constraint is that these tests require
+Claude Code running interactively.
 
-| NFR | Scenario | What it verifies |
-|-----|----------|-----------------|
-| NFR-009 | Fresh scaffold | `.preflight/` created with all framework content in a new project |
-| NFR-010 | Custom docs dir | Scaffold respects configured docs directory |
-| NFR-011 | Scaffold update without clobbering | Framework files updated, project files untouched (FR-008/FR-009) |
-| NFR-012 | `/preflight new` for ADR and requirements | Guided elicitation produces well-structured docs |
-| NFR-013 | `/preflight review` on valid and invalid docs | Findings reported correctly, clean docs pass |
-| NFR-014 | ADR impact propagation | Downstream docs identified and updated (FR-023) |
+## Quality gates
 
-**Current status:** E2e tests are manual — run via Claude Code in a test project. Automation is a future goal.
+| Gate | What blocks | When |
+|------|------------|------|
+| Content integrity tests | Merge to main | Every PR (pre-commit) |
+| Skill evals | Release | Before version bump |
+| Plugin-dev validation | Release | Before version bump |
+| E2e scenarios (all 6) | Release | Before version bump (manual) |
+| Code review (`/simplify` or equivalent) | Release | Before shipping skill changes (NFR-008) |
 
-## Acceptance criteria mapping
+## Coverage philosophy
 
-| Requirement | Test type | Test location | Status |
-|-------------|-----------|---------------|--------|
-| FR-001–FR-007 | Content integrity | `tests/test-plugin.sh` | Automated |
-| FR-008–FR-009 | E2e | Manual (NFR-011) | Manual |
-| FR-010–FR-016, FR-031–FR-036 | E2e | Manual (NFR-012) | Manual |
-| FR-017–FR-020 | E2e | Manual (NFR-013) | Manual |
-| FR-021–FR-022 | Content integrity | `tests/test-plugin.sh` (rules file checks) | Automated |
-| FR-023–FR-024 | E2e | Manual (NFR-014) | Manual |
-| FR-025 | E2e | Manual | Manual |
-| FR-026 | Content integrity | `tests/test-plugin.sh` (skill existence) | Automated |
-| FR-027 | Content integrity | `tests/test-plugin.sh` (rules file checks) | Automated |
-| FR-028–FR-029 | Unit | `tests/test-hooks.sh` | Automated |
-| FR-030 | E2e | Manual (NFR-013) | Manual |
-| NFR-001 | Content integrity | `tests/test-plugin.sh` (no external deps) | Automated |
-| NFR-002 | E2e | Manual timing | Manual |
-| NFR-003 | Content integrity | `tests/test-plugin.sh` (line count) | Automated |
-| NFR-004 | Skill eval | `/skill-creator eval` | Semi-automated |
-| NFR-005 | Content integrity | `tests/test-plugin.sh` | Automated |
-| NFR-006 | Plugin validation | `plugin-dev` validation | Semi-automated |
-| NFR-008 | Code review | `/simplify` or equivalent | Semi-automated |
+**Automated tests verify structure, not behavior.** Content integrity tests confirm
+files exist and have valid frontmatter — they don't test what the scaffold skill
+actually does when invoked. Behavioral testing requires Claude Code running the
+skills, which is why e2e tests are manual.
 
-## Environment strategy
+**Test fixtures are mirrors, not mocks.** The test fixture directory contains an exact
+copy of what scaffold would produce. Tests verify the fixture matches the source. When
+source content changes, the fixture must be updated — test failures indicate a missed
+update, not a broken feature.
 
-Tests run in two environments:
-- **Plugin repo:** `tests/test-plugin.sh` and `tests/test-hooks.sh` run directly against the repo
-- **Test fixture:** `tests/fixtures/scaffolded-project/` provides a pre-scaffolded project for content mirror verification
-
-No staging or production environments — the plugin is a file bundle, not a service.
-
-## CI/CD integration
-
-- **Pre-commit:** `tests/test-plugin.sh` and `tests/test-hooks.sh` must pass before merge
-- **Pre-release:** All NFR-009–NFR-014 e2e scenarios must pass (currently manual)
-- **Release gate:** Plugin version in `plugin.json` must be bumped for behavioral changes (CONST-PROC-01)
-
-## Test fixture maintenance
-
-The test fixture at `tests/fixtures/scaffolded-project/` mirrors the scaffold output. When content files change:
-1. Update the source in `content/`
-2. Update the fixture mirror in `tests/fixtures/scaffolded-project/.preflight/_rules/` (or `_templates/`, `_reference/`)
-3. `test-plugin.sh` verifies the mirror matches the source — failures indicate a missed fixture update
+**Every FR traces to a test level.** Content-level FRs (file existence, structure) are
+automated. Behavioral FRs (elicitation flow, review output, scaffold decisions) are
+covered by e2e scenarios. The gap is automation of behavioral tests — currently manual,
+tracked as technical debt.

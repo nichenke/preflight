@@ -9,205 +9,115 @@ date: 2026-04-11
 
 ## 1. Introduction & Goals
 
-### 1.1 Requirements overview
+Preflight is a Claude Code plugin for spec-driven development — scaffold, guided
+elicitation, and rule-based review. It runs entirely within Claude Code with no
+external dependencies.
 
-Preflight is a Claude Code plugin for spec-driven development. It provides three skills
-(scaffold, new, review) backed by content files (templates, rules, reference material)
-and enforced by hooks and auto-loaded rules. See `specs/requirements.md` for the full
-specification.
+### Quality goals
 
-### 1.2 Quality goals
-
-| Priority | Quality attribute | Scenario |
-|----------|------------------|----------|
-| 1 | Zero dependencies | Plugin installs and runs with no npm, pip, or binary prerequisites (NFR-001) |
-| 2 | Content integrity | Single source of truth in `content/` — scaffold copies to projects, never the reverse (CONST-CI-02) |
-| 3 | Context efficiency | Auto-loaded rules stay under 80 lines to minimize agent context cost (NFR-003) |
-| 4 | Governance traceability | Every behavioral change traces to a requirement ID and ADR (CONST-PROC-01, CONST-PROC-02) |
-
-### 1.3 Stakeholders
-
-| Role | Expectations |
-|------|-------------|
-| Project bootstrapper | Setup under 5 seconds (NFR-002), correct directory structure, no surprises |
-| Spec author | Guided elicitation that produces well-structured docs |
-| Spec reviewer | Accurate findings with rule IDs and locations |
-| Plugin author | Clear content editing workflow, version governance |
+| Priority | Quality attribute | How it's achieved |
+|----------|------------------|-------------------|
+| 1 | Zero dependencies | Everything is markdown and shell scripts — no package managers, no binaries (NFR-001) |
+| 2 | Content integrity | Single source of truth with one-way flow — plugin owns content, projects get copies (CONST-CI-02) |
+| 3 | Context efficiency | Auto-loaded rules stay lean to minimize agent context cost (NFR-003) |
+| 4 | Governance traceability | Behavioral changes require version bumps; requirement changes require ADRs (CONST-PROC-01/02) |
 
 ## 2. Constraints
 
-### 2.1 Technical constraints
+- **Platform:** Claude Code plugin system — skills, agents, rules, and hooks are the only extension points
+- **Content format:** Markdown with YAML frontmatter — this is what the plugin system natively understands
+- **No runtime:** No servers, no databases, no network calls — the plugin is a directory of files
 
-- **Platform:** Claude Code plugin system only — skills, agents, rules, and hooks
-- **Content access:** All plugin content accessed via `${CLAUDE_PLUGIN_ROOT}` paths
-- **File formats:** Templates, rules, and reference material are markdown with YAML frontmatter
-- **No runtime dependencies:** No npm, pip, or binaries — content is markdown and shell scripts (NFR-001)
+## 3. System Context
 
-### 2.2 Organizational constraints
+Preflight exists entirely within Claude Code. The user invokes skills (`/preflight scaffold`, `new`, `review`), which operate on the plugin's content files and the target project's specs directory. There are no external systems or integrations.
 
-- Single maintainer (plugin author persona)
-- Constitution governance: version bumps on behavioral changes (CONST-PROC-01), ADRs on requirement changes (CONST-PROC-02)
+The plugin interacts with two scopes:
+- **Plugin repo** — where content is authored and maintained, with hook-based workflow enforcement
+- **Target projects** — where content is scaffolded and specs are written and reviewed
 
-## 3. Context & Scope
+## 4. Key Architectural Decisions
 
-### 3.1 System context
+### Content-as-code with one-way flow
 
-```
-┌─────────────────────────────────────────────────────┐
-│                   Claude Code                        │
-│                                                      │
-│  ┌──────────────┐    ┌───────────────────────────┐  │
-│  │  User/Agent  │───▶│   Preflight Plugin         │  │
-│  │              │    │                             │  │
-│  │  /preflight  │    │  Skills: scaffold,new,review│  │
-│  │  scaffold    │    │  Agents: checklist, bogey   │  │
-│  │  new         │    │  Rules: auto-loaded         │  │
-│  │  review      │    │  Hooks: protect-main        │  │
-│  └──────────────┘    └───────────┬───────────────┘  │
-│                                  │                   │
-│                      ┌───────────▼───────────────┐  │
-│                      │   Target Project           │  │
-│                      │                             │  │
-│                      │  .preflight/                │  │
-│                      │    _templates/ _rules/      │  │
-│                      │    _reference/              │  │
-│                      │  specs/ (project docs)      │  │
-│                      │  .claude/rules/preflight.md │  │
-│                      └───────────────────────────┘  │
-└─────────────────────────────────────────────────────┘
-```
-*Notation: boxes = systems/components, arrows = invocation/data flow, nesting = runtime containment.*
+All framework content (templates, rules, reference material) lives in the plugin as plain files. The scaffold skill copies them into target projects. Content flows one direction only: plugin → project.
 
-External interfaces: none. Preflight is fully self-contained within Claude Code.
+This means:
+- The plugin has zero runtime dependencies — it's just files being copied
+- Projects get a snapshot of the framework at scaffold time, not a live reference
+- Updates require re-running scaffold, which compares and reports differences
+- Edits to content happen in the plugin, never in a target project's copy
 
-## 4. Solution Strategy
+**Why not live references?** Claude Code plugins access content via `${CLAUDE_PLUGIN_ROOT}` paths, but the review skill needs rules to exist in the project for portability — a project should be reviewable even without the plugin installed. One-way copy solves this.
 
-- **Content-as-code:** All framework content (templates, rules, reference) lives in `content/` as markdown files. The scaffold skill copies them into target projects. This means the plugin has zero runtime dependencies — it's just files.
-- **Ensemble review:** Document review dispatches two independent agents (checklist + bogey) with different strategies, then merges findings. This catches both rule violations and structural defects (ADR-004).
-- **Auto-loaded rules:** Framework rules inject into agent context via `.claude/rules/` — no CLAUDE.md edits needed in target projects (FR-021, CONST-DIST-01).
-- **Deterministic workflow enforcement:** Git workflow invariants (worktrees, feature branches, no direct commits to main) are enforced by PreToolUse hooks in the plugin repo, not by advisory rules (FR-028, ADR-005).
+### Ensemble review (ADR-004)
 
-## 5. Building Block View
+Document review dispatches two independent agents with different strategies, then merges their findings:
 
-### 5.1 Plugin components
+- **Checklist reviewer** — rule-based, systematic. Loads applicable rules, checks each one, scores confidence. Catches violations of known rules.
+- **Bogey reviewer** — adversarial, structural. Forms hypotheses about what could be wrong, investigates each with validation gates (verify, YAGNI, steelman). Catches cross-doc conflicts and structural defects that rules don't cover.
 
-| Component | Location | Responsibility | Implements |
-|-----------|----------|---------------|------------|
-| **Scaffold skill** | `skills/scaffold/SKILL.md` | Create/update `.preflight/` directory structure | FR-001–FR-009 |
-| **New skill** | `skills/new/SKILL.md` | Guided document creation with elicitation | FR-010–FR-016, FR-023, FR-024, FR-031–FR-036 |
-| **Review skill** | `skills/review/SKILL.md` | Dispatch reviewers, merge findings, report | FR-017–FR-020, FR-025, FR-030 |
-| **Checklist reviewer** | `agents/reviewers/checklist-reviewer.md` | Rule-based review with confidence scoring | ADR-004 |
-| **Bogey reviewer** | `agents/reviewers/bogey-reviewer.md` | Adversarial structural review with validation gates | ADR-004 |
-| **Content: templates** | `content/templates/` | Document type templates (7 types) | CONST-CI-02 |
-| **Content: rules** | `content/rules-source/` | Review rules (7 files: universal, cross-doc, 5 type-specific) | CONST-CI-02 |
-| **Content: reference** | `content/reference/` | Framework reference material (6 files) | CONST-CI-02 |
-| **Content: scaffolds** | `content/scaffolds/` | Starter files for new projects (constitution, glossary, meta-ADR, AGENTS.md) | FR-005, FR-007 |
-| **Auto-loaded rules** | `.claude/rules/preflight.md` | Inject read-before-coding sequence and governance rules into agent context | FR-021, FR-022 |
-| **Protect-main hook** | `.claude/hooks/protect-main.sh` | PreToolUse hook blocking direct commits/pushes to main | FR-028, FR-029 |
-| **Issue-triage skill** | `.claude/skills/issue-triage/` | Local skill for structured issue assessment | FR-026 |
-| **Traceability rule** | `.claude/rules/preflight.md` | Auto-loaded rule requiring spec traceability on behavioral fixes | FR-027 |
+**Why two agents instead of one?** A single agent trying to be both systematic and creative tends to be mediocre at both. Separating the strategies lets each agent specialize. The merge step deduplicates by root cause — if both agents find the same defect, only the higher-confidence finding survives.
 
-### 5.2 Content flow
+### Three enforcement tiers
 
-```
-content/                          Target project
-  templates/ ──── scaffold ────▶ .preflight/_templates/
-  rules-source/ ─ scaffold ────▶ .preflight/_rules/
-  reference/ ──── scaffold ────▶ .preflight/_reference/
-  scaffolds/ ──── scaffold ────▶ specs/ (constitution, glossary, meta-ADR)
-```
+| Tier | Mechanism | Strength | Scope |
+|------|-----------|----------|-------|
+| Deterministic | PreToolUse hooks | Blocks the action before it happens | Plugin repo only (ADR-005) |
+| Advisory | Auto-loaded rules | Agent reads and follows (or doesn't) | Plugin repo only |
+| On-demand | Review skill | Agent checks when asked | Target projects |
 
-Content flows one direction only: plugin → project. Edits happen in `content/` (the source of truth per CONST-CI-02), never in a target project's `.preflight/` directory.
+**Why not enforce review rules via hooks?** Hooks block tool use — appropriate for git workflow invariants (don't commit to main) but too blunt for spec quality rules. A spec with one missing ID shouldn't block all file writes. Review rules are advisory, checked when the user explicitly requests review. This remains out of scope for v1.
 
-### 5.3 Enforcement mechanisms
+### Skill decomposition
 
-| Mechanism | Type | Scope | Implementation |
-|-----------|------|-------|---------------|
-| Git workflow invariants | PreToolUse hook | Plugin repo only | `.claude/hooks/protect-main.sh` via `.claude/settings.json` |
-| Spec traceability | Auto-loaded rule | Plugin repo only | `.claude/rules/preflight.md` — advisory, enforced by agent compliance |
-| Review rules | Review skill dispatch | Target projects | `.preflight/_rules/` — advisory, checked by checklist + bogey agents |
+Three skills map to three user journeys:
+- **Scaffold** — project setup and framework updates (Journeys 1 & 4)
+- **New** — guided document creation with type-specific elicitation (Journey 2)
+- **Review** — ensemble validation dispatching two reviewer agents (Journey 3)
 
-Hook-based enforcement is deterministic: the hook blocks the tool use and reports the violation (FR-028, FR-029). Rule-based enforcement is advisory: agents are expected to follow rules but are not mechanically prevented from violating them. Review-rule enforcement via hooks remains out of scope (Section 9 of requirements).
+Each skill is a self-contained SKILL.md with its own instructions. Skills don't call each other — they're independent entry points.
 
-## 6. Runtime View
+## 5. Content Architecture
 
-### 6.1 Scaffold (Journey 1 & 4)
+The plugin organizes content into four categories, each serving a different purpose:
 
-1. User invokes `/preflight scaffold`
-2. Skill checks if `.preflight/` exists
-3. If new: creates directory structure, copies all content, creates skeleton docs
-4. If existing: compares framework files against plugin source, reports differences
-5. Never overwrites project-specific files (FR-009, CONST-DIST-02)
+- **Templates** — document type skeletons (7 types: requirements, ADR, RFC, architecture, constitution, interface contract, test strategy). Define what sections each doc type should have.
+- **Rules** — review rules organized as universal (apply to all docs), cross-doc (traceability between docs), and type-specific (per doc type). Each rule has an ID, description, and severity.
+- **Reference** — guidance material scaffolded into projects for agent context (EARS notation, doc taxonomy, cross-doc relationships).
+- **Scaffolds** — starter files for new projects (constitution skeleton, glossary, meta-ADR).
 
-### 6.2 New document (Journey 2)
+Rule IDs are stable — renumbering or removing requires an ADR (CONST-CI-03). This ensures review findings remain traceable across plugin versions.
 
-1. User invokes `/preflight new [type]`
-2. Skill resolves doc type (prompt if not specified)
-3. Skill reads template from `.preflight/_templates/`
-4. Skill walks through guided elicitation for each template section
-5. Skill writes document with populated frontmatter in the correct location
-6. For ADRs: identifies downstream docs needing updates (FR-023)
+## 6. Runtime Behavior
 
-### 6.3 Review (Journey 3)
+### Scaffold flow
 
-1. User invokes `/preflight review [path]`
-2. Skill resolves target file and doc type
-3. Skill loads applicable rules (universal + cross-doc + type-specific)
-4. Skill dispatches checklist-reviewer and bogey-reviewer agents in parallel
-5. Skill merges findings: checklist findings directly, bogey Layer 3 validated findings only
-6. Skill deduplicates by root cause, sorts by severity, reports with file:line locations (FR-030)
+Scaffold checks whether the target project already has a `.preflight/` directory. Fresh projects get the full directory structure with all content. Existing projects get a comparison — the skill reports what's different and asks before updating framework files. Project-specific files (constitution, requirements, ADRs, etc.) are never overwritten.
 
-### 6.4 Protect-main hook (Journey 6)
+### Review flow
 
-1. Agent attempts Bash tool use with git commit/push/merge targeting main
-2. PreToolUse hook (`protect-main.sh`) intercepts the tool input
-3. Hook checks if the command targets main branch
-4. If violation: blocks tool use, reports which invariant was violated and correct workflow (FR-029)
-5. If clean: allows tool use to proceed
+Review resolves the doc type, loads applicable rules, and dispatches both reviewer agents in parallel. When both complete, the skill merges findings: checklist findings come through directly, bogey findings only from the validated layer (Layer 3). Deduplication keeps the higher-confidence finding when both agents flag the same defect. Output is sorted by severity with file:line locations (ADR-006).
 
-## 7. Deployment View
+### Elicitation flow
 
-Not applicable — Preflight is a Claude Code plugin distributed as a directory of files. No servers, no containers, no infrastructure.
+New resolves the doc type (prompting if not specified), reads the template, and walks through each section with guided questions. Requirements elicitation follows a specific sequence: problem → personas → journeys → EARS decomposition → NFRs → constraints → success measures. For ADRs, the skill also identifies downstream docs needing updates after the decision is written.
 
-- **Installation:** Clone or install via Claude Code plugin management
-- **Updates:** User runs `/preflight scaffold` to pull updated framework content into their project
+## 7. Architecture Decisions
 
-## 8. Crosscutting Concepts
+| ADR | Decision | Status |
+|-----|----------|--------|
+| ADR-002 | Convert from standalone repo to Claude Code plugin | Accepted |
+| ADR-003 | Add automated quality gates (content integrity, plugin validation, e2e) | Accepted |
+| ADR-004 | Ensemble reviewer architecture (checklist + bogey, merge findings) | Accepted |
+| ADR-005 | Add maintainer workflow requirements (hooks, triage skill, traceability) | Accepted |
+| ADR-006 | Include file:line-range locations in review findings | Proposed |
 
-### 8.1 Version governance
-
-Every behavioral change bumps the version in `plugin.json` (CONST-PROC-01). The plugin follows semver:
-- Patch: bug fixes, typo corrections, clarifications
-- Minor: new rules, new template sections, new reference material
-- Major: breaking changes to scaffold output structure or skill behavior
-
-### 8.2 Content integrity
-
-The `content/` directory is the single source of truth (CONST-CI-02). Rule IDs are stable — renumbering or removing requires an ADR (CONST-CI-03). Content integrity is verified by automated tests before each release (CONST-QA-03).
-
-### 8.3 Error handling
-
-Skills report failures to the user with specific guidance:
-- Missing `.preflight/`: directs to run `/preflight scaffold`
-- Unrecognized doc type: asks for clarification
-- File already exists: reports and asks how to proceed
-- Elicitation abandoned: no file created, no partial artifacts
-
-## 9. Architecture Decisions
-
-| ADR | Title | Status |
-|-----|-------|--------|
-| ADR-002 | Convert to Claude Code plugin | Accepted |
-| ADR-003 | Plugin quality gates | Accepted |
-| ADR-004 | Reviewer agent architecture (ensemble: checklist + bogey) | Accepted |
-| ADR-005 | Maintainer workflow requirements | Accepted |
-| ADR-006 | Review finding locations (file:line-range) | Proposed |
-
-## 10. Risks & Technical Debt
+## 8. Risks & Technical Debt
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Claude Code plugin API changes | Skills/hooks may break | Pin to documented API surface, test against each CC release |
-| Rule file growth exceeds context budget | Agent performance degrades | NFR-003 caps auto-loaded rules at 80 lines; review rules are loaded on-demand |
-| Template drift from upstream (Notion) | Scaffolded content becomes stale | Manual sync; Notion tooling remains out of scope for v1 |
-| FR-009 enumerated file list vs CONST-DIST-02 open set | Custom project files could be overwritten | FR-008 provides broad protection; FR-009 enumerates known cases |
+| Claude Code plugin API changes | Skills or hooks may break on CC updates | Pin to documented API surface; test against each CC release |
+| Rule file growth exceeds context budget | Agent performance degrades as rules consume more context | NFR-003 caps auto-loaded rules at 80 lines; review rules load on-demand, not at startup |
+| Template drift from upstream (Notion) | Scaffolded content becomes stale vs. source framework | Manual sync; Notion tooling remains out of scope for v1 |
+| Enumerated protection list (FR-009) vs. open set (CONST-DIST-02) | Custom project files outside the list could be overwritten | FR-008 provides broad protection; FR-009 enumerates the known cases as a safety net |
