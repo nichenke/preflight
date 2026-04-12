@@ -143,7 +143,13 @@ tested, and synced across the repo and any Notion upstream.
 
 - FR-010: When the user runs `/preflight new`, the plugin shall prompt for doc type if not specified.
 - FR-011: When the user runs `/preflight new <type>`, the plugin shall walk through all sections defined in the doc type's template before creating the file.
-- FR-012: When creating a requirements spec, the plugin shall guide the user through: problem statement, personas, user journeys with failure modes, EARS functional requirements, non-functional requirements with quantitative criteria, constraints, assumptions, success measures, and out-of-scope items.
+- FR-012: When creating a requirements spec, the plugin shall elicit a problem statement.
+- FR-031: When creating a requirements spec, the plugin shall elicit personas with goals and pain points.
+- FR-032: When creating a requirements spec, the plugin shall elicit user journeys with failure modes.
+- FR-033: When creating a requirements spec, the plugin shall elicit EARS functional requirements.
+- FR-034: When creating a requirements spec, the plugin shall elicit non-functional requirements with quantitative criteria.
+- FR-035: When creating a requirements spec, the plugin shall elicit constraints, assumptions, and out-of-scope items.
+- FR-036: When creating a requirements spec, the plugin shall elicit success measures with baselines and targets.
 - FR-013: When creating an ADR, the plugin shall guide the user through: context, decision drivers, at least two options with pros and cons, decision outcome with consequences, and confirmation criteria.
 - FR-014: When creating an RFC, the plugin shall guide the user through: executive summary, problem statement with measurable evidence, scope, proposed solution, at least one alternative, migration/rollout plan with rollback, risks, and success criteria.
 - FR-015: When the plugin creates a new document, the plugin shall populate YAML frontmatter with status, date, owner, and version.
@@ -168,8 +174,8 @@ tested, and synced across the repo and any Notion upstream.
 ### Maintainer workflow (Persona: plugin author) — ADR-005
 
 - FR-026: The plugin repo shall provide a local issue-triage skill (`.claude/skills/`) that produces structured assessments with evidence-backed validity verdicts, spec gap maps, governance classifications, and dependency-ordered fix decompositions.
-- FR-027: Every proposed behavioral fix shall trace to a requirement ID (FR/NFR/CONST) or explicitly identify a missing requirement — enforced by an auto-loaded rule in `.claude/rules/`.
-- FR-028: The plugin repo shall enforce git workflow invariants (worktrees, feature branches, PRs — no direct commits to main) via PreToolUse hooks that block violations deterministically.
+- FR-027: Every proposed behavioral fix shall trace to a requirement ID (FR/NFR/CONST) or explicitly identify a missing requirement.
+- FR-028: The plugin repo shall enforce git workflow invariants (worktrees, feature branches, PRs — no direct commits to main) deterministically, blocking violations before they occur.
 - FR-029: While a git workflow hook blocks a tool use, the hook shall report which invariant was violated and what the correct workflow is.
 
 ## 5. Non-Functional Requirements
