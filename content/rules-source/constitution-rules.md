@@ -15,6 +15,7 @@ source: PM Documentation Framework (Notion)
 | CONST-R04 | Principles SHALL NOT prescribe specific tools or versions ("use Jest" is too specific; "all code must have automated tests" is correct) | Warning |
 | CONST-R05 | The constitution SHALL NOT exceed 30 principles — if it's longer, it's not a constitution, it's a standards doc | Warning |
 | CONST-R06 | Every amendment SHALL be recorded in the Amendment Log with ADR reference | Error |
+| CONST-R07 | Principles SHALL NOT cross-reference requirement IDs (FR-NNN, NFR-NNN) — principles are self-contained outcome statements; implementation details and requirement mappings belong in ADRs and requirements docs | Warning |
 
 ## Change Governance
 
@@ -45,3 +46,4 @@ needs ADRs AND ratification.
 - **Unenforced amendments**: Changing the constitution without an ADR.
 - **No ratifiers named**: A constitution without designated ratifiers has no authority.
 - **Agent-invisible principles**: Principles only a human could verify ("code should feel elegant"). Every principle should be mechanically checkable.
+- **Requirement leaking into principles**: Principles that reference FR-NNN or NFR-NNN IDs are coupling the constitution to implementation. The ADR maps principle to requirements; the principle itself should stand alone.
