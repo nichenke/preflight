@@ -204,7 +204,7 @@ Scaffold never overwrites:
 
 ## New skill
 
-Covers FR-010 through FR-016.
+Covers FR-010 through FR-016 and FR-031 through FR-036 (requirements elicitation steps).
 
 ### Entry flow
 
@@ -348,7 +348,7 @@ Review is advisory — it does not modify the document or block anything.
 | Requirement           | Addressed by                                                   |
 | --------------------- | -------------------------------------------------------------- |
 | FR-001 through FR-009 | Scaffold skill                                                 |
-| FR-010 through FR-016 | New skill                                                      |
+| FR-010 through FR-016, FR-031 through FR-036 | New skill                       |
 | FR-023 (new)          | New skill — ADR impact propagation                             |
 | FR-017 through FR-020 | Review skill                                                   |
 | FR-021, FR-022        | Scaffold-generated `.claude/rules/preflight.md`                |
@@ -365,7 +365,7 @@ Review is advisory — it does not modify the document or block anything.
 | CONST-DIST-01         | Rules auto-load via scaffold-generated `.claude/rules/`        |
 | CONST-DIST-02         | FR-009 protected files list                                    |
 | CONST-QA-01, QA-02    | NFR-004 eval requirement                                       |
-| CONST-QA-03           | NFR-005 through NFR-008 quality gate suite                     |
+| CONST-QA-03           | NFR-005, NFR-006, NFR-008, NFR-009–NFR-014 quality gate suite  |
 | CONST-PROC-01         | Semver in plugin.json                                          |
 | CONST-PROC-02         | Inherited from requirements governance                         |
 | CONST-PROC-03         | ADR template uses MADR 4.0                                     |

@@ -14,10 +14,12 @@ correctness (do the right files exist with the right content?) and behavioral
 correctness (do the skills produce the right output?). There are no APIs to mock,
 no databases to seed, no services to deploy.
 
-The constraint shaping everything: tests must run without Claude Code or external
-dependencies (NFR-005). This rules out test frameworks, package managers, and anything
-that requires installation. Shell scripts with standard POSIX tools are the current
-implementation choice.
+The constraint shaping the automated layer: content integrity tests must run without
+Claude Code or external dependencies (NFR-005). This rules out test frameworks,
+package managers, and anything that requires installation for that layer. Shell
+scripts with standard POSIX tools are the current implementation choice. End-to-end
+tests are exempt from this constraint — they exercise the skills inside Claude Code
+and necessarily run interactively.
 
 ## Testing levels
 

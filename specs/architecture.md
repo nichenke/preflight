@@ -71,10 +71,12 @@ Document review dispatches two independent agents with different strategies, the
 
 ### Skill decomposition
 
-Three skills map to three user journeys:
+Three user-facing skills map to three user journeys:
 - **Scaffold** — project setup and framework updates (Journeys 1 & 4)
 - **New** — guided document creation with type-specific elicitation (Journey 2)
 - **Review** — ensemble validation dispatching two reviewer agents (Journey 3)
+
+A fourth skill — **Issue Triage** — lives in `.claude/skills/` rather than the public `skills/` directory. It supports the maintainer workflow (Journey 6, FR-026) and is intentionally local to the plugin repo: it isn't shipped to scaffolded projects.
 
 Each skill is a self-contained SKILL.md with its own instructions. Skills don't call each other — they're independent entry points.
 
