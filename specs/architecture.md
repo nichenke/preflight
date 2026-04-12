@@ -105,7 +105,7 @@ Review resolves the doc type, loads applicable rules, and dispatches both review
 
 ### Elicitation flow
 
-New resolves the doc type (prompting if not specified), reads the template, and walks through each section with guided questions. Requirements elicitation follows a specific sequence: problem → personas → journeys → EARS decomposition → NFRs → constraints → success measures. For ADRs, the skill also identifies downstream docs needing updates after the decision is written.
+New resolves the doc type (prompting if not specified), reads the template, and walks through each section with guided questions. Requirements elicitation follows a specific sequence: problem → personas → journeys → EARS decomposition → NFRs → constraints/assumptions/out-of-scope → success measures with baselines and targets. For ADRs, the skill also identifies downstream docs needing updates after the decision is written.
 
 **Failure:** If elicitation is abandoned mid-flow, no file is created — no partial artifacts are left behind.
 

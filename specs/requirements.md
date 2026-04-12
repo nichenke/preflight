@@ -176,7 +176,7 @@ tested, and synced across the repo and any Notion upstream.
 - FR-026: The plugin repo shall provide a local issue-triage skill (`.claude/skills/`) that produces structured assessments with evidence-backed validity verdicts, spec gap maps, governance classifications, and dependency-ordered fix decompositions.
 - FR-027: Every proposed behavioral fix shall trace to a requirement ID (FR/NFR/CONST) or explicitly identify a missing requirement.
 - FR-028: The plugin repo shall enforce git workflow invariants (worktrees, feature branches, PRs — no direct commits to main) deterministically, blocking violations before they occur.
-- FR-029: While a git workflow hook blocks a tool use, the hook shall report which invariant was violated and what the correct workflow is.
+- FR-029: When the plugin repo blocks a tool use for a git workflow violation, it shall report which invariant was violated and what the correct workflow is.
 
 ## 5. Non-Functional Requirements
 
@@ -186,13 +186,13 @@ tested, and synced across the repo and any Notion upstream.
 - NFR-004: Each skill shall be validated with /skill-creator evals before shipping, scoring ≥85% for rule following, activation ordering, and triggering accuracy.
 - NFR-005: The plugin shall include automated content integrity tests that verify all expected files exist, have valid frontmatter, and contain required structural elements. Tests shall run without Claude Code or external dependencies.
 - NFR-006: The plugin structure shall pass plugin-dev validation with zero blocking findings (manifest, skill frontmatter, file references) before each release.
+- NFR-008: All skill files shall pass code review with zero blocking findings (/simplify or equivalent) before shipping — checking for consistency across skills, edge case coverage, and frontmatter triggering quality.
 - NFR-009: Each release shall pass a functional end-to-end test for fresh scaffold into a new project.
 - NFR-010: Each release shall pass a functional end-to-end test for scaffold with a custom docs directory.
 - NFR-011: Each release shall pass a functional end-to-end test for scaffold update without clobbering project files (FR-008/FR-009).
 - NFR-012: Each release shall pass functional end-to-end tests for `/preflight new` on at least ADR and requirements doc types.
 - NFR-013: Each release shall pass functional end-to-end tests for `/preflight review` on valid and invalid documents.
 - NFR-014: Each release shall pass a functional end-to-end test for ADR impact propagation (FR-023).
-- NFR-008: All skill files shall pass code review with zero blocking findings (/simplify or equivalent) before shipping — checking for consistency across skills, edge case coverage, and frontmatter triggering quality.
 
 ## 6. Constraints
 

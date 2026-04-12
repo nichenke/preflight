@@ -21,7 +21,7 @@ implementation choice.
 
 ## Testing levels
 
-### Content integrity (automated, pre-commit)
+### Content integrity (automated, run manually before PR)
 
 Shell scripts verify the plugin's structural invariants: every expected file exists,
 has valid YAML frontmatter with required fields, and content mirrors stay in sync with
@@ -58,7 +58,7 @@ Claude Code running interactively.
 
 | Gate | What blocks | When |
 |------|------------|------|
-| Content integrity tests | Merge to main | Every PR (pre-commit) |
+| Content integrity tests | Merge to main | Every PR (run manually before push) |
 | Skill evals | Release | Before version bump |
 | Plugin-dev validation | Release | Before version bump |
 | E2e scenarios (all 6) | Release | Before version bump (manual) |
