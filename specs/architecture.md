@@ -64,7 +64,7 @@ Document review dispatches two independent agents with different strategies, the
 | Tier | Mechanism | Strength | Scope |
 |------|-----------|----------|-------|
 | Deterministic | PreToolUse hooks | Blocks the action before it happens | Plugin repo only (ADR-005) |
-| Advisory | Auto-loaded rules | Agent reads and follows (or doesn't) | Plugin repo only |
+| Advisory | Auto-loaded rules | Agent reads and follows (or doesn't) | Plugin repo + scaffolded projects (FR-021/FR-022) |
 | On-demand | Review skill | Agent checks when asked | Target projects |
 
 **Why not enforce review rules via hooks?** Hooks block tool use — appropriate for git workflow invariants (don't commit to main) but too blunt for spec quality rules. A spec with one missing ID shouldn't block all file writes. Review rules are advisory, checked when the user explicitly requests review. This remains out of scope for v1.
@@ -95,13 +95,23 @@ Rule IDs are stable — renumbering or removing requires an ADR (CONST-CI-03). T
 
 Scaffold checks whether the target project already has a `.preflight/` directory. Fresh projects get the full directory structure with all content. Existing projects get a comparison — the skill reports what's different and asks before updating framework files. Project-specific files (constitution, requirements, ADRs, etc.) are never overwritten.
 
+**Failure:** If the plugin's content directory is missing or corrupt, scaffold stops and reports the issue rather than creating an incomplete `.preflight/` directory.
+
 ### Review flow
 
 Review resolves the doc type, loads applicable rules, and dispatches both reviewer agents in parallel. When both complete, the skill merges findings: checklist findings come through directly, bogey findings only from the validated layer (Layer 3). Deduplication keeps the higher-confidence finding when both agents flag the same defect. Output is sorted by severity with file:line locations (ADR-006).
 
+**Failure:** If either reviewer agent fails or times out, the skill reports findings from the agent that completed and notes the partial coverage.
+
 ### Elicitation flow
 
 New resolves the doc type (prompting if not specified), reads the template, and walks through each section with guided questions. Requirements elicitation follows a specific sequence: problem → personas → journeys → EARS decomposition → NFRs → constraints → success measures. For ADRs, the skill also identifies downstream docs needing updates after the decision is written.
+
+**Failure:** If elicitation is abandoned mid-flow, no file is created — no partial artifacts are left behind.
+
+### Error handling approach
+
+All skills follow the same pattern: fail loud with actionable messages. When something goes wrong, the skill tells the user what happened and what to do about it (e.g., "No `.preflight/` directory found — run `/preflight scaffold` first"). Skills never silently skip steps or create partial output.
 
 ## 7. Architecture Decisions
 
@@ -111,7 +121,7 @@ New resolves the doc type (prompting if not specified), reads the template, and 
 | ADR-003 | Add automated quality gates (content integrity, plugin validation, e2e) | Accepted |
 | ADR-004 | Ensemble reviewer architecture (checklist + bogey, merge findings) | Accepted |
 | ADR-005 | Add maintainer workflow requirements (hooks, triage skill, traceability) | Accepted |
-| ADR-006 | Include file:line-range locations in review findings | Proposed |
+| ADR-006 | Include file:line-range locations in review findings | Accepted |
 
 ## 8. Risks & Technical Debt
 

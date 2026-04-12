@@ -218,7 +218,7 @@ tested, and synced across the repo and any Notion upstream.
 | Skill activation accuracy | N/A (no skills today) | >90% correct triggering | /skill-creator eval suite |
 | Rule-following accuracy | N/A | >85% of rules followed without reminder | /skill-creator eval on generated docs |
 | Content integrity tests | N/A | 0 failures | `tests/test-content-integrity.sh` exit code |
-| Functional test coverage | N/A | All 6 e2e tests pass (NFR-009–NFR-014) | Automated e2e test suite exit code |
+| Functional test coverage | N/A | All 6 e2e tests pass (NFR-009–NFR-014) | E2e test suite (currently manual, automation planned) |
 
 ## 9. Out of Scope
 
