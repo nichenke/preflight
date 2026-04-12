@@ -358,7 +358,7 @@ Review is advisory — it does not modify the document or block anything.
 | NFR-004               | Each skill validated with /skill-creator evals before shipping |
 | NFR-005               | `tests/test-content-integrity.sh` — bash tests, no deps       |
 | NFR-006               | Plugin-dev validation before release                           |
-| NFR-007               | Functional E2E tests: scaffold, new, review, update, propagation |
+| NFR-009–NFR-014       | Functional E2E tests: scaffold, new, review, update, propagation |
 | NFR-008               | Code review (/simplify) on skill files before shipping         |
 | CONST-CI-01           | `.preflight/` committed to git — standalone without plugin     |
 | CONST-CI-02           | `content/` is single source of truth for templates             |
