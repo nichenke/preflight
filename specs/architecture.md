@@ -29,7 +29,7 @@ specification.
 
 | Role | Expectations |
 |------|-------------|
-| Project bootstrapper | Fast setup, correct directory structure, no surprises |
+| Project bootstrapper | Setup under 5 seconds (NFR-002), correct directory structure, no surprises |
 | Spec author | Guided elicitation that produces well-structured docs |
 | Spec reviewer | Accurate findings with rule IDs and locations |
 | Plugin author | Clear content editing workflow, version governance |
@@ -76,6 +76,7 @@ specification.
 │                      └───────────────────────────┘  │
 └─────────────────────────────────────────────────────┘
 ```
+*Notation: boxes = systems/components, arrows = invocation/data flow, nesting = runtime containment.*
 
 External interfaces: none. Preflight is fully self-contained within Claude Code.
 
@@ -93,7 +94,7 @@ External interfaces: none. Preflight is fully self-contained within Claude Code.
 | Component | Location | Responsibility | Implements |
 |-----------|----------|---------------|------------|
 | **Scaffold skill** | `skills/scaffold/SKILL.md` | Create/update `.preflight/` directory structure | FR-001–FR-009 |
-| **New skill** | `skills/new/SKILL.md` | Guided document creation with elicitation | FR-010–FR-016, FR-023, FR-024 |
+| **New skill** | `skills/new/SKILL.md` | Guided document creation with elicitation | FR-010–FR-016, FR-023, FR-024, FR-031–FR-036 |
 | **Review skill** | `skills/review/SKILL.md` | Dispatch reviewers, merge findings, report | FR-017–FR-020, FR-025, FR-030 |
 | **Checklist reviewer** | `agents/reviewers/checklist-reviewer.md` | Rule-based review with confidence scoring | ADR-004 |
 | **Bogey reviewer** | `agents/reviewers/bogey-reviewer.md` | Adversarial structural review with validation gates | ADR-004 |

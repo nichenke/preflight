@@ -72,7 +72,7 @@ Each release must pass 6 e2e test scenarios (NFR-009–NFR-014):
 |-------------|-----------|---------------|--------|
 | FR-001–FR-007 | Content integrity | `tests/test-plugin.sh` | Automated |
 | FR-008–FR-009 | E2e | Manual (NFR-011) | Manual |
-| FR-010–FR-016 | E2e | Manual (NFR-012) | Manual |
+| FR-010–FR-016, FR-031–FR-036 | E2e | Manual (NFR-012) | Manual |
 | FR-017–FR-020 | E2e | Manual (NFR-013) | Manual |
 | FR-021–FR-022 | Content integrity | `tests/test-plugin.sh` (rules file checks) | Automated |
 | FR-023–FR-024 | E2e | Manual (NFR-014) | Manual |
