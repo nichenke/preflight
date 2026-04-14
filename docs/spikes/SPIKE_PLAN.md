@@ -162,6 +162,7 @@ preflight/
 - [ ] Run `/speckit.specify <issue title>` — verify spec.md scaffolds in preflight format
 - [ ] Run `/speckit.plan` — verify plan.md scaffolds
 - [ ] Verify `after_specify` hook fired and review ran
+- [ ] **Verify two-agent ensemble dispatch works from spec-kit command context**: `speckit.preflight.review` should dispatch both `checklist-reviewer` and `bogey-reviewer` as subagents (via the host agent's Task/Agent tool), both should complete, and their outputs should merge per the orchestrator's step 7. If the host agent can't dispatch subagents from a spec-kit command prompt, or the `.specify/extensions/preflight/agents/reviewers/*.md` path references don't resolve at runtime, flag as a spike blocker.
 - [ ] Address any review findings
 - [ ] Implement the issue's actual fix (real work, not pretend)
 - [ ] Run `/speckit.apply` to ratify the feature folder
