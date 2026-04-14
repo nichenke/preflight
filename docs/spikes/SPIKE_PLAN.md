@@ -509,7 +509,19 @@ These block phase 1 and must be answered in phase 0.
 
 Append findings here as spikes complete. Each entry: phase, date, finding, action implication.
 
-(empty)
+### Phase 1 — 2026-04-14 — spec-kit after-hook execution bug
+
+**Finding**: spec-kit v0.6.2 (and main @ 0.6.3.dev0) has a 100%-consistent asymmetry across all 9 command templates (`analyze`, `checklist`, `clarify`, `constitution`, `implement`, `plan`, `specify`, `tasks`, `taskstoissues`). Every template has 2 "Mandatory hook" blocks (before + after) but only 1 "Wait for the result" instruction — attached to the before-hook block. After-hook mandatory blocks emit an `EXECUTE_COMMAND` directive but without the sequencing instruction, so host agents (Claude Code) print the directive as informational text and stop. Auto-execution works for `before_*` hooks, silently fails for `after_*` hooks.
+
+**How discovered**: ran `/speckit.specify` in the test project after setting `optional: false` on preflight's `after_specify` / `after_plan` hooks. Spec-kit correctly emitted "Automatic Hook: preflight / EXECUTE_COMMAND: speckit.preflight.review" but Claude Code stopped after printing it. Traced to missing "Wait for the result" instruction in `templates/commands/specify.md:257-264`.
+
+**Full analysis**: [`docs/analysis/2026-04-14-speckit-after-hook-execution-bug.md`](../analysis/2026-04-14-speckit-after-hook-execution-bug.md) — includes reproduction, root cause in prompt template, upstream patch diff, impact assessment.
+
+**Action implication**:
+1. **Workaround for Phase 2 spike 1**: manually invoke `/speckit.preflight.review` after `/speckit.specify` and `/speckit.plan`. Acceptable for validating ensemble dispatch and review content; auto-fire mechanism is orthogonal.
+2. **Upstream PR** to `github/spec-kit` (deferred from Phase 6, moved up): patches all 9 templates + `extensions.py:2456` Pre-Hook / Post-Hook label distinction. File issue + PR as first preflight contribution to spec-kit ecosystem. This is the research arc's Q1 / "has blocking hooks shipped?" question answered with a concrete upstream fix preflight is uniquely positioned to propose.
+3. **Q1 framing update**: spec-kit's `optional: false` IS the "blocking hooks" mechanism the research asked about, but only the before-hook half works. Post-fix, it will fully work. Preflight's Topology A enforcement-via-hooks claim is valid pending the upstream fix.
+4. **Exception to "no upstream contributions during spikes"**: this specific bug blocks validation of preflight's after-hook enforcement and is small enough to land in parallel with Phase 2. Granted as an exception.
 
 ---
 
