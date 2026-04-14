@@ -145,7 +145,20 @@ preflight/
 
 **Estimated effort**: 1.5 days
 
-**Phase status**: not started
+**Phase status**: **in progress 2026-04-14** — branch `feature/preset-scaffold` has 8 commits covering the plugin → spec-kit conversion in staged slices:
+
+| Slice | Commit | Content |
+|---|---|---|
+| 1 | `4cdeec9` | `git mv content/templates/*.md` → `presets/preflight/templates/`; author `preset.yml`, `extension.yml`, `speckit.tasks` + `speckit.implement` PAI-redirect commands, `speckit.preflight.review` stub |
+| 1.5 | `a487a43` | Minimal `pyproject.toml` + uv `[dependency-groups] dev`, `uv.lock`, `.gitignore` additions |
+| 2 | `80d44f6` | `git mv content/rules-source/*.md` → `extensions/preflight/rules/`; update review command for table-format rule loading |
+| 3 | `79d93ec` | `git mv content/reference/` → `docs/reference/`; `git mv content/scaffolds/` → `extensions/preflight/scaffolds/`; remove `content/` |
+| 4 | `5069464` | `git mv agents/reviewers/*` → `extensions/preflight/agents/reviewers/`; rewrite `speckit.preflight.review.md` as full orchestrator port of `skills/review/SKILL.md` with two-agent ensemble; `git rm -r skills/` |
+| 5 | `e62fba6` | Remove Claude Code plugin artifacts: `.claude-plugin/`, `commands/`, `hooks/`, `tests/` |
+| 6 | `67d9566` | Rewrite `CLAUDE.md` + `README.md` for spec-kit extension form |
+| 7 | `2fcbeb7` | `specs/constitution.md` status banner + CONST-CI-02 path fix (full rewrite deferred to ADR-008 or post-spike) |
+
+Phase 1 exit criteria (install cleanly, templates resolve, review command invocable, hooks fire) still require validation via `specify preset add` and `specify extension add` in a throwaway target project. That validation is the first task of Phase 2 (spike 1).
 
 ---
 
