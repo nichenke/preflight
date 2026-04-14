@@ -144,6 +144,40 @@ Each angle is listed with:
 
 **Cost**: requires the original criteria to be written down. If the original brief is loose, criteria-first re-scoring has nothing to anchor to. **Write the criteria down on day 1.**
 
+### 2.9 Load-bearing-criterion isolation
+
+**What it does**: when a multi-criterion scoring matrix produces a clear winner, identifies which single criterion is doing most of the work and re-states the conclusion in terms of that one criterion. If 14 criteria are close and 1 is binary, the honest framing is "X loses on the binary criterion" — not "X loses on the average."
+
+**What it catches**: framing errors where a single load-bearing criterion gets hidden inside an aggregate score. Aggregate scores spread the decision across many dimensions, which obscures whether the result is robust (multiple criteria agree) or fragile (one criterion drives everything). The same fragility looks like robustness in the matrix output.
+
+**When to use**: after every weighted-criteria scoring exercise that produces a clear winner. Specifically when the gap between options exceeds 30% of the maximum score on a small number of criteria.
+
+**Failure mode prevented**: presenting a fragile single-criterion decision as a robust multi-criterion consensus. Pass 4 scored Path A vs B1 across 15 criteria and reported A=161, B1=85 — a 76-point gap that read as "A is dominant on everything." The honest framing was "A wins because B1 scores 1/5 on preflight rules preservation; the other 14 criteria are within noise." That framing is more actionable because it tells you exactly what would flip the decision.
+
+**Load-bearing in**: the framework customization depth doc (2026-04-13) re-scored OpenSpec/spec-kit and found B4 at ~130/175 — much closer than pass 4's B1 at 85/175. The gap had been hidden by spreading the decisive enforcement-gate criterion across the matrix average. Re-stating the conclusion as "Path A wins on enforcement gate, ties or loses on most other criteria" produced sharper tripwire conditions and revealed the composable-architecture path.
+
+**Cost**: requires honesty about what is actually load-bearing, which sometimes contradicts the analyst's preferred framing. Easy to skip when the matrix already shows the desired winner.
+
+### 2.10 Composition-first before substitution
+
+**What it does**: before scoring options as substitutes for each other, asks whether they cover the same layer of the problem. If they cover different layers, the question is composition topology, not selection. The pattern is: **identify layers → identify which framework owns which layer → score only across options that cover the same layer → if composition is possible, score the composed stack as its own option.**
+
+**What it catches**: framing errors where a multi-layer architecture gets analyzed as a single-layer choice. Substitution framing forces fights between things that don't need to fight; composition framing reveals the seams where they can coexist.
+
+**When to use**: when both conditions hold:
+- The candidate "substrates" are extensible by design (preset systems, plugin APIs, schemas)
+- The "build" option duplicates surface the substrate already owns
+
+When either condition is false, fall back to substitution scoring — the angle isn't useful for genuinely competing tools.
+
+**Failure mode prevented**: scoring frameworks against each other on criteria that are only meaningful within one layer, and dismissing valuable cross-layer features because they don't fit the substitution narrative. The arc dismissed spec-kit's multi-agent CommandRegistrar as "near-zero value" across passes 1–5 and the customization depth doc, because the substitution framing scored multi-agent reach as "what would we lose if we adopted spec-kit?" — a question that has no answer when the loss is hypothetical. Under composition framing, multi-agent reach is "what would we *gain* by composing spec-kit's authoring layer onto preflight's rules layer?" — a question with a concrete and large answer (Tack Room glue).
+
+**Load-bearing in**: the composable architecture doc (2026-04-13). Across 31 passes the framing was "preflight vs substrate X." Composition-first reframing produced Path A-prime as a new option (spec-kit owns lifecycle + multi-agent reach, preflight owns rules + governance, PAI owns decomposition + execution) that scored within noise of standalone Path A but with a meaningfully different risk profile and direct Tack Room fit. This was the largest framing miss of the arc.
+
+**Cost**: requires identifying the layers up front, which is sometimes hard. If layer boundaries are ambiguous (because two frameworks legitimately fight over the same surface), composition framing collapses back to substitution. Use only when the layers are clean. Can be expensive to apply post-hoc — once an analysis is committed to substitution scoring, retrofitting composition framing means re-running the option enumeration.
+
+**Pre-step, not alternative**: this angle runs *before* IterativeDepth and Buy-vs-build, not in parallel with them. It changes what gets scored, not how. The natural order is: composition check → if substitution still applies, run weighted scoring → if a clear winner emerges, run load-bearing-criterion isolation (2.9) → criteria-first re-scoring (2.8) before publishing.
+
 ---
 
 ## 3. The pattern — stacking angles
@@ -159,15 +193,17 @@ The final recommendation (4 items, ship workflow skills + drift + coverage, drop
 
 **The general pattern**:
 
+0. **Composition check first** — before enumerating options as substitutes, ask if the candidate frameworks cover the same layer. If they don't, the question is composition topology, not selection (2.10).
 1. **Start broad** — enumerate options and criteria (IterativeDepth, Buy-vs-build).
 2. **Go deep** — decompose from first principles to find commoditized surfaces (FirstPrinciples).
 3. **Widen again** — multi-perspective debate on leading options (Council).
 4. **Stress-test the winner** — RedTeam the leading recommendation.
 5. **Ground in reality** — empirical rate-of-change research to challenge long horizons.
 6. **Walk backwards** — from target state to today's decision, revealing ordering.
-7. **Always re-score** — criteria-first check against the original brief, before publishing.
+7. **Isolate the load-bearing criterion** — when scoring produces a clear winner, identify whether it's robust (multiple criteria agree) or fragile (one criterion drives everything). Re-state the conclusion in terms of the load-bearing criterion (2.9).
+8. **Always re-score** — criteria-first check against the original brief, before publishing (2.8).
 
-Skipping any step is possible. Skipping #7 is dangerous. Pass 5 skipped it and almost shipped a regression.
+Skipping any step is possible. Skipping #0 produces 31 passes asking the wrong question (composition disguised as substitution). Skipping #8 produces drift like pass 5. Skipping #7 produces fragile decisions presented as robust ones.
 
 ---
 
@@ -269,6 +305,8 @@ Skip steps only with deliberate justification.
 
 - **No spike.** RedTeam in pass 2 specifically flagged "no spike, no prototype, no user testing" as a medium-severity attack. It was not addressed across 5 passes. A 1-day spike implementing `/preflight explore` on a real change would have produced more signal than any of the passes.
 - **No external user input.** Everything was internal analysis. The landscape moves fast enough that external signal (even from one other preflight user) would have changed the calculus on multiple decisions.
+- **No composition check.** Across 31 passes the framing was "preflight vs substrate X" — substitution. The composition-first angle (2.10) was added retroactively after the framework customization depth doc revealed that pass 4's matrix had been scoring different layers against each other. Composition-first should have run at pass 1 and would have produced Path A-prime as a first-class option from the start instead of as a 32nd-pass discovery.
+- **No load-bearing-criterion isolation.** Pass 4's 76-point gap between Path A and B1 read as dominance, but it was actually a single criterion (preflight rules preservation) doing all the work. The customization depth doc had to retro-fit this analysis. Angle 2.9 should have run immediately after pass 4's matrix and would have produced sharper tripwire conditions earlier.
 
 ---
 
@@ -288,4 +326,4 @@ The short version:
 
 ## 8. The one-paragraph summary
 
-Multi-angle analysis is the right way to evaluate decisions in fast-moving spaces. Seven angles — FirstPrinciples, IterativeDepth, Council, RedTeam, rate-of-change, buy-vs-build, backward-walking — each catch failure modes the others miss. The most dangerous failure mode is **drift from the original brief**, which is prevented only by explicit criteria-first re-scoring on every pass. For preflight specifically: the space moves fast enough that plans >60 days are speculative, the defensible value is the coverage taxonomy (not the tooling), habit-creating workflow skills are high-value despite looking like "lock-in," and the right governance model is ship-small + 60-day tripwire. This methodology should become part of preflight's reference material so future decisions in this space reuse the pattern instead of rediscovering it.
+Multi-angle analysis is the right way to evaluate decisions in fast-moving spaces. Ten angles — composition-first, FirstPrinciples, IterativeDepth, Council, RedTeam, rate-of-change, buy-vs-build, backward-walking, load-bearing-criterion isolation, and criteria-first re-scoring — each catch failure modes the others miss. **Composition-first runs before scoring; criteria-first re-scoring runs before publishing.** The two most dangerous failure modes are **substitution framing for problems that are actually composition** (caught only by 2.10) and **drift from the original brief** (caught only by 2.8). For preflight specifically: the space moves fast enough that plans >60 days are speculative, the defensible value is the coverage taxonomy (not the tooling), habit-creating workflow skills are high-value despite looking like "lock-in," and the right governance model is ship-small + 60-day tripwire. This methodology should become part of preflight's reference material so future decisions in this space reuse the pattern instead of rediscovering it.
