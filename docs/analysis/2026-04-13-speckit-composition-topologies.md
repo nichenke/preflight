@@ -103,12 +103,15 @@ Every other layer is commodity or near-commodity across the extension catalog.
 ### 1.3 Forks worth noting (for study, not forking)
 
 - **`tikalk/agentic-sdlc-spec-kit`** — 1,287 commits, very active. Architect
-  extension manages ADRs (Rozanski & Woods, not MADR). Quality gates enforced
-  as LLM-advisory, not blocking. Feature directories but no archive lifecycle.
-  No EARS, no FR/NFR IDs. Closest overall fork.
+  extension uses **Rozanski & Woods for architecture description**; ADRs are
+  **MADR** (correction from prior note). Quality gates enforced as
+  LLM-advisory, not blocking. Feature directories but no archive lifecycle.
+  No EARS, no FR/NFR IDs. Closest overall fork. **Worth borrowing patterns
+  from — see code analysis in SPIKE_PLAN Q1 follow-up.**
 - **`panaversity/spec-kit-plus`** — 201 stars, most adoption. PHR/ADR Curator
   subagent treats specs + ADRs + prompts as first-class artifacts. No EARS,
-  no blocking.
+  no blocking. **Worth borrowing patterns from — see code analysis in
+  SPIKE_PLAN Q1 follow-up.**
 - **`danwashusen/spec-kit-ext`** — governance-leaning. Loads PRDs/ADRs/runbooks
   as grounding context (consumes, doesn't produce). No blocking.
 - **`galando/piv-speckit`** — distributed as Claude Code plugin (closest
@@ -181,12 +184,20 @@ brief):
 
 ### Topology A — Preflight becomes a spec-kit extension
 
+**Selected 2026-04-14** per Notion discussion: nic chose this topology to test life in the spec-kit ecosystem directly rather than build a parallel surface and risk missing something.
+
+**Initial spike scope**:
+- ✅ **Include**: preset + templates + extension manifest + `after_specify`/`after_plan` hooks + preflight review command + **`archive` extension composition** for ADR-007's ratification step. Archive is 1 command, isolated, composes as a peer without asking preflight to change shape.
+- ❌ **Exclude**: `docguard` — it's a substrate, not a composition partner. Using it would mean preflight's rules live as docguard rule packs (proprietary format) and enforcement shifts to docguard's hook timing. Preflight becomes a docguard client, not a peer. Too invasive for an initial spike.
+- ❌ **Exclude**: `ci-guard` — CI-time gating is not a current concern (no LLM-in-CI subscription), and author-time review is a different enforcement phase. Post-spike follow-up at most.
+
 **Shape**: register preflight in `extensions/catalog.community.json` as
-`speckit-preflight`. Ship EARS validator hooks, MADR templates, preflight's
-rule engine, and template overrides (via a bundled preset). Compose with
-`archive` extension for lifecycle and with `docguard` or `ci-guard` for CI
-gating. Abandon the Claude Code plugin form factor, or keep it as a thin
-secondary wrapper.
+`speckit-preflight`. Ship preflight rules as prompt context loaded into a
+`speckit.preflight.review` command, MADR templates, and template overrides
+(via a bundled preset). Wire `after_specify`/`after_plan` hooks to the
+review command. Compose with `archive` extension at ratification. Abandon
+the Claude Code plugin form factor as primary (or keep as a thin secondary
+wrapper post-spike).
 
 **Pros**:
 

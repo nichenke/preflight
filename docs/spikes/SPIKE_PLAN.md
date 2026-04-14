@@ -363,12 +363,26 @@ These block phase 1 and must be answered in phase 0.
 
 - **Where to look**: `skills/review/SKILL.md` and any associated scripts
 - **Why it matters**: spec-kit hooks call extension commands via spec-kit's runner; the wrapper script needs a way to invoke preflight review without requiring Claude Code to be present
-- **Options if no CLI exists**:
-  - (a) Wrapper invokes Claude Code in headless mode (`claude -p` or similar)
-  - (b) Write a small Python or bash entry point that runs the rules directly without Claude
-- **Recommendation**: option (b) is cleaner because spec-kit hooks should not depend on Claude Code being installed in the target environment
-- **Status**: open
-- **Answer**: **\_**
+- **Framing correction (2026-04-14)**: the original question implied "preflight needs a deterministic CLI validator to bypass Claude." That framing was wrong. Preflight's review skill (checklist reviewer + bogey reviewer) is **already LLM-based** — not deterministic. Preflight's distinctive value is not "we don't need an LLM" but "we feed the LLM curated rules it wouldn't otherwise see" (see revised options below and Community context).
+- **What preflight actually distinguishes on** (vs tikalk, panaversity, others):
+  - Rules as first-class edited artifacts (`content/rules-source/*.md` per CONST-CI-02), versioned and testable — not embedded in command prompts
+  - Severity grades (Critical/High/Medium/Low) attached to findings
+  - Stable rule IDs for traceability (FR-NNN, ADR-NNN, CONST-*)
+  - Ensemble review with multiple lenses (checklist + bogey), not a single LLM pass
+  - Cross-doc traceability rules (FR referenced in ADR must exist in requirements.md)
+  - Review as a dedicated structured step, not inline in each command
+- **Options** (revised):
+  - (a) **`claude -p` headless** — the spec-kit command script invokes Claude Code in headless mode with the preflight rules pre-loaded as context + the target doc. Lightest lift if Claude Code is already installed in the target environment (true for CC plugin users).
+  - (a') **LLM via provider API** — the script calls Anthropic/OpenAI directly, passing preflight rules + doc + structured-output contract. More substrate-independent than (a); more work to implement.
+  - (c) **Hybrid** — small deterministic prechecks (ID format, section presence) + LLM review for content quality. The deterministic piece is a tiny subset of the 48 rules; the LLM is still load-bearing.
+- **Recommendation**: **(a) for the spike**, with (a') as the production path if we need substrate independence. Deterministic-only (previously option (b)) is withdrawn — it bypasses the actual review work.
+- **Community context (research 2026-04-14)**: neither `tikalk/agentic-sdlc-spec-kit` nor `panaversity/spec-kit-plus` has a non-LLM validator. Both use LLM-based validation via spec-kit commands — exactly the pattern preflight should follow:
+  - **tikalk architect extension**: `adlc.architect.validate` and `adlc.architect.analyze` are LLM-prompt commands invoked via `before_plan`/`after_plan` hooks. See `~/.cache/agentic-sdlc-spec-kit/extensions/architect/extension.yml`. The pattern is directly reusable: define a spec-kit command, declare hooks in `extension.yml`, let spec-kit's runner invoke the LLM with the command's prompt as context. Rules are embedded in the command prompt text.
+  - **panaversity spec-kit-plus**: `sp.checklist` generates quality checklists; `memory/*.md` (constitution, command-rules) is prompt-injected context via spec-kit's normal loading. Rules live as text the LLM considers, not as an enforced schema.
+  - **What this means for preflight**: copy the tikalk pattern — define `speckit.preflight.review` as a spec-kit command that loads preflight rules from `content/rules-source/` as prompt context, declares `after_specify`/`after_plan` hooks in `extension.yml`, and invokes via spec-kit's command runner. Panaversity's `memory/*.md` loading pattern is useful for how to present rules as LLM context without overwhelming the prompt budget. Neither fork gives us a CLI-wrapping pattern because neither needs one.
+- **Phase 1 task implied**: the preflight preset ships `commands/speckit.preflight.review.md` with rules loaded as prompt context, and declares hooks in `extension.yml`. **No subprocess script required** unless we want substrate independence from Claude Code specifically. The original Phase 1 task "Author `scripts/run-preflight-review.sh`" is withdrawn for the spike; it may return as a production hardening step.
+- **Status**: answered 2026-04-14
+- **Answer**: **Option (a) — spec-kit command invokes Claude Code (or the host agent's LLM) with preflight rules loaded as prompt context**. Tikalk's `architect.validate` is the reference pattern. No deterministic subprocess wrapper needed for the spike. Verify by reading `skills/review/SKILL.md` during Phase 1 scaffolding to confirm rule loading can be lifted into a preset command context.
 
 ### Question 2 — How does spec-kit preset resolution treat templates: copy or reference?
 
@@ -389,8 +403,34 @@ These block phase 1 and must be answered in phase 0.
 - **Options**:
   - (a) Stub it with a single-line pointer: "PAI owns task decomposition; see plan.md acceptance"
   - (b) Remove entirely if optional
-- **Status**: open
-- **Answer**: **\_**
+- **Status**: **answered 2026-04-14** via code analysis of `~/.cache/spec-kit` (shallow clone)
+- **Answer**:
+
+  **Short version**: `tasks-template.md` is optional at the preset level, but the wrong artifact to worry about. The hard requirement is on `tasks.md` (the output file) not `tasks-template.md` (the template). The fix is to override two commands, not delete the template.
+
+  **Proof that `tasks-template.md` is optional**:
+  1. `src/specify_cli/presets.py:1797` — `PresetResolver.resolve()` walks overrides → preset → extension → core and returns `None` if it falls off the end. No startup validation. No exception.
+  2. The official `lean` preset (`presets/lean/preset.yml`) ships zero template overrides — only command overrides. Proves template entries are opt-in.
+  3. `presets.py:127` — manifest validation only requires that `provides.templates` is non-empty; command-only presets pass.
+
+  **The real gate is `tasks.md` (the output)**, not `tasks-template.md`:
+  - `templates/commands/implement.md:3` runs `check-prerequisites.sh --require-tasks --include-tasks`
+  - `scripts/bash/check-prerequisites.sh:128-131` hard-errors if `FEATURE_DIR/tasks.md` is missing:
+    ```
+    if [ ! -f "$TASKS" ]; then
+        echo "ERROR: tasks.md not found in $FEATURE_DIR" >&2
+        echo "Run /speckit.tasks first to create the task list." >&2
+    ```
+  - `/speckit.plan` has a `handoffs` block (`templates/commands/plan.md:3-7`) pointing at `/speckit.tasks` as the suggested next step — handoff suggestion, not automatic invocation.
+
+  **Implication for the preflight preset**:
+  - **Do not override `tasks-template.md`.** Leave core's as fallback. Waste of maintenance.
+  - **Override `/speckit.tasks`** (following `lean` preset's pattern at `presets/lean/preset.yml:30-33`) with a redirect: "This preset delegates task decomposition to PAI. Do not run `/speckit.tasks`. Instead, run PAI Algorithm against `plan.md`." Optionally generate a one-line stub `tasks.md` so `/speckit.implement`'s prereq check passes if the user runs it by habit.
+  - **Override `/speckit.implement`** similarly: redirect to PAI against `plan.md`.
+  - Both overrides propagate through `CommandRegistrar` to all 17+ agent dirs, so a second agent in the multi-agent scenario also gets the redirect — not the core command.
+  - Net: `tasks.md` can be absent in the flow (PAI never writes it), and the failure mode if someone runs `/speckit.implement` by habit is a legible error pointing at the redirect, not silent breakage.
+
+  **Related Phase 1 task adjustment**: the "Decide tasks-template fate" task in Phase 1 should be replaced with "Author `presets/preflight/commands/speckit.tasks.md` and `presets/preflight/commands/speckit.implement.md` as redirects to PAI."
 
 ### Question 4 — What's the second AI target for spike 2's multi-agent test?
 
@@ -420,8 +460,23 @@ These block phase 1 and must be answered in phase 0.
 - **If Topology C is picked**: add a Phase 0.5 "substrate-neutral core extraction audit" task before Phase 1; update Phase 1 to build two adapters instead of one preset; keep Phase 4 multi-agent test as load-bearing validation.
 - **If Topology E is picked**: delete Phases 1, 2, and 4 of this plan; keep Phase 3 (PAI brownfield sanity check) and promote ADR-007 under the original Path A plan with no preset work at all.
 - **If Topologies B or D are picked**: Phase 1–4 need significant rewriting; flag as a plan-level change.
-- **Status**: open — blocks Phase 1
-- **Answer**: **\_**
+- **Status**: **answered 2026-04-14** — **Topology A selected**
+- **Answer**: **Topology A — preflight becomes a spec-kit extension.** Rationale (from nic via Notion): "want to see what it's like living directly in the ecosystem rather than dipping our toes and missing something. The cleanest future solution if we don't care about BMAD, OpenSpec, etc — and we don't, for now."
+
+  **Scope narrowing for the initial spike** (refined 2026-04-14 from Notion comments):
+  - ✅ **Include** `archive` extension (`stn1slv/spec-kit-archive`) — 1 command, isolated, maps directly to ADR-007's ratification step. Compose as a peer, not a dependency. Install + call its command at ship time. Near-zero composition cost.
+  - ❌ **Exclude** `docguard` — it's a substrate, not a composition partner. Using it would mean preflight's review logic lives as docguard rule packs (docguard-proprietary format), enforcement shifts to docguard's hook timing, and preflight becomes a docguard client rather than a peer. Too invasive for an initial spike.
+  - ❌ **Exclude** `ci-guard` — CI-time gating is not a current concern (no LLM-in-CI subscription), and it's a different enforcement phase than author-time review. Post-spike follow-up at most.
+  - The initial Topology A scaffold is: preset + templates + extension manifest + `after_specify`/`after_plan` hooks + preflight review command + `archive` composition for ratification. Minimal + aligned.
+
+  **Implications for Phase 1 tasks** (replace the current blocker list):
+  - Phase 1 is unblocked; scaffold as a spec-kit extension, not a generic preset-only approach
+  - `presets/preflight/` still contains the preset manifest, but the bulk of the work is an extension (`extensions/preflight/extension.yml` + command hooks)
+  - CC plugin form factor is deprioritized as the primary surface for the spike — the spike explicitly tests life in the spec-kit ecosystem. CC plugin may remain as a thin secondary wrapper after the spike validates Topology A, but not during Phase 1.
+  - Phase 4's multi-agent verification is load-bearing (A requires multi-agent reach to justify the form-factor trade)
+  - Open question #1 (review CLI entry point) is still relevant but the answer matters differently — Topology A needs a substrate-neutral review invocation that spec-kit hooks can fire. Recommendation option (b) — a Python/bash CLI entry that runs rules directly without Claude Code — becomes load-bearing, not optional.
+  - Add Phase 1 task: "Register preflight in `extensions/catalog.community.json` as `speckit-preflight`" (needed before the extension can be installed through spec-kit's normal catalog flow)
+  - Deferred: composition with `archive`, `docguard`, `ci-guard`. These are post-spike follow-ups if the initial extension lands cleanly.
 
 ---
 
