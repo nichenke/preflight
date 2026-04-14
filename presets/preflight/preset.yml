@@ -3,7 +3,7 @@ schema_version: "1.0"
 preset:
   id: "preflight"
   name: "Preflight — spec-driven review workflow"
-  version: "0.7.0-spike"
+  version: "0.7.0.dev0"
   description: "Preflight's document-type templates plus PAI-delegated task/implement overrides. Pair with the preflight extension for rule-based review hooks."
   author: "nichenke"
   repository: "https://github.com/nichenke/preflight"
