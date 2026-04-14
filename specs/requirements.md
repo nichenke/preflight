@@ -1,8 +1,8 @@
 ---
-status: Draft
-version: 0.1.0
+status: Active
+version: 0.7.0
 owner: nic
-date: 2026-03-25
+date: 2026-04-11
 stakeholders: []
 ---
 
@@ -143,7 +143,13 @@ tested, and synced across the repo and any Notion upstream.
 
 - FR-010: When the user runs `/preflight new`, the plugin shall prompt for doc type if not specified.
 - FR-011: When the user runs `/preflight new <type>`, the plugin shall walk through all sections defined in the doc type's template before creating the file.
-- FR-012: When creating a requirements spec, the plugin shall guide the user through: problem statement, personas, user journeys with failure modes, EARS functional requirements, non-functional requirements with quantitative criteria, constraints, assumptions, success measures, and out-of-scope items.
+- FR-012: When creating a requirements spec, the plugin shall elicit a problem statement.
+- FR-031: When creating a requirements spec, the plugin shall elicit personas with goals and pain points.
+- FR-032: When creating a requirements spec, the plugin shall elicit user journeys with failure modes.
+- FR-033: When creating a requirements spec, the plugin shall elicit EARS functional requirements.
+- FR-034: When creating a requirements spec, the plugin shall elicit non-functional requirements with quantitative criteria.
+- FR-035: When creating a requirements spec, the plugin shall elicit constraints, assumptions, and out-of-scope items.
+- FR-036: When creating a requirements spec, the plugin shall elicit success measures with baselines and targets.
 - FR-013: When creating an ADR, the plugin shall guide the user through: context, decision drivers, at least two options with pros and cons, decision outcome with consequences, and confirmation criteria.
 - FR-014: When creating an RFC, the plugin shall guide the user through: executive summary, problem statement with measurable evidence, scope, proposed solution, at least one alternative, migration/rollout plan with rollback, risks, and success criteria.
 - FR-015: When the plugin creates a new document, the plugin shall populate YAML frontmatter with status, date, owner, and version.
@@ -154,7 +160,7 @@ tested, and synced across the repo and any Notion upstream.
 ### Review
 
 - FR-017: When the user runs `/preflight review`, the plugin shall identify the doc type and check all applicable rules from `.preflight/_rules/`.
-- FR-018: When reviewing a document, the plugin shall check universal rules (UNIV-01 through UNIV-05) and cross-doc rules (XDOC-01 through XDOC-09) in addition to type-specific rules.
+- FR-018: When reviewing a document, the plugin shall check all universal rules and all cross-doc rules in addition to type-specific rules.
 - FR-019: When reviewing a document, the plugin shall report findings grouped by severity (Error, Warning) with rule IDs and specific fix suggestions.
 - FR-020: If a reviewed document has zero Error findings, the plugin shall report it as passing review.
 - FR-025: When the user runs `/preflight review` on a document inside a sub-project that lacks its own `.preflight/_rules/`, the plugin shall walk up the directory tree to find the nearest ancestor `.preflight/_rules/` and use those rules — without requiring the sub-project to be independently scaffolded.
@@ -168,20 +174,25 @@ tested, and synced across the repo and any Notion upstream.
 ### Maintainer workflow (Persona: plugin author) — ADR-005
 
 - FR-026: The plugin repo shall provide a local issue-triage skill (`.claude/skills/`) that produces structured assessments with evidence-backed validity verdicts, spec gap maps, governance classifications, and dependency-ordered fix decompositions.
-- FR-027: Every proposed behavioral fix shall trace to a requirement ID (FR/NFR/CONST) or explicitly identify a missing requirement — enforced by an auto-loaded rule in `.claude/rules/`.
-- FR-028: The plugin repo shall enforce git workflow invariants (worktrees, feature branches, PRs — no direct commits to main) via PreToolUse hooks that block violations deterministically.
-- FR-029: While a git workflow hook blocks a tool use, the hook shall report which invariant was violated and what the correct workflow is.
+- FR-027: Every proposed behavioral fix shall trace to a requirement ID (FR/NFR/CONST) or explicitly identify a missing requirement.
+- FR-028: The plugin repo shall enforce git workflow invariants (worktrees, feature branches, PRs — no direct commits to main) deterministically, blocking violations before they occur.
+- FR-029: When the plugin repo blocks a tool use for a git workflow violation, it shall report which invariant was violated and what the correct workflow is.
 
 ## 5. Non-Functional Requirements
 
 - NFR-001: The plugin shall have no external dependencies — no npm, no pip, no binaries. All content is markdown files and shell scripts within the plugin directory.
 - NFR-002: The `/preflight scaffold` skill shall complete in under 5 seconds for a new project.
 - NFR-003: The auto-loaded rules file shall not exceed 80 lines — context budget must be managed.
-- NFR-004: Each skill shall be validated with /skill-creator evals before shipping, scoring ≥80% for rule following, activation ordering, and triggering accuracy.
-- NFR-005: The plugin shall include automated content integrity tests (bash) that verify all expected files exist, have valid frontmatter, and contain required structural elements. Tests shall run without Claude Code or external dependencies.
+- NFR-004: Each skill shall be validated with /skill-creator evals before shipping, scoring ≥85% for rule following, activation ordering, and triggering accuracy.
+- NFR-005: The plugin shall include automated content integrity tests that verify all expected files exist, have valid frontmatter, and contain required structural elements. Tests shall run without Claude Code or external dependencies.
 - NFR-006: The plugin structure shall pass plugin-dev validation with zero blocking findings (manifest, skill frontmatter, file references) before each release.
-- NFR-007: Each release shall pass functional end-to-end tests covering: fresh scaffold, scaffold with custom docs dir, scaffold update without clobbering (FR-008/FR-009), `/preflight new` for at least ADR and requirements types, `/preflight review` on valid and invalid documents, and ADR impact propagation (FR-023).
 - NFR-008: All skill files shall pass code review with zero blocking findings (/simplify or equivalent) before shipping — checking for consistency across skills, edge case coverage, and frontmatter triggering quality.
+- NFR-009: Each release shall pass a functional end-to-end test for fresh scaffold into a new project.
+- NFR-010: Each release shall pass a functional end-to-end test for scaffold with a custom docs directory.
+- NFR-011: Each release shall pass a functional end-to-end test for scaffold update without clobbering project files (FR-008/FR-009).
+- NFR-012: Each release shall pass functional end-to-end tests for `/preflight new` on at least ADR and requirements doc types.
+- NFR-013: Each release shall pass functional end-to-end tests for `/preflight review` on valid and invalid documents.
+- NFR-014: Each release shall pass a functional end-to-end test for ADR impact propagation (FR-023).
 
 ## 6. Constraints
 
@@ -207,11 +218,11 @@ tested, and synced across the repo and any Notion upstream.
 | Skill activation accuracy | N/A (no skills today) | >90% correct triggering | /skill-creator eval suite |
 | Rule-following accuracy | N/A | >85% of rules followed without reminder | /skill-creator eval on generated docs |
 | Content integrity tests | N/A | 0 failures | `tests/test-content-integrity.sh` exit code |
-| Functional test coverage | N/A | All 6 scenarios pass (NFR-007) | Automated e2e test suite exit code |
+| Functional test coverage | N/A | All 6 e2e tests pass (NFR-009–NFR-014) | E2e test suite (currently manual, automation planned) |
 
 ## 9. Out of Scope
 
-- Mechanical rule enforcement via hooks (future — v2 consideration, not v1)
+- Mechanical review-rule enforcement via hooks — review rules are advisory, enforced by the review skill, not by hooks (git workflow hooks per FR-028 are in scope)
 - Integration with Spec Kit, OpenSpec, or BMAD workflows
 - Notion sync tooling (stays manual, separate from the plugin)
 - Task/story decomposition templates (identified gap, not addressed in v1)
