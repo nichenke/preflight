@@ -319,6 +319,14 @@ Phase 1 exit criteria (install cleanly, templates resolve, review command invoca
 - [ ] Read all three spike reports back-to-back
 - [ ] Apply criteria-first re-scoring (methodology angle 2.8) to spike outcomes
 - [ ] Apply load-bearing-criterion isolation (angle 2.9) — name the one criterion that drove the decision, if any
+- [ ] **Evaluate spec-kit's native optional commands against preflight's review ensemble** (added 2026-04-14 during Phase 1 install test). `specify init` offers three optional commands that overlap with preflight's differentiators:
+  - `/speckit.clarify` — structured de-risking questions before planning. Overlaps with preflight's former `/preflight new` guided elicitation. Could host elicitation logic natively.
+  - `/speckit.analyze` — cross-artifact consistency report. Directly overlaps with bogey-reviewer's Layer 1 (cross-doc assumption conflicts).
+  - `/speckit.checklist` — quality checklist generation. Overlaps with checklist-reviewer's rule-based pass.
+
+  Questions to answer in synthesis: Is preflight's ensemble adding value over native clarify+analyze+checklist combined, or is it re-inventing them? Should preflight compose with them (clarify for elicitation, preflight review as the rule-graded + adversarial layer on top) or replace them? If compose, does that simplify preflight's extension surface area?
+
+  Input for the Topology A vs Topology C discussion at ADR-007 promotion time. If the native commands cover 80% of preflight's value, Topology C (substrate-neutral core with thin adapters) becomes more attractive since preflight's distinctive value shrinks.
 - [ ] Decide path:
   - [ ] **If composable path validated**: amend ADR-007 to v2 — change Decision Outcome to specify spec-kit preset as implementation layer; update consequences; update confirmation criteria. Keep shape decisions intact.
   - [ ] **If composable path failed**: keep ADR-007 v1 (preflight-native skills); proceed to original 4-item plan (skills/explore, skills/propose, review --drift, drift hook)
