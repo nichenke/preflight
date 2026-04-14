@@ -1,0 +1,70 @@
+---
+description: Review the active feature's spec.md or plan.md against preflight's rule set
+---
+
+# /speckit.preflight.review — preflight extension
+
+Perform a rule-based review of a spec or plan document. Report findings by severity with stable rule IDs.
+
+## Target document
+
+Determine the target document in this order:
+
+1. **Argument** — if the user passed a path, use it
+2. **Hook context (`after_specify`)** — the most recently modified `spec.md` under `.specify/features/`
+3. **Hook context (`after_plan`)** — the most recently modified `plan.md` under `.specify/features/`
+4. **Fallback** — prompt the user for a target
+
+## Rules (loaded as context)
+
+Load every file in this extension's rules directory and treat each as an individual rule. At install time the directory is `.specify/extensions/preflight/rules/`. Each rule file should have, at minimum:
+- A **rule ID** at the top (e.g., `EARS-01`, `TRACE-02`, `ID-03`) — stable, never reused
+- A **severity grade** — `Critical`, `High`, `Medium`, or `Low`
+- The **rule statement** — a short imperative sentence describing what the rule requires
+- Optional **examples** and **anti-examples** to calibrate LLM judgement
+
+If the rules directory is empty or missing, report that fact and exit without findings — do not fabricate rules.
+
+## Review procedure
+
+For each rule, check the target document and record any violations. For each finding, capture:
+- Rule ID (exact string from the rule file — never invent IDs)
+- Severity (copied from the rule file)
+- Section or line reference in the target document
+- One-sentence explanation of the violation
+- Optional suggested fix
+
+Do **not** edit the target document. This command is read-only.
+
+## Output format
+
+```
+# Preflight review — <document path>
+
+## Critical (N findings)
+- [RULE-ID] <section>: <explanation>
+  Suggested fix: <optional>
+
+## High (N findings)
+- ...
+
+## Medium (N findings)
+- ...
+
+## Low (N findings)
+- ...
+
+## Summary
+- Critical: N, High: N, Medium: N, Low: N
+- Overall: PASS | BLOCKED (blocked if any Critical or High)
+```
+
+A document passes review when it has zero Critical and zero High findings. Medium and Low findings are advisory.
+
+## When invoked via hook
+
+When this command fires via `after_specify` or `after_plan`, emit the review inline so the user sees it in-flow. Do not write a review file to disk unless the user explicitly asks — findings belong in the conversation, not a separate artifact that goes stale.
+
+## Rules authoring
+
+Rules live in `extensions/preflight/rules/*.md` in the preflight repo and are the single source of truth for review behavior. Edit them there. New rules get new IDs; existing IDs are never reused or renumbered.
