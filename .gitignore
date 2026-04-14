@@ -4,3 +4,8 @@
 
 # Skill eval run artifacts
 skills/*-workspace/
+
+# uv dev environment (uv.lock is committed for reproducibility)
+.venv/
+__pycache__/
+*.pyc
