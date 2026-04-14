@@ -47,18 +47,18 @@ Read these before starting:
 **Tasks**:
 
 - [x] Install spec-kit locally (`pipx install specify-cli`); verify `specify --version` and `specify init` work in throwaway dir
-- [ ] Read spec-kit's preset + extension docs end to end:
+- [x] Read spec-kit's preset + extension docs end to end:
   - [x] `presets/ARCHITECTURE.md`
   - [x] `presets/README.md`
-  - [ ] `extensions/RFC-EXTENSION-SYSTEM.md`
-  - [ ] `extensions/EXTENSION-API-REFERENCE.md`
-- [ ] Merge `feature/workflow-research` to main as docs-only (4 analysis docs + ADR-007)
-- [ ] Pick spike-1 target: `gh issue list --repo nichenke/preflight --state open --limit 10` → choose one that touches a template, rule, or small doc gap
-  - Selected issue: **\_**
+  - [x] `extensions/RFC-EXTENSION-SYSTEM.md`
+  - [x] `extensions/EXTENSION-API-REFERENCE.md`
+- [x] Merge `feature/workflow-research` to main as docs-only (PR #23, merged 2026-04-14)
+- [x] Pick spike-1 target: `gh issue list --repo nichenke/preflight --state open --limit 10` → choose one that touches a template, rule, or small doc gap
+  - Selected issue: **#13**
 - [x] Identify the tack-room launcher artifact (current state, partial code, design intent)
   - Location: /Users/Shared/sv-nic/src/tack-room/BOOTSTRAP.md.
-- [ ] Resolve the five cross-cutting open questions (see §"Open questions" below)
-- [ ] **Choose a composition topology (Question 5) before any `presets/preflight/` scaffold work.** Review [spec-kit composition topologies](../analysis/2026-04-13-speckit-composition-topologies.md) §2–§5 and pick one of A/B/C/D/E (or a hybrid). The choice reshapes Phase 1 tasks.
+- [x] Resolve the five cross-cutting open questions (see §"Open questions" below)
+- [x] **Choose a composition topology (Question 5) before any `presets/preflight/` scaffold work.** Review [spec-kit composition topologies](../analysis/2026-04-13-speckit-composition-topologies.md) §2–§5 and pick one of A/B/C/D/E (or a hybrid). The choice reshapes Phase 1 tasks.
 
 **Exit criteria**:
 
@@ -71,7 +71,7 @@ Read these before starting:
 
 **Estimated effort**: 0.5 day
 
-**Phase status**: not started
+**Phase status**: **closed 2026-04-14**. All exit criteria met — PR #23 merged, spike-1 issue #13 selected, Q1/Q2/Q3/Q4/Q5 all answered.
 
 ---
 
@@ -141,12 +141,7 @@ preflight/
 - `after_specify` hook fires on `/speckit.specify` (review can be stubbed for now — wiring matters more than depth)
 - No conflicts with spec-kit core defaults
 
-**Blockers from phase 0**:
-
-- **Open question #5 (composition topology) must be answered before any Phase 1 work** — the scaffold shape differs per topology (full preset for A; docguard rule-pack for B; substrate-neutral core + two adapters for C; cancel entirely for E). Don't start the file layout below until this is resolved.
-- Open question #1 (review CLI entry point) must be answered before authoring `run-preflight-review.sh`
-- Open question #2 (template resolution) must be answered before deciding reference vs copy
-- Open question #3 (tasks-template required?) must be answered before stub-vs-remove decision
+**Blockers from phase 0**: **none as of 2026-04-14** — all five open questions are answered (Q1: option (a) headless Claude or host-agent LLM; Q2: option (c) templates physically live under preset dir, populated via `git mv content/templates/` → `presets/preflight/templates/` since preflight is converting from plugin to native spec-kit organization; Q3: don't override tasks-template, override `/speckit.tasks` and `/speckit.implement` commands as PAI redirects; Q4: Codex as multi-agent target; Q5: Topology A). Phase 0 closed.
 
 **Estimated effort**: 1.5 days
 
@@ -393,8 +388,16 @@ These block phase 1 and must be answered in phase 0.
   - (b) Copy at install: spec-kit copies templates into preset directory at install time
   - (c) Hard requirement: templates must live inside the preset directory; we copy or symlink as part of preset build
 - **Recommendation**: prefer (a). If only (c) works, build a symlink at preset-build time so the source files stay canonical.
-- **Status**: open
-- **Answer**: **\_**
+- **Status**: **answered 2026-04-14** via code analysis of `~/.cache/spec-kit` (shallow clone)
+- **Answer**: **Option (c) — hard requirement. Templates must physically live under `.specify/presets/<id>/templates/`.** Spec-kit's resolver looks up templates by hardcoded path, not by declaration in `preset.yml`.
+  - **Proof (from `~/.cache/spec-kit`)**:
+    1. `src/specify_cli/presets.py:1654-1662` — `PresetResolver` docstring declares the fixed priority stack: `.specify/templates/overrides/` → `.specify/presets/<preset-id>/templates/` → `.specify/extensions/<ext-id>/templates/` → `.specify/templates/`. No reference-by-path option.
+    2. `src/specify_cli/presets.py:1760-1768` — `resolve()` iterates registered presets and checks `pack_dir / subdir / f"{template_name}{ext}"` where `pack_dir = self.presets_dir / pack_id` and `subdir = "templates"`. The file must physically exist at that path.
+    3. `presets/ARCHITECTURE.md:32-35` — "Template Resolution" table confirms the four-tier stack with fixed paths and no indirection.
+    4. `presets/ARCHITECTURE.md:39-42` — resolution is implemented three times (Python `PresetResolver`, bash `resolve_template()`, PowerShell `Resolve-Template`) to guarantee consistency — so there is no alternate "reference" path hiding elsewhere.
+  - **Implication for preflight**: preflight is **converting organizational form** from Claude Code plugin to native spec-kit extension. The old plugin layout (`content/templates/`, `content/rules-source/`, `skills/`, `.claude-plugin/`) is being replaced, not dual-maintained. Templates move via `git mv content/templates/* presets/preflight/templates/` — preserves file history, no symlinks, no drift problem, no CONST-CI-02 duplication because there's only one location after the move. If we ever want the plugin form back, `git revert` the conversion commit(s).
+  - **Decision for this spike**: **`git mv`** — single source of truth by location, not by tooling. Clean cut from plugin to extension.
+  - **Phase 1 task implied**: after creating `presets/preflight/templates/` directory, `git mv` each template from `content/templates/` into it. CONST-CI-02 either needs to be rewritten to reference the new location or retired in favor of a spec-kit-native equivalent (tracked as a follow-up during scaffold).
 
 ### Question 3 — Does spec-kit allow `tasks-template.md` to be missing?
 
@@ -437,8 +440,8 @@ These block phase 1 and must be answered in phase 0.
 - **Why it matters**: spike 2 verifies the multi-agent CommandRegistrar reach. Need a target that installs in <30 minutes and has a command directory spec-kit registers to.
 - **Candidates**: Cursor, Gemini CLI, opencode, Tabnine, Windsurf, Qwen
 - **Selection criteria**: cheapest install, most reliable, has clearest command directory model
-- **Status**: open
-- **Answer**: **\_**
+- **Status**: **answered 2026-04-14**
+- **Answer**: **Codex**. Already integrated with this environment via the `codex:*` plugin; command directory model is well-understood; zero new install cost.
 
 ### Question 5 — Which composition topology is this spike actually testing?
 
