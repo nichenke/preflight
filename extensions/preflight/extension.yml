@@ -23,9 +23,11 @@ provides:
 hooks:
   after_specify:
     command: "speckit.preflight.review"
+    optional: false
     description: "Run preflight rule-based review on spec.md after /speckit.specify"
   after_plan:
     command: "speckit.preflight.review"
+    optional: false
     description: "Run preflight rule-based review on plan.md after /speckit.plan"
 
 tags:
