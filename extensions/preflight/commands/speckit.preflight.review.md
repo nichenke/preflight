@@ -13,8 +13,8 @@ This command is a faithful port of the preflight plugin's `skills/review/` skill
 The target is determined in this order:
 
 1. **Explicit argument** — if the user passed a path, use it. Resolve relative paths from the project root.
-2. **Hook context (`after_specify`)** — the most recently modified `spec.md` under `.specify/features/<current>/`
-3. **Hook context (`after_plan`)** — the most recently modified `plan.md` under the same directory
+2. **Hook context (`after_specify`)** — the most recently modified `spec.md` under `specs/<NNN-feature>/`. Spec-kit writes feature documents to the project-root `specs/` directory (e.g. `specs/001-reverse-string/spec.md`), not `.specify/features/`. Glob `specs/*/spec.md` and pick the most recently modified.
+3. **Hook context (`after_plan`)** — the most recently modified `plan.md` under `specs/<NNN-feature>/`. Glob `specs/*/plan.md` and pick the most recently modified.
 4. **Interactive fallback** — if none of the above, Glob `{project_docs_dir}/**/*.md` (default `docs/` if no `{project_docs_dir}` is configured), present the list, and ask the user to pick one. Wait for their selection before proceeding.
 
 ## 2. Identify document type

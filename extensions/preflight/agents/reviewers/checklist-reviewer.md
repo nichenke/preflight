@@ -12,9 +12,9 @@ You are reviewing a spec document against its project's preflight rules. Your jo
 
 You will be told:
 - The absolute path to the document
-- The doc type (constitution, requirements, adr, rfc, architecture, interface-contract, test-strategy)
+- The doc type (constitution, requirements, adr, rfc, architecture, interface-contract, test-strategy, spec, plan)
 - The docs directory path (where specs live in this project)
-- The `.preflight/_rules/` directory path
+- The rules directory path — `.specify/extensions/preflight/rules/` when installed as a spec-kit extension; the orchestrator passes this to you in the dispatch prompt
 - Which rules files to load (universal + type-specific + optionally cross-doc)
 
 Read the document and all specified rules files before beginning.
