@@ -1,5 +1,5 @@
 ---
-status: Ratified
+status: Under Review — Topology A conversion in progress
 version: 1.1.0
 date: 2026-03-25
 owner: nic
@@ -10,15 +10,25 @@ amendment_adrs: [ADR-003]
 
 # Engineering Constitution
 
+> **⚠️ STATUS (2026-04-14): Under partial rewrite.** Preflight is converting from a Claude Code plugin to a native spec-kit extension under Topology A (see ADR-007 and `docs/spikes/SPIKE_PLAN.md`). Several constitutional principles below reference plugin-form concepts that no longer apply:
+>
+> - **CONST-CI-02** path reference fixed below (was `content/templates/`, now `presets/preflight/templates/`)
+> - **CONST-DIST-01** — `.claude/rules/` auto-load pattern is plugin-specific; spec-kit extensions distribute via `specify extension add`. Principle is stale pending rewrite.
+> - **CONST-DIST-02** — "Plugin installation" language is stale; the spirit (don't overwrite project-authored docs) still applies to spec-kit extension install.
+> - **CONST-QA-01 through CONST-QA-05** — reference "skills" and "plugin releases" that no longer exist. Eval suite concept may survive in spec-kit-native form; needs rewrite.
+> - **CONST-PROC-01** — "plugin change bumps version" becomes "preset or extension change bumps version in preset.yml / extension.yml". Semver intent unchanged.
+>
+> **CONST-CI-01**, **CONST-CI-03**, **CONST-PROC-02**, and **CONST-PROC-03** remain valid as-is.
+>
+> A full rewrite is tracked as a follow-up — either via ADR-008 (constitution amendment) if the Topology A spike promotes, or deferred until the spike outcome is known. Do not cite stale principles in new work.
+
 ## Preamble
 
-This constitution defines non-negotiable engineering principles for the PM Documentation
-Framework project. All agents, all features, and all code must comply. Amendments require
-an ADR with explicit ratification.
+This constitution defines non-negotiable engineering principles for preflight. All agents, all features, and all code must comply. Amendments require an ADR with explicit ratification.
 
 ## Content Integrity
 - [CONST-CI-01] The git repository is the canonical source for all framework content
-- [CONST-CI-02] Templates are the single source of truth for document structure — do not duplicate template content in other files
+- [CONST-CI-02] Templates live inside `presets/preflight/templates/` and are the single source of truth for document structure — do not duplicate template content in other files (updated 2026-04-14 from `content/templates/` during Topology A conversion; principle intent unchanged)
 - [CONST-CI-03] Rule IDs are stable — renumbering or removing IDs requires an ADR
 
 ## Distribution

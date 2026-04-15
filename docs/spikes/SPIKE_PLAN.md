@@ -47,18 +47,18 @@ Read these before starting:
 **Tasks**:
 
 - [x] Install spec-kit locally (`pipx install specify-cli`); verify `specify --version` and `specify init` work in throwaway dir
-- [ ] Read spec-kit's preset + extension docs end to end:
+- [x] Read spec-kit's preset + extension docs end to end:
   - [x] `presets/ARCHITECTURE.md`
   - [x] `presets/README.md`
-  - [ ] `extensions/RFC-EXTENSION-SYSTEM.md`
-  - [ ] `extensions/EXTENSION-API-REFERENCE.md`
-- [ ] Merge `feature/workflow-research` to main as docs-only (4 analysis docs + ADR-007)
-- [ ] Pick spike-1 target: `gh issue list --repo nichenke/preflight --state open --limit 10` → choose one that touches a template, rule, or small doc gap
-  - Selected issue: **\_**
+  - [x] `extensions/RFC-EXTENSION-SYSTEM.md`
+  - [x] `extensions/EXTENSION-API-REFERENCE.md`
+- [x] Merge `feature/workflow-research` to main as docs-only (PR #23, merged 2026-04-14)
+- [x] Pick spike-1 target: `gh issue list --repo nichenke/preflight --state open --limit 10` → choose one that touches a template, rule, or small doc gap
+  - Selected issue: **#13**
 - [x] Identify the tack-room launcher artifact (current state, partial code, design intent)
   - Location: /Users/Shared/sv-nic/src/tack-room/BOOTSTRAP.md.
-- [ ] Resolve the five cross-cutting open questions (see §"Open questions" below)
-- [ ] **Choose a composition topology (Question 5) before any `presets/preflight/` scaffold work.** Review [spec-kit composition topologies](../analysis/2026-04-13-speckit-composition-topologies.md) §2–§5 and pick one of A/B/C/D/E (or a hybrid). The choice reshapes Phase 1 tasks.
+- [x] Resolve the five cross-cutting open questions (see §"Open questions" below)
+- [x] **Choose a composition topology (Question 5) before any `presets/preflight/` scaffold work.** Review [spec-kit composition topologies](../analysis/2026-04-13-speckit-composition-topologies.md) §2–§5 and pick one of A/B/C/D/E (or a hybrid). The choice reshapes Phase 1 tasks.
 
 **Exit criteria**:
 
@@ -71,7 +71,7 @@ Read these before starting:
 
 **Estimated effort**: 0.5 day
 
-**Phase status**: not started
+**Phase status**: **closed 2026-04-14**. All exit criteria met — PR #23 merged, spike-1 issue #13 selected, Q1/Q2/Q3/Q4/Q5 all answered.
 
 ---
 
@@ -141,16 +141,24 @@ preflight/
 - `after_specify` hook fires on `/speckit.specify` (review can be stubbed for now — wiring matters more than depth)
 - No conflicts with spec-kit core defaults
 
-**Blockers from phase 0**:
-
-- **Open question #5 (composition topology) must be answered before any Phase 1 work** — the scaffold shape differs per topology (full preset for A; docguard rule-pack for B; substrate-neutral core + two adapters for C; cancel entirely for E). Don't start the file layout below until this is resolved.
-- Open question #1 (review CLI entry point) must be answered before authoring `run-preflight-review.sh`
-- Open question #2 (template resolution) must be answered before deciding reference vs copy
-- Open question #3 (tasks-template required?) must be answered before stub-vs-remove decision
+**Blockers from phase 0**: **none as of 2026-04-14** — all five open questions are answered (Q1: option (a) headless Claude or host-agent LLM; Q2: option (c) templates physically live under preset dir, populated via `git mv content/templates/` → `presets/preflight/templates/` since preflight is converting from plugin to native spec-kit organization; Q3: don't override tasks-template, override `/speckit.tasks` and `/speckit.implement` commands as PAI redirects; Q4: Codex as multi-agent target; Q5: Topology A). Phase 0 closed.
 
 **Estimated effort**: 1.5 days
 
-**Phase status**: not started
+**Phase status**: **in progress 2026-04-14** — branch `feature/preset-scaffold` has 8 commits covering the plugin → spec-kit conversion in staged slices:
+
+| Slice | Commit | Content |
+|---|---|---|
+| 1 | `4cdeec9` | `git mv content/templates/*.md` → `presets/preflight/templates/`; author `preset.yml`, `extension.yml`, `speckit.tasks` + `speckit.implement` PAI-redirect commands, `speckit.preflight.review` stub |
+| 1.5 | `a487a43` | Minimal `pyproject.toml` + uv `[dependency-groups] dev`, `uv.lock`, `.gitignore` additions |
+| 2 | `80d44f6` | `git mv content/rules-source/*.md` → `extensions/preflight/rules/`; update review command for table-format rule loading |
+| 3 | `79d93ec` | `git mv content/reference/` → `docs/reference/`; `git mv content/scaffolds/` → `extensions/preflight/scaffolds/`; remove `content/` |
+| 4 | `5069464` | `git mv agents/reviewers/*` → `extensions/preflight/agents/reviewers/`; rewrite `speckit.preflight.review.md` as full orchestrator port of `skills/review/SKILL.md` with two-agent ensemble; `git rm -r skills/` |
+| 5 | `e62fba6` | Remove Claude Code plugin artifacts: `.claude-plugin/`, `commands/`, `hooks/`, `tests/` |
+| 6 | `67d9566` | Rewrite `CLAUDE.md` + `README.md` for spec-kit extension form |
+| 7 | `2fcbeb7` | `specs/constitution.md` status banner + CONST-CI-02 path fix (full rewrite deferred to ADR-008 or post-spike) |
+
+Phase 1 exit criteria (install cleanly, templates resolve, review command invocable, hooks fire) still require validation via `specify preset add` and `specify extension add` in a throwaway target project. That validation is the first task of Phase 2 (spike 1).
 
 ---
 
@@ -167,6 +175,7 @@ preflight/
 - [ ] Run `/speckit.specify <issue title>` — verify spec.md scaffolds in preflight format
 - [ ] Run `/speckit.plan` — verify plan.md scaffolds
 - [ ] Verify `after_specify` hook fired and review ran
+- [ ] **Verify two-agent ensemble dispatch works from spec-kit command context**: `speckit.preflight.review` should dispatch both `checklist-reviewer` and `bogey-reviewer` as subagents (via the host agent's Task/Agent tool), both should complete, and their outputs should merge per the orchestrator's step 7. If the host agent can't dispatch subagents from a spec-kit command prompt, or the `.specify/extensions/preflight/agents/reviewers/*.md` path references don't resolve at runtime, flag as a spike blocker.
 - [ ] Address any review findings
 - [ ] Implement the issue's actual fix (real work, not pretend)
 - [ ] Run `/speckit.apply` to ratify the feature folder
@@ -310,6 +319,14 @@ preflight/
 - [ ] Read all three spike reports back-to-back
 - [ ] Apply criteria-first re-scoring (methodology angle 2.8) to spike outcomes
 - [ ] Apply load-bearing-criterion isolation (angle 2.9) — name the one criterion that drove the decision, if any
+- [ ] **Evaluate spec-kit's native optional commands against preflight's review ensemble** (added 2026-04-14 during Phase 1 install test). `specify init` offers three optional commands that overlap with preflight's differentiators:
+  - `/speckit.clarify` — structured de-risking questions before planning. Overlaps with preflight's former `/preflight new` guided elicitation. Could host elicitation logic natively.
+  - `/speckit.analyze` — cross-artifact consistency report. Directly overlaps with bogey-reviewer's Layer 1 (cross-doc assumption conflicts).
+  - `/speckit.checklist` — quality checklist generation. Overlaps with checklist-reviewer's rule-based pass.
+
+  Questions to answer in synthesis: Is preflight's ensemble adding value over native clarify+analyze+checklist combined, or is it re-inventing them? Should preflight compose with them (clarify for elicitation, preflight review as the rule-graded + adversarial layer on top) or replace them? If compose, does that simplify preflight's extension surface area?
+
+  Input for the Topology A vs Topology C discussion at ADR-007 promotion time. If the native commands cover 80% of preflight's value, Topology C (substrate-neutral core with thin adapters) becomes more attractive since preflight's distinctive value shrinks.
 - [ ] Decide path:
   - [ ] **If composable path validated**: amend ADR-007 to v2 — change Decision Outcome to specify spec-kit preset as implementation layer; update consequences; update confirmation criteria. Keep shape decisions intact.
   - [ ] **If composable path failed**: keep ADR-007 v1 (preflight-native skills); proceed to original 4-item plan (skills/explore, skills/propose, review --drift, drift hook)
@@ -393,8 +410,16 @@ These block phase 1 and must be answered in phase 0.
   - (b) Copy at install: spec-kit copies templates into preset directory at install time
   - (c) Hard requirement: templates must live inside the preset directory; we copy or symlink as part of preset build
 - **Recommendation**: prefer (a). If only (c) works, build a symlink at preset-build time so the source files stay canonical.
-- **Status**: open
-- **Answer**: **\_**
+- **Status**: **answered 2026-04-14** via code analysis of `~/.cache/spec-kit` (shallow clone)
+- **Answer**: **Option (c) — hard requirement. Templates must physically live under `.specify/presets/<id>/templates/`.** Spec-kit's resolver looks up templates by hardcoded path, not by declaration in `preset.yml`.
+  - **Proof (from `~/.cache/spec-kit`)**:
+    1. `src/specify_cli/presets.py:1654-1662` — `PresetResolver` docstring declares the fixed priority stack: `.specify/templates/overrides/` → `.specify/presets/<preset-id>/templates/` → `.specify/extensions/<ext-id>/templates/` → `.specify/templates/`. No reference-by-path option.
+    2. `src/specify_cli/presets.py:1760-1768` — `resolve()` iterates registered presets and checks `pack_dir / subdir / f"{template_name}{ext}"` where `pack_dir = self.presets_dir / pack_id` and `subdir = "templates"`. The file must physically exist at that path.
+    3. `presets/ARCHITECTURE.md:32-35` — "Template Resolution" table confirms the four-tier stack with fixed paths and no indirection.
+    4. `presets/ARCHITECTURE.md:39-42` — resolution is implemented three times (Python `PresetResolver`, bash `resolve_template()`, PowerShell `Resolve-Template`) to guarantee consistency — so there is no alternate "reference" path hiding elsewhere.
+  - **Implication for preflight**: preflight is **converting organizational form** from Claude Code plugin to native spec-kit extension. The old plugin layout (`content/templates/`, `content/rules-source/`, `skills/`, `.claude-plugin/`) is being replaced, not dual-maintained. Templates move via `git mv content/templates/* presets/preflight/templates/` — preserves file history, no symlinks, no drift problem, no CONST-CI-02 duplication because there's only one location after the move. If we ever want the plugin form back, `git revert` the conversion commit(s).
+  - **Decision for this spike**: **`git mv`** — single source of truth by location, not by tooling. Clean cut from plugin to extension.
+  - **Phase 1 task implied**: after creating `presets/preflight/templates/` directory, `git mv` each template from `content/templates/` into it. CONST-CI-02 either needs to be rewritten to reference the new location or retired in favor of a spec-kit-native equivalent (tracked as a follow-up during scaffold).
 
 ### Question 3 — Does spec-kit allow `tasks-template.md` to be missing?
 
@@ -437,8 +462,8 @@ These block phase 1 and must be answered in phase 0.
 - **Why it matters**: spike 2 verifies the multi-agent CommandRegistrar reach. Need a target that installs in <30 minutes and has a command directory spec-kit registers to.
 - **Candidates**: Cursor, Gemini CLI, opencode, Tabnine, Windsurf, Qwen
 - **Selection criteria**: cheapest install, most reliable, has clearest command directory model
-- **Status**: open
-- **Answer**: **\_**
+- **Status**: **answered 2026-04-14**
+- **Answer**: **Codex**. Already integrated with this environment via the `codex:*` plugin; command directory model is well-understood; zero new install cost.
 
 ### Question 5 — Which composition topology is this spike actually testing?
 
@@ -484,7 +509,57 @@ These block phase 1 and must be answered in phase 0.
 
 Append findings here as spikes complete. Each entry: phase, date, finding, action implication.
 
-(empty)
+### Phase 1 — 2026-04-14 — spec-kit after-hook execution bug
+
+**Finding**: spec-kit v0.6.2 (and main @ 0.6.3.dev0) has a 100%-consistent asymmetry across all 9 command templates (`analyze`, `checklist`, `clarify`, `constitution`, `implement`, `plan`, `specify`, `tasks`, `taskstoissues`). Every template has 2 "Mandatory hook" blocks (before + after) but only 1 "Wait for the result" instruction — attached to the before-hook block. After-hook mandatory blocks emit an `EXECUTE_COMMAND` directive but without the sequencing instruction, so host agents (Claude Code) print the directive as informational text and stop. Auto-execution works for `before_*` hooks, silently fails for `after_*` hooks.
+
+**How discovered**: ran `/speckit.specify` in the test project after setting `optional: false` on preflight's `after_specify` / `after_plan` hooks. Spec-kit correctly emitted "Automatic Hook: preflight / EXECUTE_COMMAND: speckit.preflight.review" but Claude Code stopped after printing it. Traced to missing "Wait for the result" instruction in `templates/commands/specify.md:257-264`.
+
+**Full analysis**: [`docs/analysis/2026-04-14-speckit-after-hook-execution-bug.md`](../analysis/2026-04-14-speckit-after-hook-execution-bug.md) — includes reproduction, root cause in prompt template, upstream patch diff, impact assessment.
+
+**Action implication**:
+1. **Workaround for Phase 2 spike 1**: manually invoke `/speckit.preflight.review` after `/speckit.specify` and `/speckit.plan`. Acceptable for validating ensemble dispatch and review content; auto-fire mechanism is orthogonal.
+2. **Upstream PR** to `github/spec-kit` (deferred from Phase 6, moved up): patches all 9 templates + `extensions.py:2456` Pre-Hook / Post-Hook label distinction. File issue + PR as first preflight contribution to spec-kit ecosystem. This is the research arc's Q1 / "has blocking hooks shipped?" question answered with a concrete upstream fix preflight is uniquely positioned to propose.
+3. **Q1 framing update**: spec-kit's `optional: false` IS the "blocking hooks" mechanism the research asked about, but only the before-hook half works. Post-fix, it will fully work. Preflight's Topology A enforcement-via-hooks claim is valid pending the upstream fix.
+4. **Exception to "no upstream contributions during spikes"**: this specific bug blocks validation of preflight's after-hook enforcement and is small enough to land in parallel with Phase 2. Granted as an exception. Filed as [preflight issue #25](https://github.com/nichenke/preflight/issues/25) for analysis review before upstream filing.
+
+### Phase 1 — 2026-04-14 — ensemble dispatch validated on first manual review
+
+**Finding**: manual invocation of `/speckit.preflight.review` on a spec-kit-generated spec (`specs/001-reverse-string/spec.md`) successfully dispatched both subagents (checklist + bogey) via Claude Code's Task tool. Both reviewers completed; merged output came back in the expected Critical/Important/Suggestion format with proper source attribution (rule ID vs `structural`). **Ensemble dispatch mechanism works** — the Topology A concern about "can a spec-kit command prompt actually drive two-agent dispatch" is resolved in preflight's favor.
+
+Three Important findings surfaced on a trivial reverse-string feature spec. Each reveals a distinct signal about the ensemble's value:
+
+1. **[Important] UNIV-01 missing frontmatter** (checklist-reviewer, confidence 97). Spec-kit's `/speckit.specify` template produces prose metadata (`**Feature Branch**:`, `**Created**:`) instead of YAML frontmatter. **Finding interpretation**: this is a **rule scoping bug** in preflight, not a doc defect. UNIV-01 was written for plugin-era doc types (requirements.md, ADRs, constitution) that need durable authorship metadata. Feature specs under spec-kit form are transient per-feature artifacts where prose metadata is the spec-kit convention. Action: rewrite UNIV-01 to exempt `type: spec` (generic feature spec), or scope the rule to "documents with durable authorship". Track as a Phase 5 rule-scoping task.
+
+2. **[Important] SC-002 unspecified benchmark environment** (bogey-reviewer Layer 2 H1, confidence 92; also flagged by checklist UNIV-04 at confidence 82 — bogey retained for higher confidence). Feature spec said "under 10 milliseconds on a standard developer machine." **Finding interpretation**: the spike's quote — "spec ahead of where our harness can help" — captures it exactly. Only bogey-reviewer's adversarial pass catches this. A pure rule check wouldn't flag it because there's no rule for "benchmark environment must be concrete." **Confirms the ensemble's value**: rule-based review alone would miss this class of defect. Evidence for the spike 1 report.
+
+3. **[Important] SC-004 unmeasurable onboarding claim** (bogey-reviewer H1, confidence 90). Feature spec generated: "A developer unfamiliar with the codebase can locate, import, and correctly use the function in under 5 minutes." **No test population, sample size, evaluator, or procedure.** **Finding interpretation — the most important signal from the whole test run**: spec-kit's `/speckit.specify` invented a criterion that no agent, test suite, or planning tool can verify. The template told it to produce "measurable success criteria" and it produced something that *sounds* measurable but isn't. This points at two follow-up experiments:
+   - **Would `/speckit.clarify` have caught SC-004 before `/speckit.specify` wrote it?** Test in Phase 2 or Phase 5 by running the same feature through clarify → specify and comparing. If clarify catches it, that's a composition win: clarify + preflight review are complementary.
+   - **Is there a pre-specify elicitation skill preflight should ship?** The old `/preflight new` skill did guided questioning before spec creation. Reframed for spec-kit form, this could be `speckit.preflight.elicit` as a pre-hook on `/speckit.specify` that runs a scoping pass to catch "you haven't thought this through yet" before a full spec is generated. Track as a Phase 5 synthesis input: does preflight add value here, or does `/speckit.clarify` already cover it?
+
+**Implication for Topology A vs Topology C decision**: the ensemble dispatch works (validates Topology A mechanically), but findings 1 and 3 suggest preflight's rule set needs **material updates to match spec-kit's actual output**, not just path fixes. If the scope of the rule rewrites is large, Topology C (substrate-neutral core that ships to multiple adapters) becomes more attractive because the rule engine would be shared. If the scope is small, Topology A stays preferred.
+
+### Phase 1 — 2026-04-14 — reviewer coverage non-determinism on multi-instance rules
+
+**Finding**: after rescoping UNIV-01 to exempt `spec`/`plan`/`tasks` and re-running `/speckit.preflight.review` against the same `specs/001-reverse-string/plan.md` twice, the checklist reviewer caught **different UNIV-04 instances on different runs**:
+
+- Run A flagged L16 `"any modern browser that supports Intl.Segmenter"` (vague adjective "modern") at confidence 85.
+- Run B missed L16 entirely but flagged L30 `"Simplicity: PASS — no unnecessary abstractions; single function, single file"` (unquantified "simple") at confidence 80.
+- Run B additionally flagged a UNIV-03 empty-section finding on L72-L74 that Run A did not report.
+
+Both candidate phrases were present in both runs — the document did not change between runs. The reviewer is making partial, non-overlapping passes over multi-instance rules.
+
+Additionally, in Run B the reviewer's own meta-commentary asserted the plan-exemption was *not* stated in the loaded rule text, when in fact the exemption section was present on disk (verified via `grep`). The reviewer's self-reports about rule content are not reliable evidence of what the rule actually says.
+
+**How discovered**: while testing the UNIV-01 rescope edit in the sibling test project after reinstalling preset + extension via `--dev`. Re-review was meant to confirm the frontmatter finding was gone; the comparison surfaced the coverage gap as a side effect.
+
+**Action implication**:
+1. **Not a Phase 1 conversion blocker** — the rules on disk are correct, the mechanism dispatches, and findings produced are legitimate. The reliability wobble is orthogonal to whether Topology A's composition works.
+2. **Phase 5 investigation task** (new): reviewer coverage strategy. Options to evaluate: (a) multi-pass consensus dispatch — run the checklist reviewer N times, union findings; (b) rule-by-rule structured prompting — one rule per reviewer call, forcing exhaustive coverage; (c) deterministic pre-pass — regex/grep scan for the enumerated UNIV-04 vague adjectives and feed hits to the reviewer as candidates. Decide during Phase 5 synthesis.
+3. **Phase 5 investigation task** (new): reviewer self-reporting reliability. Reviewer prose about "the rule says X" should not be trusted as a source of truth about rule content. Either (a) suppress rule-content commentary from reviewer output, or (b) cite rule text with line numbers so claims are verifiable, or (c) instrument the dispatch command to log the exact rule bytes passed as prompt context for each run.
+4. **Do not block PR #24 merge on this** — conversion mechanics are validated; reliability is a Phase 5 concern that applies to any LLM-driven review regardless of topology.
+
+**Implication for Topology A vs Topology C decision**: coverage non-determinism is substrate-neutral — it would afflict any LLM reviewer wrapping the same rule set, whether shipped as a spec-kit extension (A) or a shared core with thin adapters (C). This finding does not shift the topology balance.
 
 ---
 

@@ -1,0 +1,12 @@
+[project]
+name = "preflight-speckit"
+version = "0.7.0.dev0"
+description = "Preflight — preset + extension for spec-kit (spec-driven review workflow)"
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pyyaml>=6.0",
+    "pytest>=8.0",
+]
