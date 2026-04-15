@@ -69,7 +69,7 @@ Record the list of rules files — you'll pass these paths to the checklist revi
 
 Build a list of related document paths for the bogey reviewer's cross-doc analysis:
 
-1. If `{project_docs_dir}/constitution.md` exists and is not the doc being reviewed, add it.
+1. If `.specify/memory/constitution.md` exists and is not the doc being reviewed, add it. This is preflight's canonical constitution path when installed as a spec-kit extension (per ADR-007 Amendment 1).
 2. Grep the target document for references: `ADR-(\d+)`, `RFC-(\d+)`, `FR-(\d+)`, `NFR-(\d+)`.
 3. For each ADR reference, check if a matching ADR file exists at `{project_docs_dir}/decisions/adrs/adr-{NNN}*.md`. Add the first match.
 4. For each RFC reference, check if a matching RFC file exists at `{project_docs_dir}/decisions/rfcs/rfc-{NNN}*.md`. Add the first match.

@@ -1,50 +1,56 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+---
+status: Under Review — Topology A conversion in progress
+version: 1.1.0
+date: 2026-03-25
+owner: nic
+ratified_by: [nic]
+last_amended: 2026-03-28
+amendment_adrs: [ADR-003]
+---
 
-## Core Principles
+# Engineering Constitution
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+> **⚠️ STATUS (2026-04-15): Under partial rewrite.** Preflight is converting from a Claude Code plugin to a native spec-kit extension under Topology A (see ADR-007 and `docs/spikes/SPIKE_PLAN.md`). Several constitutional principles below reference plugin-form concepts that no longer apply:
+>
+> - **CONST-CI-02** path reference fixed below (was `content/templates/`, now `presets/preflight/templates/`)
+> - **CONST-DIST-01** — `.claude/rules/` auto-load pattern is plugin-specific; spec-kit extensions distribute via `specify extension add`. Principle is stale pending rewrite.
+> - **CONST-DIST-02** — "Plugin installation" language is stale; the spirit (don't overwrite project-authored docs) still applies to spec-kit extension install.
+> - **CONST-QA-01 through CONST-QA-05** — reference "skills" and "plugin releases" that no longer exist. Eval suite concept may survive in spec-kit-native form; needs rewrite.
+> - **CONST-PROC-01** — "plugin change bumps version" becomes "preset or extension change bumps version in preset.yml / extension.yml". Semver intent unchanged.
+>
+> **CONST-CI-01**, **CONST-CI-03**, **CONST-PROC-02**, and **CONST-PROC-03** remain valid as-is.
+>
+> A full rewrite is tracked as a follow-up — either via ADR-008 (constitution amendment) if the Topology A spike promotes, or deferred until the spike outcome is known. Do not cite stale principles in new work.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+> **📍 LOCATION (2026-04-15):** This constitution moved from `specs/constitution.md` to `.specify/memory/constitution.md` per ADR-007 Amendment 1 (path reconciliation with spec-kit). The spec-kit native `/speckit-constitution` skill edits this file. Historical references in ADR-002, docs/analysis/*, docs/plans/*, and docs/specs/* preserve the old path as a historical fact.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+## Preamble
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+This constitution defines non-negotiable engineering principles for preflight. All agents, all features, and all code must comply. Amendments require an ADR with explicit ratification.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+## Content Integrity
+- [CONST-CI-01] The git repository is the canonical source for all framework content
+- [CONST-CI-02] Templates live inside `presets/preflight/templates/` and are the single source of truth for document structure — do not duplicate template content in other files (updated 2026-04-14 from `content/templates/` during Topology A conversion; principle intent unchanged)
+- [CONST-CI-03] Rule IDs are stable — renumbering or removing IDs requires an ADR
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Distribution
+- [CONST-DIST-01] Rules auto-load via `.claude/rules/`, never require CLAUDE.md edits in target projects
+- [CONST-DIST-02] Plugin installation must not overwrite project-authored documents
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+## Quality
+- [CONST-QA-01] Skills must pass a defined eval suite before shipping
+- [CONST-QA-02] Evals must cover rule following, activation ordering, and skill triggering accuracy
+- [CONST-QA-03] Plugin releases must pass automated content integrity tests
+- [CONST-QA-04] Plugin releases must pass plugin structure validation
+- [CONST-QA-05] Plugin releases must pass functional end-to-end testing
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Process
+- [CONST-PROC-01] Any plugin change that alters behavior bumps the version (semver)
+- [CONST-PROC-02] All behavioral requirement changes require an ADR (REQ-R07)
+- [CONST-PROC-03] ADRs use MADR 4.0 format
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
-
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
-
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+## Amendment Log
+| Version | Date | ADR | Change Summary |
+|---------|------|-----|----------------|
+| 1.0.0 | 2026-03-25 | (bootstrap) | Initial ratification — pre-plugin era, no ADR exists |
+| 1.1.0 | 2026-03-28 | ADR-003 | Add CONST-QA-03 through CONST-QA-05 — automated quality gates for plugin releases |

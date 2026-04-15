@@ -23,7 +23,7 @@ preflight/
 │   ├── analysis/                    # research passes + composable architecture work
 │   ├── spikes/SPIKE_PLAN.md         # ADR-007 validation spike tracker
 │   └── reference/                   # EARS, MADR, cross-doc relationships, etc.
-├── specs/                           # preflight's own specs (requirements, constitution, decisions)
+├── specs/                           # preflight's own specs (requirements, decisions) — constitution moved to .specify/memory/ per ADR-007 Amendment 1
 ├── pyproject.toml                   # uv dev env (requires-python >=3.11, pyyaml, pytest)
 └── uv.lock                          # reproducible dev env lockfile
 ```
@@ -32,7 +32,7 @@ preflight/
 
 - Any behavioral change requires a version bump in `presets/preflight/preset.yml` and `extensions/preflight/extension.yml` (both track `0.7.0-dev`)
 - Any behavioral requirement change requires an ADR (CONST-PROC-02)
-- `specs/constitution.md` is currently being rewritten (slice 7 of the plugin→spec-kit conversion) — CONST-CI-02 formerly required content to live in `content/` which no longer exists; do not cite CONST-CI-02 in new work until the rewrite lands
+- `.specify/memory/constitution.md` (formerly `specs/constitution.md`, moved 2026-04-15 per ADR-007 Amendment 1) is currently being rewritten — CONST-CI-02 formerly required content to live in `content/` which no longer exists; do not cite CONST-CI-02 in new work until the rewrite lands
 
 ## Dev workflow
 

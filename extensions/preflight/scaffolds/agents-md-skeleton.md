@@ -6,7 +6,7 @@ Review all changes against the governing documents below.
 
 ### Governing documents (read these before reviewing)
 
-1. `{docs_dir}/constitution.md` — non-negotiable principles. Constitutional violations are Critical severity.
+1. `.specify/memory/constitution.md` — non-negotiable principles. Constitutional violations are Critical severity.
 2. `CLAUDE.md` — project conventions and agent instructions.
 3. `.claude/rules/preflight.md` — requirements governance, EARS patterns, document IDs.
 
