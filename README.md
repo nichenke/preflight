@@ -37,13 +37,15 @@ The preset and extension install into `.specify/presets/preflight/` and `.specif
 
 ```
 /speckit.specify <feature>          # scaffolds spec.md in preflight format
-                                    # → after_specify hook fires preflight.review
+/speckit.preflight.review           # manual review of spec.md (see note below)
 /speckit.plan                       # scaffolds plan.md
-                                    # → after_plan hook fires preflight.review
+/speckit.preflight.review           # manual review of plan.md (see note below)
 # (Task decomposition delegated to PAI Algorithm reading plan.md directly)
 # (Implementation delegated to PAI Algorithm)
 /speckit.archive <feature>          # ratify the feature folder (via archive extension)
 ```
+
+> **⚠ Manual invocation required (upstream bug).** Preflight declares `after_specify` and `after_plan` hooks with `optional: false`, intending the review ensemble to auto-fire after each scaffold command. Spec-kit's command templates currently ship with an asymmetric hook-execution bug: `before_*` mandatory hooks auto-execute, but `after_*` mandatory hooks emit an `EXECUTE_COMMAND` directive without the "Wait for the result" sequencing instruction, so host agents (Claude Code) print the directive as informational text and stop. Until this is fixed upstream, **manually invoke `/speckit.preflight.review` after each `/speckit.specify` and `/speckit.plan`**. Full analysis and the upstream patch are at `docs/analysis/2026-04-14-speckit-after-hook-execution-bug.md`; tracked as [preflight issue #25](https://github.com/nichenke/preflight/issues/25).
 
 ## Doc types
 
