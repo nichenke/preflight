@@ -46,11 +46,13 @@ uv run python -c "import yaml; yaml.safe_load(open('presets/preflight/preset.yml
 # install spec-kit from git source (PyPI's specify-cli is stale)
 pipx install "git+https://github.com/github/spec-kit.git@v0.6.2"
 
-# install preflight preset + extension into a target project
+# install preflight preset + extension into a target project (dev mode, points at the manifest subdirs)
 cd /path/to/target-project
-specify preset add /path/to/preflight
-specify extension add /path/to/preflight
+specify preset add --dev /path/to/preflight/presets/preflight
+specify extension add --dev /path/to/preflight/extensions/preflight
 ```
+
+`--dev` does a one-shot copy from the source paths — re-run both commands after edits to propagate changes into the target project.
 
 ## Content source of truth
 

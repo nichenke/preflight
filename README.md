@@ -24,14 +24,14 @@ Spec-kit's PyPI package (`specify-cli` on PyPI) is stale and has no preset/exten
 pipx install "git+https://github.com/github/spec-kit.git@v0.6.2"
 ```
 
-Then in your target project:
+Then in your target project, install the preset and extension in local dev mode. Spec-kit's `preset add` / `extension add` commands read `preset.yml` / `extension.yml` directly from the directory you point them at, so the paths must target the manifest subdirectories (`presets/preflight/` and `extensions/preflight/`) — not the repo root:
 
 ```bash
-specify preset add /path/to/preflight
-specify extension add /path/to/preflight
+specify preset add --dev /path/to/preflight/presets/preflight
+specify extension add --dev /path/to/preflight/extensions/preflight
 ```
 
-The preset and extension install into `.specify/presets/preflight/` and `.specify/extensions/preflight/` respectively. Command registration propagates through spec-kit's `CommandRegistrar` to all supported agent directories.
+The preset and extension install into `.specify/presets/preflight/` and `.specify/extensions/preflight/` respectively. Command registration propagates through spec-kit's `CommandRegistrar` to all supported agent directories. `--dev` performs a one-shot copy (not a symlink), so edits to the source repo require re-running the install commands to propagate.
 
 ## Workflow
 

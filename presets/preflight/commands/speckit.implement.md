@@ -8,7 +8,7 @@ This preset delegates implementation to **PAI Algorithm**, which consumes `plan.
 
 ## What to do
 
-1. Confirm the active feature has a `plan.md` under `.specify/features/<feature>/`
+1. Confirm the active feature has a `plan.md` under `specs/<NNN-feature>/`
 2. Invoke PAI Algorithm against that `plan.md`
 3. PAI will:
    - OBSERVE — decompose the plan's acceptance section into atomic ISC criteria

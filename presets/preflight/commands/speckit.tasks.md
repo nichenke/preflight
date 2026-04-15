@@ -10,7 +10,7 @@ Under the preflight preset, task decomposition is delegated to **PAI Algorithm**
 
 ## What to do instead
 
-1. Confirm the active feature has a `plan.md` under `.specify/features/<feature>/`
+1. Confirm the active feature has a `plan.md` under `specs/<NNN-feature>/`
 2. Invoke PAI Algorithm (or equivalent host-agent task decomposer) with `plan.md` as input
 3. Let PAI produce ISC criteria and execute them
 
@@ -19,7 +19,7 @@ Under the preflight preset, task decomposition is delegated to **PAI Algorithm**
 `/speckit.implement`'s core command will error if `tasks.md` is missing (hard prerequisite in `scripts/bash/check-prerequisites.sh`). Since this preset also overrides `/speckit.implement` to delegate to PAI, that check is bypassed. But if another tool in your stack expects `tasks.md` to exist, create a one-line pointer:
 
 ```
-echo "# PAI owns task decomposition — see plan.md acceptance" > .specify/features/<feature>/tasks.md
+echo "# PAI owns task decomposition — see plan.md acceptance" > specs/<NNN-feature>/tasks.md
 ```
 
 ## Why this override exists

@@ -18,7 +18,7 @@ You will be told:
 - The absolute path to the document
 - The doc type (constitution, requirements, adr, rfc, etc.)
 - The docs directory path (where specs live in this project)
-- The `.preflight/_rules/` directory path (load all applicable rules files for context)
+- The rules directory path — `.specify/extensions/preflight/rules/` when installed as a spec-kit extension; load all applicable rules files for context
 - Paths to related documents for cross-doc analysis (constitution, requirements, cited ADRs/RFCs)
 
 Load the document and all provided related docs before beginning Layer 1.
