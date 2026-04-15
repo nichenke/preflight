@@ -322,47 +322,60 @@ if [ ${#BRANCH_NAME} -gt $MAX_BRANCH_LENGTH ]; then
     >&2 echo "[specify] Truncated to: $BRANCH_NAME (${#BRANCH_NAME} bytes)"
 fi
 
-FEATURE_DIR="$SPECS_DIR/$BRANCH_NAME"
+# Resolve worktree path for the new feature. Preflight convention (per
+# .claude/rules/git-workflow.md): every feature lives in its own worktree at
+# <primary_repo>/.worktrees/<branch_name>/. Running this script from a linked
+# worktree correctly resolves .worktrees/ to the primary repo, not the current
+# linked worktree, so sibling features don't nest under each other.
+if [ "$HAS_GIT" = true ]; then
+    # git worktree list --porcelain prints the main (primary) worktree first;
+    # its 'worktree <path>' line is always line 1.
+    PRIMARY_REPO=$(git worktree list --porcelain | awk '/^worktree / { print $2; exit }')
+    WORKTREE_PATH="$PRIMARY_REPO/.worktrees/$BRANCH_NAME"
+    BASE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+else
+    PRIMARY_REPO="$REPO_ROOT"
+    WORKTREE_PATH="$REPO_ROOT/.worktrees/$BRANCH_NAME"
+    BASE_BRANCH=""
+fi
+
+FEATURE_DIR="$WORKTREE_PATH/specs/$BRANCH_NAME"
 SPEC_FILE="$FEATURE_DIR/spec.md"
 
 if [ "$DRY_RUN" != true ]; then
     if [ "$HAS_GIT" = true ]; then
-        branch_create_error=""
-        if ! branch_create_error=$(git checkout -q -b "$BRANCH_NAME" 2>&1); then
-            current_branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
-            # Check if branch already exists
-            if git branch --list "$BRANCH_NAME" | grep -q .; then
-                if [ "$ALLOW_EXISTING" = true ]; then
-                    # If we're already on the branch, continue without another checkout.
-                    if [ "$current_branch" = "$BRANCH_NAME" ]; then
-                        :
-                    # Otherwise switch to the existing branch instead of failing.
-                    elif ! switch_branch_error=$(git checkout -q "$BRANCH_NAME" 2>&1); then
-                        >&2 echo "Error: Failed to switch to existing branch '$BRANCH_NAME'. Please resolve any local changes or conflicts and try again."
-                        if [ -n "$switch_branch_error" ]; then
-                            >&2 printf '%s\n' "$switch_branch_error"
-                        fi
-                        exit 1
-                    fi
-                elif [ "$USE_TIMESTAMP" = true ]; then
-                    >&2 echo "Error: Branch '$BRANCH_NAME' already exists. Rerun to get a new timestamp or use a different --short-name."
-                    exit 1
-                else
-                    >&2 echo "Error: Branch '$BRANCH_NAME' already exists. Please use a different feature name or specify a different number with --number."
+        if [ -d "$WORKTREE_PATH" ]; then
+            >&2 echo "Error: Worktree path '$WORKTREE_PATH' already exists. Remove it first with 'git worktree remove $WORKTREE_PATH' before retrying."
+            exit 1
+        fi
+
+        if git branch --list "$BRANCH_NAME" | grep -q .; then
+            # Branch already exists — honor --allow-existing-branch by attaching
+            # a worktree to it; otherwise fail with the original error semantics.
+            if [ "$ALLOW_EXISTING" = true ]; then
+                if ! worktree_create_error=$(git worktree add "$WORKTREE_PATH" "$BRANCH_NAME" 2>&1); then
+                    >&2 echo "Error: Failed to attach worktree '$WORKTREE_PATH' to existing branch '$BRANCH_NAME'. Please resolve any conflicts and try again."
+                    >&2 printf '%s\n' "$worktree_create_error"
                     exit 1
                 fi
+            elif [ "$USE_TIMESTAMP" = true ]; then
+                >&2 echo "Error: Branch '$BRANCH_NAME' already exists. Rerun to get a new timestamp or use a different --short-name."
+                exit 1
             else
-                >&2 echo "Error: Failed to create git branch '$BRANCH_NAME'."
-                if [ -n "$branch_create_error" ]; then
-                    >&2 printf '%s\n' "$branch_create_error"
-                else
-                    >&2 echo "Please check your git configuration and try again."
-                fi
+                >&2 echo "Error: Branch '$BRANCH_NAME' already exists. Please use a different feature name or specify a different number with --number."
+                exit 1
+            fi
+        else
+            # Normal path: create new branch + worktree off $BASE_BRANCH in one call.
+            if ! worktree_create_error=$(git worktree add "$WORKTREE_PATH" -b "$BRANCH_NAME" "$BASE_BRANCH" 2>&1); then
+                >&2 echo "Error: Failed to create worktree '$WORKTREE_PATH' on new branch '$BRANCH_NAME' from base '$BASE_BRANCH'."
+                >&2 printf '%s\n' "$worktree_create_error"
                 exit 1
             fi
         fi
     else
-        >&2 echo "[specify] Warning: Git repository not detected; skipped branch creation for $BRANCH_NAME"
+        mkdir -p "$WORKTREE_PATH"
+        >&2 echo "[specify] Warning: Git repository not detected; skipped worktree creation for $BRANCH_NAME"
     fi
 
     mkdir -p "$FEATURE_DIR"
@@ -388,26 +401,32 @@ if $JSON_MODE; then
                 --arg branch_name "$BRANCH_NAME" \
                 --arg spec_file "$SPEC_FILE" \
                 --arg feature_num "$FEATURE_NUM" \
-                '{BRANCH_NAME:$branch_name,SPEC_FILE:$spec_file,FEATURE_NUM:$feature_num,DRY_RUN:true}'
+                --arg worktree_path "$WORKTREE_PATH" \
+                '{BRANCH_NAME:$branch_name,SPEC_FILE:$spec_file,FEATURE_NUM:$feature_num,WORKTREE_PATH:$worktree_path,DRY_RUN:true}'
         else
             jq -cn \
                 --arg branch_name "$BRANCH_NAME" \
                 --arg spec_file "$SPEC_FILE" \
                 --arg feature_num "$FEATURE_NUM" \
-                '{BRANCH_NAME:$branch_name,SPEC_FILE:$spec_file,FEATURE_NUM:$feature_num}'
+                --arg worktree_path "$WORKTREE_PATH" \
+                '{BRANCH_NAME:$branch_name,SPEC_FILE:$spec_file,FEATURE_NUM:$feature_num,WORKTREE_PATH:$worktree_path}'
         fi
     else
         if [ "$DRY_RUN" = true ]; then
-            printf '{"BRANCH_NAME":"%s","SPEC_FILE":"%s","FEATURE_NUM":"%s","DRY_RUN":true}\n' "$(json_escape "$BRANCH_NAME")" "$(json_escape "$SPEC_FILE")" "$(json_escape "$FEATURE_NUM")"
+            printf '{"BRANCH_NAME":"%s","SPEC_FILE":"%s","FEATURE_NUM":"%s","WORKTREE_PATH":"%s","DRY_RUN":true}\n' "$(json_escape "$BRANCH_NAME")" "$(json_escape "$SPEC_FILE")" "$(json_escape "$FEATURE_NUM")" "$(json_escape "$WORKTREE_PATH")"
         else
-            printf '{"BRANCH_NAME":"%s","SPEC_FILE":"%s","FEATURE_NUM":"%s"}\n' "$(json_escape "$BRANCH_NAME")" "$(json_escape "$SPEC_FILE")" "$(json_escape "$FEATURE_NUM")"
+            printf '{"BRANCH_NAME":"%s","SPEC_FILE":"%s","FEATURE_NUM":"%s","WORKTREE_PATH":"%s"}\n' "$(json_escape "$BRANCH_NAME")" "$(json_escape "$SPEC_FILE")" "$(json_escape "$FEATURE_NUM")" "$(json_escape "$WORKTREE_PATH")"
         fi
     fi
 else
     echo "BRANCH_NAME: $BRANCH_NAME"
     echo "SPEC_FILE: $SPEC_FILE"
     echo "FEATURE_NUM: $FEATURE_NUM"
+    echo "WORKTREE_PATH: $WORKTREE_PATH"
     if [ "$DRY_RUN" != true ]; then
+        echo ""
+        echo "# Next: cd into the new worktree before running /speckit-plan, /speckit-tasks, etc."
+        printf '#   cd %q\n' "$WORKTREE_PATH"
         printf '# To persist in your shell: export SPECIFY_FEATURE=%q\n' "$BRANCH_NAME"
     fi
 fi
