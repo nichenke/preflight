@@ -2,6 +2,13 @@
 .claude/*.local.md
 .claude/*.local.json
 
+# spec-kit install artifacts — populated by `specify preset add --dev` and
+# `specify extension add --dev`. Source of truth lives at presets/preflight/
+# and extensions/preflight/ at the repo root; these are install-time copies.
+.specify/extensions/preflight/
+.specify/presets/preflight/
+.claude/skills/speckit-preflight-review/
+
 # Skill eval run artifacts
 skills/*-workspace/
 
