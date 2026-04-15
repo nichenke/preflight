@@ -539,6 +539,28 @@ Three Important findings surfaced on a trivial reverse-string feature spec. Each
 
 **Implication for Topology A vs Topology C decision**: the ensemble dispatch works (validates Topology A mechanically), but findings 1 and 3 suggest preflight's rule set needs **material updates to match spec-kit's actual output**, not just path fixes. If the scope of the rule rewrites is large, Topology C (substrate-neutral core that ships to multiple adapters) becomes more attractive because the rule engine would be shared. If the scope is small, Topology A stays preferred.
 
+### Phase 1 — 2026-04-14 — reviewer coverage non-determinism on multi-instance rules
+
+**Finding**: after rescoping UNIV-01 to exempt `spec`/`plan`/`tasks` and re-running `/speckit.preflight.review` against the same `specs/001-reverse-string/plan.md` twice, the checklist reviewer caught **different UNIV-04 instances on different runs**:
+
+- Run A flagged L16 `"any modern browser that supports Intl.Segmenter"` (vague adjective "modern") at confidence 85.
+- Run B missed L16 entirely but flagged L30 `"Simplicity: PASS — no unnecessary abstractions; single function, single file"` (unquantified "simple") at confidence 80.
+- Run B additionally flagged a UNIV-03 empty-section finding on L72-L74 that Run A did not report.
+
+Both candidate phrases were present in both runs — the document did not change between runs. The reviewer is making partial, non-overlapping passes over multi-instance rules.
+
+Additionally, in Run B the reviewer's own meta-commentary asserted the plan-exemption was *not* stated in the loaded rule text, when in fact the exemption section was present on disk (verified via `grep`). The reviewer's self-reports about rule content are not reliable evidence of what the rule actually says.
+
+**How discovered**: while testing the UNIV-01 rescope edit in the sibling test project after reinstalling preset + extension via `--dev`. Re-review was meant to confirm the frontmatter finding was gone; the comparison surfaced the coverage gap as a side effect.
+
+**Action implication**:
+1. **Not a Phase 1 conversion blocker** — the rules on disk are correct, the mechanism dispatches, and findings produced are legitimate. The reliability wobble is orthogonal to whether Topology A's composition works.
+2. **Phase 5 investigation task** (new): reviewer coverage strategy. Options to evaluate: (a) multi-pass consensus dispatch — run the checklist reviewer N times, union findings; (b) rule-by-rule structured prompting — one rule per reviewer call, forcing exhaustive coverage; (c) deterministic pre-pass — regex/grep scan for the enumerated UNIV-04 vague adjectives and feed hits to the reviewer as candidates. Decide during Phase 5 synthesis.
+3. **Phase 5 investigation task** (new): reviewer self-reporting reliability. Reviewer prose about "the rule says X" should not be trusted as a source of truth about rule content. Either (a) suppress rule-content commentary from reviewer output, or (b) cite rule text with line numbers so claims are verifiable, or (c) instrument the dispatch command to log the exact rule bytes passed as prompt context for each run.
+4. **Do not block PR #24 merge on this** — conversion mechanics are validated; reliability is a Phase 5 concern that applies to any LLM-driven review regardless of topology.
+
+**Implication for Topology A vs Topology C decision**: coverage non-determinism is substrate-neutral — it would afflict any LLM reviewer wrapping the same rule set, whether shipped as a spec-kit extension (A) or a shared core with thin adapters (C). This finding does not shift the topology balance.
+
 ---
 
 ## What's deliberately not in this plan
