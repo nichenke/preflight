@@ -64,6 +64,8 @@ This ADR addresses two related but distinct questions:
 
 **Chosen: Option C — Feature folder with whole-file copy, openspec apply/archive model.**
 
+> **Note:** The top-level shape below was drafted pre-Topology-A. Amendment 1 (appended after the Confirmation section) reconciles these paths with spec-kit's actual layout: `specs/<NNN-slug>/` replaces `specs/features/<NNN-slug>/`, and the constitution moves to `.specify/memory/constitution.md`. The lifecycle semantics are unchanged.
+
 ### Top-level shape
 
 ```
