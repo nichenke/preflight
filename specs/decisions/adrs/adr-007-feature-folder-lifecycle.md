@@ -64,6 +64,8 @@ This ADR addresses two related but distinct questions:
 
 **Chosen: Option C — Feature folder with whole-file copy, openspec apply/archive model.**
 
+> **Note:** The top-level shape below was drafted pre-Topology-A. Amendment 1 (appended after the Confirmation section) reconciles these paths with spec-kit's actual layout: `specs/<NNN-slug>/` replaces `specs/features/<NNN-slug>/`, and the constitution moves to `.specify/memory/constitution.md`. The lifecycle semantics are unchanged.
+
 ### Top-level shape
 
 ```
@@ -120,6 +122,47 @@ Acceptance criteria for promoting this ADR to Accepted:
 - Reviewer experience (diff readability, review skill output on feature folders) is subjectively at least as clear as current main-editing flows.
 
 Day-60 tripwire from the re-analysis plan remains in force (2026-06-13): refresh rate-of-change data, list actual frictions, re-evaluate deferred items. The tripwire is now sharpened by the framework customization depth analysis — specifically watch spec-kit's hook semantics for a `blocking: true` field or exit-code propagation, which would make Option B4 viable and threaten Path A's lead. Secondary watches: OpenSpec pre-apply validator hooks, OpenSpec rule-as-code DSL.
+
+## Amendment 1: Path reconciliation with spec-kit (2026-04-15, pre-acceptance)
+
+Topology A (ratified in Phase 0 of the SPIKE_PLAN) puts preflight's workflow inside spec-kit. During Phase 2 spike preparation, two path decisions in this ADR's original draft were found to conflict with spec-kit's actual file layout. Both are reconciled here before acceptance, per the confirmation criteria that explicitly permit revision: *"If new mechanism is needed, this ADR is revised before acceptance."*
+
+### Constitution location
+
+**Original draft:** implicit — preflight's constitution lived at `specs/constitution.md` where the plugin-era governance docs lived alongside `requirements.md`, `architecture.md`, and the `decisions/` tree.
+
+**Reconciled:** `.specify/memory/constitution.md`, spec-kit's native constitution path.
+
+**Rationale:** spec-kit's `/speckit-constitution` skill, its constitution-template scaffolding, and its cross-doc review expectations all target `.specify/memory/constitution.md`. Keeping preflight's constitution at `specs/constitution.md` creates two constitutions per project (spec-kit's empty placeholder template plus preflight's real one) and orphans the native command. Composing with spec-kit per Topology A means yielding the path.
+
+**Executed as:** one commit on `fix/harness-deconflict` that moves the file content verbatim, adds a location banner, and updates live references in `CLAUDE.md`, `.claude/rules/preflight.md`, `extensions/preflight/commands/speckit.preflight.review.md`, `extensions/preflight/scaffolds/agents-md-skeleton.md`, and `docs/reference/l4-autonomy-category-framework.md`. Historical references (ADR-002, `docs/analysis/*`, `docs/plans/*`, this ADR's slice table) preserve the old path as a historical fact, mirroring how prior renames (`content/` → `presets/preflight/`) were handled.
+
+### Feature folder layout
+
+**Original draft:** `specs/features/<NNN-slug>/` with `spec.md`, `requirements.md`, `architecture.md`, and a `plans/` subdirectory holding per-PR `NNN-<slug>.md` plans.
+
+**Reconciled:** `specs/<NNN-slug>/` — spec-kit's actual `create-new-feature.sh` layout. A single `plan.md` lives at the feature root (`specs/<NNN-slug>/plan.md`), not nested under a `plans/` subdirectory.
+
+**Rationale:** spec-kit hardcodes `SPECS_DIR="$REPO_ROOT/specs"` and `FEATURE_DIR="$SPECS_DIR/$BRANCH_NAME"` in its scaffolding script with no configuration surface to insert an intermediate `features/` directory. Matching spec-kit's convention eliminates a class of path patches we would otherwise owe spec-kit's scripts forever, and aligns with Topology A's "compose with spec-kit" bet.
+
+### What doesn't change
+
+- The lifecycle shape (Option C: feature folder with whole-file copy, openspec apply/archive model)
+- The main-cleanliness invariant (main `requirements.md` always reflects validated state)
+- The single-PR escape hatch for trivial changes
+- The drift detection two-tier FR lookup (main first, then in-flight feature folders)
+- The mid-build ADR discovery protocol
+- RFCs remain at `specs/decisions/rfcs/` as an independent doc type
+- ADRs remain at `specs/decisions/adrs/` and continue to require CONST-PROC-02 discipline for behavioral requirement changes
+
+### Reopened questions
+
+- **Multi-plan feature shape.** The original draft proposed `plans/NNN-*.md` under each feature folder to support L3+ features spanning multiple PRs. Spec-kit's flat layout allows only one `plan.md` per feature folder. Re-evaluate during the large spike (tack-room launcher) whether multi-plan features should be represented as *multiple sibling feature folders* coordinated by a parent tracking artifact, or whether we need a sub-convention (e.g. `specs/<NNN-slug>/plans/NNN-*.md` sitting alongside spec-kit's top-level `plan.md`). This is load-bearing for Phase 4 of the SPIKE_PLAN; record the outcome in a follow-up amendment.
+- **Drift detection pathing.** Two-tier lookup now scans `specs/<NNN-slug>/` folders instead of `specs/features/<NNN-slug>/`. The mechanism is unchanged; only the glob needs to match the new convention. Implementation follows whenever post-implementation hooks land.
+
+### Worktree workflow compatibility
+
+Spec-kit's `.specify/scripts/bash/create-new-feature.sh` creates feature branches in place via `git checkout -b`, which is incompatible with preflight's `.claude/rules/git-workflow.md` directive to use `.worktrees/<name>` per feature. The incompatibility is resolved in a separate PR that patches `create-new-feature.sh` to create a worktree instead. That patch is a harness prerequisite for Spike 1 and is tracked as a follow-up to this amendment — the decision to use spec-kit's `specs/<NNN-slug>/` feature folder layout (above) stands regardless of how the branch/worktree is created.
 
 ## Pros and Cons of the Options
 

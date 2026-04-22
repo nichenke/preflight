@@ -4,7 +4,7 @@
 
 Read these files in order — skip any that don't exist:
 
-1. `specs/constitution.md` — overrides everything
+1. `.specify/memory/constitution.md` — overrides everything
 2. `specs/requirements.md` — EARS requirements with FR/NFR IDs
 3. `specs/architecture.md` — system structure, patterns, components
 4. `specs/interfaces/` — contracts at boundaries you're touching

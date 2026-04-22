@@ -485,7 +485,7 @@ These four categories determine when the agent must yield control. They are the 
 - [Cognition AI — Devin](https://cognition.ai/blog/introducing-devin) harness scaffold
 - Supervisory control theory (Ramadge & Wonham)
 
-**Example**: "Allowed tools: `git` (all read ops, commit, push to branches matching `feature/*`, never to `main`), `bun test`, `gh pr create`, `gh pr comment`. Forbidden: `git push --force`, `gh pr merge`, `rm -rf`, any call touching `.env*` files. Escalation required for: schema migrations, dependency upgrades, any file matching `specs/constitution.md`."
+**Example**: "Allowed tools: `git` (all read ops, commit, push to branches matching `feature/*`, never to `main`), `bun test`, `gh pr create`, `gh pr comment`. Forbidden: `git push --force`, `gh pr merge`, `rm -rf`, any call touching `.env*` files. Escalation required for: schema migrations, dependency upgrades, any file matching `.specify/memory/constitution.md`."
 
 ---
 
@@ -539,7 +539,7 @@ Task 4: Wire merge block
 - [Cognition AI Devin](https://cognition.ai/blog/introducing-devin) scaffold
 
 **Example**:
-- Stop and escalate if: iteration count > 10, confidence < 0.6 on any decision, any file in `specs/constitution.md` is touched, any migration would drop a column, any test in `tests/contract/` fails, any dependency added or removed, total token spend > $5.
+- Stop and escalate if: iteration count > 10, confidence < 0.6 on any decision, any file in `.specify/memory/constitution.md` is touched, any migration would drop a column, any test in `tests/contract/` fails, any dependency added or removed, total token spend > $5.
 - Alert channel: `#reviewer-escalations` on Slack
 - Timeout: escalate if no progress (no commit) for 15 minutes
 
