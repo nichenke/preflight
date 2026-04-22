@@ -61,3 +61,10 @@ Templates, rules, agent prompts, and scaffolds live **inside** `presets/prefligh
 ## Spike status
 
 Preflight is currently in Phase 1 of the ADR-007 validation spike (Topology A — preflight as a spec-kit extension). See `docs/spikes/SPIKE_PLAN.md` for phase status and open questions. Until the spike promotes ADR-007, the layout should be considered provisional.
+
+## Active Technologies
+- Markdown edits only — no code changes in this feature + preflight checklist reviewer agent (reads `extensions/preflight/rules/constitution-rules.md`) (001-fix-const-reviewer-impl-detection)
+- Git-tracked markdown files under `extensions/preflight/rules/` and `specs/001-fix-const-reviewer-impl-detection/fixtures/` (001-fix-const-reviewer-impl-detection)
+
+## Recent Changes
+- 001-fix-const-reviewer-impl-detection: Added Markdown edits only — no code changes in this feature + preflight checklist reviewer agent (reads `extensions/preflight/rules/constitution-rules.md`)
