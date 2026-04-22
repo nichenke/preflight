@@ -1,30 +1,34 @@
 # Reviewer rule-gap issue cluster — 2026-04-22
 
-Six open GitHub issues propose expansions to preflight's reviewer rule set. They share a theme — the ensemble today under-detects certain anti-patterns — but they touch different rules, different severity levels, and have different readiness. This note preserves the cluster so it can drive post-spike planning without re-deriving the grouping from scratch.
+A set of GitHub issues that propose expansions to preflight's reviewer rule set. They share a theme — the ensemble today under-detects certain anti-patterns — but touch different rules, severity levels, and readiness. This note preserves the cluster so it can drive post-spike planning without re-deriving the grouping from scratch.
 
 Salvaged from `docs/analysis/2026-04-10-repo-health-analysis.md` (pre-conversion-era, most of which is obsolete). That source doc is being retired; only this cluster is worth carrying forward.
 
-## The six issues
+> **As-of note.** Readiness and shipped-status below reflect issue / rule-file state as of 2026-04-22. Two issues in the original 2026-04-10 snapshot (#17, #18) landed on 2026-04-12 — they are preserved here as historical context but are no longer open work. Verify against live issue state before acting on any row.
+
+## Active cluster — still open
 
 | Issue | Scope | Target rule(s) | Readiness |
 |-------|-------|----------------|-----------|
-| [#13](https://github.com/nichenke/preflight/issues/13) | Reviewer misses implementation details in constitution (function names, file paths, env vars, CLI invocations, inline expressions) | Edit to existing **CONST-R04** | Ready — spike 1 |
-| [#14](https://github.com/nichenke/preflight/issues/14) | No rule detects redundant or overlapping constitution principles | New rule — proposed **CONST-R07** (see collision note) | Exploratory — scope-overlap heuristic needs design |
-| [#17](https://github.com/nichenke/preflight/issues/17) | Constitution principles cross-referencing FR/NFR IDs (layering violation) | New rule — also proposed **CONST-R07** (see collision note) | Ready — exact file changes specified in issue |
-| [#18](https://github.com/nichenke/preflight/issues/18) | Requirements containing implementation status or "known gaps" prose | New rule — proposed **REQ-R08** | Ready — exact file changes specified in issue |
+| [#13](https://github.com/nichenke/preflight/issues/13) | Reviewer misses implementation details in constitution (function names, file paths, env vars, CLI invocations, inline expressions). Per the issue body, the *rule itself* (CONST-R04) is correct — the reviewer just applies it too narrowly. | Reviewer-application fix (checklist-reviewer prompt / examples); possibly CONST-R04 wording tighten | Ready — spike 1 |
+| [#14](https://github.com/nichenke/preflight/issues/14) | No rule detects redundant or overlapping constitution principles | New rule — next free ID (CONST-R08 or later; see ID-allocation note) | Exploratory — scope-overlap heuristic needs design |
 | [#8](https://github.com/nichenke/preflight/issues/8) | Review doesn't flag docs missing mandatory template sections | Likely a new cross-doc or universal rule | Exploratory — needs template-skeleton comparator design |
 | [#9](https://github.com/nichenke/preflight/issues/9) | No backlog-health / cross-document observation mode | New review mode or skill, not a rule extension | Aspirational — Phase 5+ scope, not a rule-table fix |
 
-## CONST-R07 ID collision — sequence before implementation
+## Already shipped — historical context
 
-**Both #17 and #14 propose a new rule numbered CONST-R07.** Only one can claim the ID. Sequencing must happen before either lands:
+| Issue | Rule ID | Shipped at | Notes |
+|-------|---------|------------|-------|
+| [#17](https://github.com/nichenke/preflight/issues/17) | **CONST-R07** | `extensions/preflight/rules/constitution-rules.md:18` | Principles SHALL NOT cross-reference FR-NNN / NFR-NNN IDs. Issue closed 2026-04-12. |
+| [#18](https://github.com/nichenke/preflight/issues/18) | **REQ-R08** | `extensions/preflight/rules/requirements-rules.md:19` | Requirements SHALL NOT contain implementation status or known gaps. Issue closed 2026-04-12. |
 
-- #17 (cross-reference layering) has complete specs with exact file changes and is ready to implement immediately.
-- #14 (redundancy/overlap heuristic) is exploratory and will likely take longer to design.
+Included for cluster completeness — the original 2026-04-10 source doc listed them as ready-to-implement. They landed between the source snapshot and this salvage, which is why a verification/as-of note now accompanies any status claim in this file.
 
-**Recommendation:** assign CONST-R07 to whichever lands first. Natural ordering gives it to #17; #14 takes the next free ID (CONST-R08 at that point). Note this on both issues when work begins so the second-to-land PR doesn't re-claim R07.
+## Rule-ID allocation note
 
-**Spike 1 (#13) is NOT implicated.** Issue #13 is an edit to the existing CONST-R04, not a new rule — it should not touch R07 or any other new ID. If CONST-R04 ends up being split during spike 1 implementation (e.g. pulling implementation-detail enforcement into its own rule), that split would need a new ID — coordinate against #17/#14 before assigning it.
+The 2026-04-10 source recorded a *"CONST-R07 collision"* between #17 and #14 — both proposed a new rule under that ID. That collision is **resolved**: #17 took CONST-R07 on 2026-04-12. If #14 is ever pursued, it must take the next free ID (CONST-R08 or later, depending on what lands first). Do not re-propose CONST-R07 for new work.
+
+**Spike 1 (#13) is not affected.** Issue #13 is a reviewer-application fix against the existing CONST-R04 — it does not introduce a new rule and therefore does not claim a new ID. If CONST-R04 ends up being split during implementation (e.g. pulling implementation-detail enforcement into its own rule), the split would need a new ID — coordinate against #14 and any in-flight new-rule issues before assigning.
 
 ## What was in the source doc but is NOT salvaged
 
@@ -36,6 +40,6 @@ The 2026-04-10 health doc also tracked:
 
 ## Downstream consumers
 
-- Spike 1 picks up #13 directly (CONST-R04 coverage expansion).
+- Spike 1 picks up #13 directly (CONST-R04 reviewer-application expansion).
 - Phase 5 reviewer-reliability investigation will revisit #14 and #8 once we have baseline reliability data.
 - #9 is explicit follow-up only; it depends on Topology A vs C promotion first.
