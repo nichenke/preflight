@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "presets": {
+    "preflight": {
+      "version": "0.7.0.dev0",
+      "source": "local",
+      "manifest_hash": "sha256:5fde99f6cab02495e9f45ffa9d9af8805f6aee4e27d2d3d42568f5b121b0a74e",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "claude": [
+          "speckit.tasks",
+          "speckit.implement"
+        ]
+      },
+      "registered_skills": [
+        "speckit-tasks",
+        "speckit-implement"
+      ],
+      "installed_at": "2026-04-22T14:33:30.456698+00:00"
+    }
+  }
+}
