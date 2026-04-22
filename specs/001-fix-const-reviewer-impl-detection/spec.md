@@ -63,7 +63,6 @@ Principles that state outcomes or boundaries without binding to a specific imple
 
 - **SC-001**: Over the pai-source constitution v1.0.0 examples cited in issue #13 (`getPaiDir()`, `process.env.PAI_DIR || fallback`, `bootstrap.sh --target <dir>`, `settings.json`, `MEMORY/`), the reviewer flags every concrete instance.
 - **SC-002**: Over a control constitution composed entirely of implementation-agnostic outcome statements, the reviewer produces zero CONST-R04 flags.
-- **SC-003**: Over a mixed constitution (issue-#13 examples plus the control set), the count of CONST-R04 flags equals the count of principles that fail the FR-001 property test.
 
 ## Assumptions
 
