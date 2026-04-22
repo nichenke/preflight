@@ -1,5 +1,5 @@
 ---
-status: Under Review — Topology A conversion in progress
+status: Under Review — plugin-to-extension conversion in progress
 version: 0.1.0
 owner: nic
 date: 2026-03-25
@@ -8,13 +8,13 @@ stakeholders: []
 
 # Preflight — Requirements Specification
 
-> **⚠️ STATUS (2026-04-14): Heavily stale.** This file was authored during the Claude Code plugin era (v0.6.x). Under the Topology A conversion (see ADR-007 and `docs/spikes/SPIKE_PLAN.md`), preflight is now a spec-kit preset + extension. The plugin-form semantics baked into this document are mostly invalidated — FR-001 through FR-029 reference `/preflight scaffold`, `.preflight/_rules/`, `/preflight new`, `/preflight review`, `plugin.json` versioning, `.claude/rules/` auto-loading, and `PreToolUse` hooks that no longer exist.
+> **⚠️ STATUS (2026-04-14): Heavily stale.** This file was authored during the Claude Code plugin era (v0.6.x). Preflight is now a spec-kit preset + extension (see ADR-007 and `docs/spikes/SPIKE_PLAN.md`). The plugin-form semantics baked into this document are mostly invalidated — FR-001 through FR-029 reference `/preflight scaffold`, `.preflight/_rules/`, `/preflight new`, `/preflight review`, `plugin.json` versioning, `.claude/rules/` auto-loading, and `PreToolUse` hooks that no longer exist.
 >
 > **What's almost certainly dead** (plugin-form only): FR-001 through FR-009 (plugin scaffold journey), FR-010 through FR-016 (plugin `/preflight new` elicitation), FR-017 through FR-020, FR-025, FR-030 (plugin `/preflight review`), FR-021, FR-022 (`.claude/rules/` auto-load), FR-026 (`.claude/skills/` triage skill), FR-028, FR-029 (Claude Code PreToolUse hooks). NFR-001 through NFR-008 reference plugin-dev validation, skill evals, and plugin install paths.
 >
 > **What's probably still meaningful** (substrate-independent): FR-023, FR-024 (ADR impact propagation), FR-027 (requirement-ID traceability for behavioral fixes). Re-express in spec-kit form post-spike.
 >
-> **Explicitly NOT doing a mechanical path-only rewrite**: the semantics would still be wrong and the resulting file would be worse than honest staleness. Test-by-using will expose which requirements actually matter. Rewrite via ADR-008 after the spike, or reauthor entirely if Topology A promotes.
+> **Explicitly NOT doing a mechanical path-only rewrite**: the semantics would still be wrong and the resulting file would be worse than honest staleness. Test-by-using will expose which requirements actually matter. Rewrite via ADR-008 after the spike, or reauthor entirely if ADR-007 is accepted.
 >
 > **Do not cite stale FRs in new work.** If you need a requirement ID for traceability, either use one flagged "probably still meaningful" above, or flag the gap explicitly and let PAI / the review command report it.
 

@@ -3,7 +3,6 @@
 **Date:** 2026-04-22
 **Author:** B5 subagent investigation (Stream B, Gate 2.5)
 **Upstream ref:** spec-kit @ `c52ea23` (origin/main, 2026-04-22; local HEAD `c0152e4` slightly stale but asymmetry identical)
-**Cross-reference:** `docs/analysis/2026-04-14-speckit-after-hook-execution-bug.md` (prior "it's a bug" framing)
 
 ## Classification
 
@@ -156,36 +155,34 @@ Preflight should engage #2104 (comment on it, or open a parallel discussion) rat
 ## Implications for preflight
 
 - **If (α):** *(not applicable given verdict)* — File an upstream PR patching all 9 templates to add "Wait for the result of the hook command before completing." Expect a quick merge.
-- **If (β):** **Topology A's enforcement claim is wrong-by-design. Revisit before Spike 2.** The options that remain available to preflight, in order of preference:
+- **If (β):** **The hook-extension composition's enforcement claim is wrong-by-design. Revisit before Spike 2.** The options that remain available to preflight, in order of preference:
   1. **Workflow Gate (preferred).** Ship preflight as a spec-kit **workflow**, not as an after-hook on top of a spec-kit **extension**. Define a workflow that runs `/speckit.specify` → `Gate: preflight-review` → `/speckit.plan` → `Gate: preflight-review` → `/speckit.tasks`. Each Gate step is a first-class spec-kit primitive with real `APPROVE`/`REJECT`/`PAUSED` semantics (evidence: PR #2158). This is upstream's designated path.
   2. **Pre-hook relocation.** Move preflight's review from `after_specify`/`after_plan` to `before_plan`/`before_tasks`/`before_implement`. Pre-hooks have the "Wait for the result" directive and ARE treated as enforcement. "Review the spec *before* planning" is also arguably more useful than "review the spec *after* specifying" for the user's mental model. Cost: review happens one step later than intended; acceptable for most uses. Also: Cursor and older Claude Code versions still may not comply, per #2149 / #2178.
   3. **Soft-enforcement via optional hook + convention.** Accept advisory-by-design, ship `after_specify` as `optional: true` with a strong prompt, document that reviewers should run it. This is what most existing spec-kit extensions already do. Lowest friction; weakest enforcement.
   4. **Upstream proposal.** Contribute a comment on issue #2104 making preflight's case for `auto_run: true` (or for an explicit `blocking: true` field on hooks). Track as a long-horizon upstream ask independent of what preflight ships in the near term.
 - **If (γ):** *(not applicable given verdict)* — Open an upstream discussion referencing #2104 to ask for clarification, wait for maintainer signal, do not file a patch.
 
-## Implications for Topology A (ADR-007)
+## Implications for ADR-007 (integration topology)
 
-**Topology A's enforcement claim does not survive this finding, but Topology A itself may still survive — it just needs to be rewired off `after_*` hooks and onto something that is actually enforced.** The specific claim in ADR-007 that "preflight hooks auto-fire at workflow gates" was predicated on `after_specify` / `after_plan` with `optional: false` executing synchronously and blocking host-agent completion. That predicate is false. Concretely:
+**The hook-extension composition's enforcement claim does not survive this finding, but preflight-as-spec-kit-extension still may — it just needs to be rewired off `after_*` hooks and onto something that is actually enforced.** The specific claim in ADR-007 that "preflight hooks auto-fire at workflow gates" was predicated on `after_specify` / `after_plan` with `optional: false` executing synchronously and blocking host-agent completion. That predicate is false. Concretely:
 
 - The "review runs inside the spec-kit command" behavior preflight assumed it could achieve via `after_*` hooks is not available through the hook mechanism at all — not now, and not on any published roadmap.
 - The enforcement primitive spec-kit has chosen is the workflow engine's Gate step, which lives on a different integration surface (workflow YAML + step registry, not `extensions.yml`).
-- Topology A can be rewritten as "preflight as a spec-kit **workflow** extension" — shipping a bundled workflow that wraps `/speckit.specify` + `Gate: /speckit.preflight.review` + `/speckit.plan` — and this preserves the "author-time enforcement" value proposition. But that is a **different topology** than the one ADR-007 currently describes. It looks like **Topology A-prime** or maybe a distinct **Topology D** (workflow-extension composite).
+- The viable replacements are **workflow-gate composition** (preflight as a spec-kit workflow with Gate steps) or a **workflow-extension composite** (both surfaces shipped, with the workflow owning enforcement and the extension owning template / command artifacts). Either preserves the "author-time enforcement" value proposition; either is a materially different integration pattern from the hook-extension composition.
 - If preflight ships only as an `after_*` hook (no workflow), it is honestly what spec-kit currently calls "advisory / recommendation" — which is still useful, but is not "enforcement at author-time." ADR-007's framing needs to say so.
 
-**Recommendation: pause the ADR-007 promotion gate and author Amendment 2 (or ADR-007-bis) that reframes the enforcement mechanism from "after-hook with `optional: false`" to "workflow Gate step," and evaluate Topology A-prime (workflow-extension) against Topologies B/C in the light of this finding.**
+**Recommendation: pause the ADR-007 promotion gate and revise the ADR so the integration-topology question is explicitly reopened, with the workflow-gate and workflow-extension-composite options evaluated against the other candidates (portable rule-core with adapters; preflight-native; docguard-integrated) in light of this finding.**
 
 ## Signal back to workflow-research (Gate 2.5)
 
 **STOP Spike 2 as currently scoped.** The tack-room launcher should not be built on the assumption that `after_*` hooks with `optional: false` will block and enforce — they will not. Before Spike 2 resumes, the workflow-research worktree should either (a) rescope Spike 2 to target the spec-kit workflow engine (`src/specify_cli/workflows/`, PR #2158) as the enforcement surface, or (b) explicitly accept advisory-only semantics and design the tack-room launcher around that weaker guarantee. Either path is viable; the current path is not.
 
-## Cross-reference resolution
+## Note on prior framing
 
-This finding **contradicts** the framing in `docs/analysis/2026-04-14-speckit-after-hook-execution-bug.md`. Specifically:
+Before this investigation, preflight's working hypothesis (captured in a now-removed doc, `docs/analysis/2026-04-14-speckit-after-hook-execution-bug.md`, deleted on 2026-04-22; see git log for the original text) treated the after-hook asymmetry as a bug and sketched an upstream PR to patch all 9 templates. That framing is replaced by this investigation.
 
-- The 2026-04-14 doc's title ("mandatory execution bug") and summary ("Breaks auto-execution semantics for any extension that declares `optional: false` on an after-hook") claim the asymmetry is a defect. This investigation finds it is intentional design.
-- The 2026-04-14 doc's "Root cause" section (lines 65-98) correctly identifies the template-level asymmetry and its mechanism, and labels it a "prompt engineering gap." The observation is accurate; the *label* (gap/bug) is wrong. It is a prompt engineering *choice*, not a gap.
-- The 2026-04-14 doc's "Upstream PR plan" (line 149) proposes patching all 9 templates. **Do not file this PR as currently drafted.** It would almost certainly be closed as invalid — upstream would either route it to #2104 as a feature request requiring design discussion, or reject it on grounds that the after-hook surface is intentionally advisory and the enforcement primitive is now workflow Gates.
-- The 2026-04-14 doc's "Why before-hooks work" section (lines 100-104) is a correct description of the mechanism; but the framing that the after-hook block "should" have the same directive misses that the structural placement (*after* "Stop and report: Command ends…") encodes "post-completion notification," not "pre-completion gate."
-- The 2026-04-14 doc's "Impact / For preflight specifically" (lines 140-141) — *"preflight's value proposition (hook-enforced review at stage boundaries) is degraded to 'manual invocation with a reminder prompt.'"* This framing is correct on the degradation direction but wrong on the causation: the value proposition is not *degraded*, it was *never available* via the hook surface. The degradation was a misread of the contract, not a bug in the implementation.
+What the prior analysis got right: the mechanical description of the asymmetry, its scope (9 templates), and its effect on host-agent behavior. Those observations are accurate and are reused here.
 
-**Recommended follow-up for the 2026-04-14 doc:** add a "Status: superseded" header pointing to this document. Keep the 2026-04-14 analysis as historical record of the original (incorrect) framing, because it still contains accurate mechanical description that feeds into this classification.
+What the prior analysis got wrong: the *label* "bug." The asymmetry is a deliberate prompt-engineering choice, not an implementation gap. The degradation of preflight's "hook-enforced review" value proposition was not caused by a bug — that value proposition was **never available** via the `after_*` hook surface, because `optional: false` was never contracted to block host-agent completion. The prior analysis misread the contract.
+
+Do NOT file the upstream PR that the prior analysis drafted. It would be closed as duplicate of #2104 (upstream's open feature request for `auto_run: true`) or rejected on design grounds. If preflight wants to engage upstream, comment on #2104 instead.

@@ -1,5 +1,5 @@
 ---
-status: Under Review — Topology A conversion in progress
+status: Under Review — plugin-to-extension conversion in progress
 version: 1.1.0
 date: 2026-03-25
 owner: nic
@@ -10,7 +10,7 @@ amendment_adrs: [ADR-003]
 
 # Engineering Constitution
 
-> **⚠️ STATUS (2026-04-15): Under partial rewrite.** Preflight is converting from a Claude Code plugin to a native spec-kit extension under Topology A (see ADR-007 and `docs/spikes/SPIKE_PLAN.md`). Several constitutional principles below reference plugin-form concepts that no longer apply:
+> **⚠️ STATUS (2026-04-15): Under partial rewrite.** Preflight is converting from a Claude Code plugin to a native spec-kit extension (see ADR-007 and `docs/spikes/SPIKE_PLAN.md`). Several constitutional principles below reference plugin-form concepts that no longer apply:
 >
 > - **CONST-CI-02** path reference fixed below (was `content/templates/`, now `presets/preflight/templates/`)
 > - **CONST-DIST-01** — `.claude/rules/` auto-load pattern is plugin-specific; spec-kit extensions distribute via `specify extension add`. Principle is stale pending rewrite.
@@ -20,9 +20,9 @@ amendment_adrs: [ADR-003]
 >
 > **CONST-CI-01**, **CONST-CI-03**, **CONST-PROC-02**, and **CONST-PROC-03** remain valid as-is.
 >
-> A full rewrite is tracked as a follow-up — either via ADR-008 (constitution amendment) if the Topology A spike promotes, or deferred until the spike outcome is known. Do not cite stale principles in new work.
+> A full rewrite is tracked as a follow-up — either via ADR-008 (constitution amendment) if ADR-007 is accepted, or deferred until the spike outcome is known. Do not cite stale principles in new work.
 
-> **📍 LOCATION (2026-04-15):** This constitution moved from `specs/constitution.md` to `.specify/memory/constitution.md` per ADR-007 Amendment 1 (path reconciliation with spec-kit). The spec-kit native `/speckit-constitution` skill edits this file. Historical references in ADR-002, docs/analysis/*, docs/plans/*, and docs/specs/* preserve the old path as a historical fact.
+> **📍 LOCATION (2026-04-15):** This constitution moved from `specs/constitution.md` to `.specify/memory/constitution.md` per ADR-007 (path reconciliation with spec-kit). The spec-kit native `/speckit-constitution` skill edits this file. Historical references in ADR-002, docs/analysis/*, docs/plans/*, and docs/specs/* preserve the old path as a historical fact.
 
 ## Preamble
 
@@ -30,7 +30,7 @@ This constitution defines non-negotiable engineering principles for preflight. A
 
 ## Content Integrity
 - [CONST-CI-01] The git repository is the canonical source for all framework content
-- [CONST-CI-02] Templates live inside `presets/preflight/templates/` and are the single source of truth for document structure — do not duplicate template content in other files (updated 2026-04-14 from `content/templates/` during Topology A conversion; principle intent unchanged)
+- [CONST-CI-02] Templates live inside `presets/preflight/templates/` and are the single source of truth for document structure — do not duplicate template content in other files (updated 2026-04-14 from `content/templates/` during the plugin-to-extension conversion; principle intent unchanged)
 - [CONST-CI-03] Rule IDs are stable — renumbering or removing IDs requires an ADR
 
 ## Distribution

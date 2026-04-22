@@ -2,7 +2,7 @@
 
 Preflight is a [spec-kit](https://github.com/github/spec-kit) preset and extension for spec-driven development. It ships curated doc-type templates, a 48-rule review rule set, and a two-agent review ensemble (checklist + bogey) that hooks into spec-kit's `after_specify` / `after_plan` stages.
 
-Preflight was previously distributed as a Claude Code plugin (v0.6.x). See `git log` for the conversion from plugin to spec-kit extension (Topology A, 2026-04-14).
+Preflight was previously distributed as a Claude Code plugin (v0.6.x). See `git log` for the 2026-04-14 conversion from plugin to spec-kit extension form.
 
 ## Repo structure
 
@@ -23,7 +23,7 @@ preflight/
 │   ├── analysis/                    # research passes + composable architecture work
 │   ├── spikes/SPIKE_PLAN.md         # ADR-007 validation spike tracker
 │   └── reference/                   # EARS, MADR, cross-doc relationships, etc.
-├── specs/                           # preflight's own specs (requirements, decisions) — constitution moved to .specify/memory/ per ADR-007 Amendment 1
+├── specs/                           # preflight's own specs (requirements, decisions) — constitution moved to .specify/memory/ per ADR-007 (path reconciliation with spec-kit)
 ├── pyproject.toml                   # uv dev env (requires-python >=3.11, pyyaml, pytest)
 └── uv.lock                          # reproducible dev env lockfile
 ```
@@ -33,7 +33,7 @@ preflight/
 - Any behavioral change requires a version bump in `presets/preflight/preset.yml` and `extensions/preflight/extension.yml` (both track the same `0.7.0.devN` counter in lock-step)
 - Version strings must be **PEP 440** format — spec-kit validates via `packaging.version.Version` and rejects hyphenated pre-releases like `0.7.0-dev1` or `0.7.0-spike` (see commit `a923e0e`). Tick the dev counter within an ongoing cycle (`0.7.0.dev0` → `0.7.0.dev1` → ...); bump the minor version only after `0.7.0` final ships
 - Any behavioral requirement change requires an ADR (CONST-PROC-02)
-- `.specify/memory/constitution.md` (formerly `specs/constitution.md`, moved 2026-04-15 per ADR-007 Amendment 1) is currently being rewritten — CONST-CI-02 formerly required content to live in `content/` which no longer exists; do not cite CONST-CI-02 in new work until the rewrite lands
+- `.specify/memory/constitution.md` (formerly `specs/constitution.md`, moved 2026-04-15 per ADR-007) is currently being rewritten — CONST-CI-02 formerly required content to live in `content/` which no longer exists; do not cite CONST-CI-02 in new work until the rewrite lands
 
 ## Dev workflow
 
@@ -61,4 +61,4 @@ Templates, rules, agent prompts, and scaffolds live **inside** `presets/prefligh
 
 ## Spike status
 
-Preflight is currently in Phase 1 of the ADR-007 validation spike (Topology A — preflight as a spec-kit extension). See `docs/spikes/SPIKE_PLAN.md` for phase status and open questions. Until the spike promotes ADR-007, the layout should be considered provisional.
+Preflight is currently in Phase 1 of the ADR-007 validation spike. Preflight ships as a spec-kit extension + preset; the *integration-topology* question (hook-extension vs workflow-gate vs hybrid) is currently open per Stream B's 2026-04-22 B5 finding — see ADR-007 "Integration topology". See `docs/spikes/SPIKE_PLAN.md` for phase status and open questions. Until the spike promotes ADR-007, the layout should be considered provisional.
