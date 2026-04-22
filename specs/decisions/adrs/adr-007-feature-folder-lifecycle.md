@@ -64,7 +64,9 @@ This ADR addresses two related but distinct questions:
 
 **Chosen: Option C — Feature folder with whole-file copy, openspec apply/archive model.**
 
-> **Note:** The top-level shape below was drafted pre-Topology-A. Amendment 1 (appended after the Confirmation section) reconciles these paths with spec-kit's actual layout: `specs/<NNN-slug>/` replaces `specs/features/<NNN-slug>/`, and the constitution moves to `.specify/memory/constitution.md`. The lifecycle semantics are unchanged.
+> **Note:** The top-level shape below was drafted before preflight committed to a spec-kit integration pattern. Amendment 1 (appended after the Confirmation section) reconciles these paths with spec-kit's actual layout: `specs/<NNN-slug>/` replaces `specs/features/<NNN-slug>/`, and the constitution moves to `.specify/memory/constitution.md`. The lifecycle semantics are unchanged.
+>
+> **Note 2 (2026-04-22):** Amendment 2 (appended after Amendment 1) reopens the integration-topology question following the Stream B B5 investigation. The feature-folder lifecycle below still stands; the *how preflight composes with spec-kit* question does not. See Amendment 2 for the glossary of descriptive topology names used from 2026-04-22 onward.
 
 ### Top-level shape
 
@@ -121,11 +123,13 @@ Acceptance criteria for promoting this ADR to Accepted:
 - No mechanism outside what this ADR describes is required to make either spike work. If new mechanism is needed, this ADR is revised before acceptance.
 - Reviewer experience (diff readability, review skill output on feature folders) is subjectively at least as clear as current main-editing flows.
 
-Day-60 tripwire from the re-analysis plan remains in force (2026-06-13): refresh rate-of-change data, list actual frictions, re-evaluate deferred items. The tripwire is now sharpened by the framework customization depth analysis — specifically watch spec-kit's hook semantics for a `blocking: true` field or exit-code propagation, which would make Option B4 viable and threaten Path A's lead. Secondary watches: OpenSpec pre-apply validator hooks, OpenSpec rule-as-code DSL.
+Day-60 tripwire from the re-analysis plan remains in force (2026-06-13): refresh rate-of-change data, list actual frictions, re-evaluate deferred items. The tripwire's spec-kit `blocking: true` watch is **closed as of 2026-04-22** per Amendment 2 / B5 — upstream's position is established; no hook-blocking field is coming. Remaining watches: (a) OpenSpec pre-apply validator hooks, (b) OpenSpec rule-as-code DSL, (c) BMAD / GSD-2 rate-of-change, (d) spec-kit workflow engine maturation (now relevant because workflow-gate composition is a candidate integration topology — watch for workflow-surface API stability, Gate-step semantics changes, and community workflow-authored extensions as signal for adoption patterns).
 
 ## Amendment 1: Path reconciliation with spec-kit (2026-04-15, pre-acceptance)
 
-Topology A (ratified in Phase 0 of the SPIKE_PLAN) puts preflight's workflow inside spec-kit. During Phase 2 spike preparation, two path decisions in this ADR's original draft were found to conflict with spec-kit's actual file layout. Both are reconciled here before acceptance, per the confirmation criteria that explicitly permit revision: *"If new mechanism is needed, this ADR is revised before acceptance."*
+> **Note (2026-04-22, superseded in part by Amendment 2):** This amendment assumed the **hook-extension composition** (was: "Topology A") would be preflight's way of integrating with spec-kit — i.e. preflight as a spec-kit extension whose `after_*` hooks enforce review. Stream B B5 subsequently found that `optional: false` on `after_*` hooks is intentional advisory design and cannot enforce (see `docs/analysis/2026-04-22-speckit-hook-philosophy.md`). The **path-level** reconciliations in this amendment (`.specify/memory/constitution.md` location and `specs/<NNN-slug>/` feature folder layout) are independent of integration topology and still stand. The **integration-pattern** framing here is incorrect and is replaced by Amendment 2.
+
+The **hook-extension composition** (selected in Phase 0 of the SPIKE_PLAN as "Topology A") puts preflight's workflow inside spec-kit as an extension with automatic `after_*` hooks. During Phase 2 spike preparation, two path decisions in this ADR's original draft were found to conflict with spec-kit's actual file layout. Both are reconciled here before acceptance, per the confirmation criteria that explicitly permit revision: *"If new mechanism is needed, this ADR is revised before acceptance."*
 
 ### Constitution location
 
@@ -133,7 +137,7 @@ Topology A (ratified in Phase 0 of the SPIKE_PLAN) puts preflight's workflow ins
 
 **Reconciled:** `.specify/memory/constitution.md`, spec-kit's native constitution path.
 
-**Rationale:** spec-kit's `/speckit-constitution` skill, its constitution-template scaffolding, and its cross-doc review expectations all target `.specify/memory/constitution.md`. Keeping preflight's constitution at `specs/constitution.md` creates two constitutions per project (spec-kit's empty placeholder template plus preflight's real one) and orphans the native command. Composing with spec-kit per Topology A means yielding the path.
+**Rationale:** spec-kit's `/speckit-constitution` skill, its constitution-template scaffolding, and its cross-doc review expectations all target `.specify/memory/constitution.md`. Keeping preflight's constitution at `specs/constitution.md` creates two constitutions per project (spec-kit's empty placeholder template plus preflight's real one) and orphans the native command. Composing with spec-kit at all — under any of the compositions in Amendment 2's taxonomy — means yielding the path.
 
 **Executed as:** one commit on `fix/harness-deconflict` that moves the file content verbatim, adds a location banner, and updates live references in `CLAUDE.md`, `.claude/rules/preflight.md`, `extensions/preflight/commands/speckit.preflight.review.md`, `extensions/preflight/scaffolds/agents-md-skeleton.md`, and `docs/reference/l4-autonomy-category-framework.md`. Historical references (ADR-002, `docs/analysis/*`, `docs/plans/*`, this ADR's slice table) preserve the old path as a historical fact, mirroring how prior renames (`content/` → `presets/preflight/`) were handled.
 
@@ -143,7 +147,7 @@ Topology A (ratified in Phase 0 of the SPIKE_PLAN) puts preflight's workflow ins
 
 **Reconciled:** `specs/<NNN-slug>/` — spec-kit's actual `create-new-feature.sh` layout. A single `plan.md` lives at the feature root (`specs/<NNN-slug>/plan.md`), not nested under a `plans/` subdirectory.
 
-**Rationale:** spec-kit hardcodes `SPECS_DIR="$REPO_ROOT/specs"` and `FEATURE_DIR="$SPECS_DIR/$BRANCH_NAME"` in its scaffolding script with no configuration surface to insert an intermediate `features/` directory. Matching spec-kit's convention eliminates a class of path patches we would otherwise owe spec-kit's scripts forever, and aligns with Topology A's "compose with spec-kit" bet.
+**Rationale:** spec-kit hardcodes `SPECS_DIR="$REPO_ROOT/specs"` and `FEATURE_DIR="$SPECS_DIR/$BRANCH_NAME"` in its scaffolding script with no configuration surface to insert an intermediate `features/` directory. Matching spec-kit's convention eliminates a class of path patches we would otherwise owe spec-kit's scripts forever, and aligns with the general "compose with spec-kit" bet that underlies every compose-with-spec-kit topology in Amendment 2's taxonomy.
 
 ### What doesn't change
 
@@ -163,6 +167,72 @@ Topology A (ratified in Phase 0 of the SPIKE_PLAN) puts preflight's workflow ins
 ### Worktree workflow compatibility
 
 Spec-kit's `.specify/scripts/bash/create-new-feature.sh` creates feature branches in place via `git checkout -b`, which is incompatible with preflight's `.claude/rules/git-workflow.md` directive to use `.worktrees/<name>` per feature. The incompatibility is resolved in a separate PR that patches `create-new-feature.sh` to create a worktree instead. That patch is a harness prerequisite for Spike 1 and is tracked as a follow-up to this amendment — the decision to use spec-kit's `specs/<NNN-slug>/` feature folder layout (above) stands regardless of how the branch/worktree is created.
+
+## Amendment 2: Integration-topology reopen (2026-04-22, pre-acceptance)
+
+The Stream B B5 investigation (see `docs/analysis/2026-04-22-speckit-hook-philosophy.md`) reaches verdict **(β) intentional advisory design** on spec-kit's `after_*` hook behavior. Upstream's `optional: false` guarantees only that an `EXECUTE_COMMAND:` marker is rendered; execution is explicitly delegated to the host AI agent per `src/specify_cli/extensions.py:2509`, and community / maintainer signals (issue #2104 OPEN feature request; issue #2279 closed "not a bug") confirm the advisory interpretation is upstream's design.
+
+This finding invalidates the integration-pattern assumption embedded in Amendment 1 — that preflight's `after_specify` / `after_plan` hooks would enforce review automatically. They never could, by design. The 2026-04-14 analysis (`docs/analysis/2026-04-14-speckit-after-hook-execution-bug.md`) that reframed this as a fixable bug is **superseded** as of 2026-04-22.
+
+### Naming convention (effective 2026-04-22)
+
+The SPIKE_PLAN and `docs/analysis/2026-04-13-speckit-composition-topologies.md` previously labeled composition options as "Topology A / B / C / D / E." For readability in downstream work, use the descriptive names below. The old labels remain valid for pre-2026-04-22 cross-references; new work uses the descriptive names.
+
+| Old label | Descriptive name | One-liner |
+|-----------|------------------|-----------|
+| Topology A | **hook-extension composition** | Preflight as spec-kit extension; `after_*` hooks dispatch review. **Broken by design** per B5 — hooks are advisory-only. |
+| — (new, B5-surfaced) | **workflow-gate composition** | Preflight as spec-kit **workflow** (`src/specify_cli/workflows/`) with Gate steps wrapping native commands. Enforcement is first-class via `Gate.on_reject = abort/retry` and `RunStatus.PAUSED`. |
+| — (hybrid, B5-surfaced) | **workflow-extension composite** | Ships both: a preflight extension AND a preflight-authored workflow. The extension owns template / command overrides and rule artifacts; the workflow owns enforcement. |
+| Topology B | **docguard-integrated composition** | No spec-kit preset; integrate review with the `docguard` project's rule-pack mechanism. Deferred. |
+| Topology C | **portable rule-core with adapters** | Extract substrate-neutral rule core; ship thin adapters for both Claude Code plugin and spec-kit extension. Enforcement mechanism selected per adapter. |
+| Topology D | **multi-adapter rulepack** | Topology C scaled to 3+ adapters. Dropped — violates rate-of-change principle. |
+| Topology E | **preflight-native (no spec-kit)** | Ship preflight as a standalone tool; treat docguard / archive / ci-guard as prior art only. |
+
+### What B5 does and does not invalidate in this ADR
+
+**Does not invalidate:**
+- The feature-folder lifecycle itself (Option C — whole-file copy, openspec apply/archive model). Topology-independent.
+- Amendment 1's **path** reconciliations (`.specify/memory/constitution.md`; `specs/<NNN-slug>/`). These paths are the right answer under any compose-with-spec-kit topology.
+- The main-cleanliness invariant, the drift-detection two-tier FR lookup, the mid-build ADR discovery protocol, the single-PR escape hatch, and the ratification PR model. All topology-independent.
+- The pros-and-cons analysis in this ADR's "Option B4" section. That analysis was, in its original form, **correct** — "spec-kit hooks are advisory, not blocking; the gate is honor-system." The 2026-04-14 doc's reframing of that finding as a "bug" was the error; B5 restores the original correct framing.
+
+**Does invalidate:**
+- The implicit assumption that preflight's review would fire automatically via `after_*` hooks. That was the specific reason Phase 0 of the SPIKE_PLAN chose hook-extension composition over portable rule-core with adapters — the assumption of automatic enforcement by hooks is false.
+- The day-60 tripwire watch for "spec-kit `blocking: true` hook semantics" (in the Confirmation section below) is **closed as of 2026-04-22**: B5 confirms no `blocking:` field exists anywhere in the hook surface, no roadmap issue for one exists, and #2104 is upstream's position (feature-request not bug). The window for hook-extension composition to become viable via an upstream hook change is closed, not pending. The tripwire section is updated accordingly in the subsection below.
+- The rationale portion of Amendment 1 that leans on "Topology A" (hook-extension composition) as the governing integration pattern. The paths are still correct; the pattern is not.
+
+### Reopened question: integration topology
+
+The integration-topology decision is **reopened** as of 2026-04-22. Candidates, in order of current preference:
+
+1. **Workflow-gate composition (preferred)** — Migrate review dispatch from the `after_*` hook surface to a spec-kit workflow with Gate steps. Evidence (B5 §Q3): `src/specify_cli/workflows/` provides `Gate`, `CommandStep`, `RunStatus.{PAUSED,FAILED,ABORTED}` with explicit `on_reject: retry/abort` semantics and on-disk run-state persistence. Enforcement is first-class. Preflight ships a bundled workflow: `/speckit.specify` → `Gate: /speckit.preflight.review` → `/speckit.plan` → `Gate: /speckit.preflight.review` → `/speckit.tasks`. Cost: workflow authoring is a different surface from `extensions.yml`; the existing extension may stay or migrate.
+2. **Pre-hook relocation** — Move review from `after_specify` / `after_plan` to `before_plan` / `before_tasks` / `before_implement`. Pre-hooks **do** have "Wait for the result" directives and **are** treated as enforcement by upstream (B5 §Q5: issues #2149 and #2178 closed as bugs-to-fix). Review-before-planning is arguably more useful for the user's mental model than review-after-specifying. Risk: per-agent compliance is imperfect (Cursor and older Claude Code are known-flaky per #2149 / #2178 history).
+3. **Accept advisory semantics** — Keep hook-extension composition. Ship `after_specify` / `after_plan` as `optional: true` with strong prompts. Document that reviewers manually run the review between stages. Lowest friction; weakest enforcement. This is what most existing spec-kit extensions already do.
+4. **Upstream proposal** — Comment on #2104 advocating for `auto_run: true` or `blocking: true`. Long-horizon only; do not make preflight's near-term ship depend on it.
+
+Hybrids (e.g. workflow-gate for ratification plus pre-hook relocation for in-stage enforcement) are explicitly permitted and are probably where the evaluation lands.
+
+### Implications for the SPIKE_PLAN
+
+The SPIKE_PLAN's Phase 2 "Topology A selected" decision (2026-04-14) was made under the belief that hook-extension composition would enforce automatically. That belief is now known to be wrong. The Phase 5 synthesis that was scheduled to decide promotion-or-revision of this ADR now has a concrete input it did not have before, and a concrete question it must answer:
+
+- Does preflight migrate to workflow-gate composition (topology change)?
+- Does preflight accept advisory semantics and reframe the value proposition (same topology, weaker claim)?
+- Does preflight pivot to portable rule-core with adapters (the Topology C / portable-rule-core option), sharing the rule engine across multiple integration surfaces?
+
+These are not mutually exclusive at full scale but are mutually exclusive for the next milestone. Spike 2 (tack-room launcher), as currently designed, implicitly assumes hook-extension composition and must pause for topology re-selection before committing engineering to the launcher.
+
+### Updated Confirmation criteria (supersedes the equivalent section above)
+
+The original Confirmation section below lists two spikes (small + large) and a day-60 tripwire. Those criteria remain — with these adjustments:
+
+- **Add**: a topology-selection milestone before Spike 2 proceeds. The selection is recorded either as an update to this ADR (Amendment 3), as a new ADR that supersedes this one, or as a Phase 5 synthesis document that references this amendment. No particular form is mandated; the requirement is that the topology question is answered in writing before Spike 2 commits code.
+- **Revise**: the day-60 tripwire's "watch for spec-kit `blocking: true`" clause is **closed** — B5 establishes upstream's position. The tripwire's other signals (OpenSpec pre-apply validator hooks; rule-as-code DSL; BMAD / GSD-2 rate-of-change) remain in force.
+- **Add**: an explicit check at promotion time — this ADR cannot move from Proposed to Accepted while the integration topology is undecided, because the lifecycle's observable behavior depends on it (e.g. how `/preflight:explore` hands off to plan-level review).
+
+### Signal to Stream A (workflow-research worktree)
+
+Spike 2 (tack-room launcher) should pause or rescope until the integration-topology question is answered. The sibling worktree holds the SPIKE_PLAN and is the appropriate place to record this pause. (Coordination is the user's responsibility; no cross-worktree edits have been made from this worktree as of this amendment.)
 
 ## Pros and Cons of the Options
 
@@ -230,7 +300,7 @@ Spec-kit's `.specify/scripts/bash/create-new-feature.sh` creates feature branche
 - Bad, because spec-kit's preset template resolution is replace-based, not merge-based — a higher-priority preset installing later can silently override preflight's templates
 - Bad, because the same 40 content rules still live in preflight (no reduction in rule-engine scope)
 - Estimated weighted score: ~130–135/175. The strongest alternative to Path A. Still loses to Path A by ~25–30 points because the enforcement gate is advisory, not blocking.
-- **Flip condition**: if spec-kit ships blocking hook semantics (a `blocking: true` field + exit-code propagation), B4 becomes viable. This is a small API change and the most plausible near-term upstream change that would invalidate Path A's lead. Day-60 tripwire should explicitly watch for it.
+- **Flip condition** (CLOSED 2026-04-22 per Amendment 2 / B5): previously, "if spec-kit ships blocking hook semantics (a `blocking: true` field + exit-code propagation), B4 becomes viable." B5 confirms no `blocking:` field exists, no roadmap issue for one exists, and #2104 is upstream's position — a feature request, not a planned change. The window for B4 / hook-extension composition to close the enforcement gap via an upstream hook change is closed, not pending. What *did* emerge as a viable primitive is spec-kit's **workflow engine + Gate steps** (v0.7.0, PR #2158) — see Amendment 2's **workflow-gate composition**.
 
 ## More Information
 

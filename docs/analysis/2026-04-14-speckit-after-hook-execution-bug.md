@@ -2,11 +2,21 @@
 type: analysis
 date: 2026-04-14
 author: nic + Claude Opus 4.6
-status: Draft — pending upstream report
+status: Superseded — the "it's a bug" framing is wrong; see replacement below
 source: spec-kit v0.6.2 (git tag) / main @ 0.6.3.dev0
+superseded_by: docs/analysis/2026-04-22-speckit-hook-philosophy.md
+superseded_on: 2026-04-22
 ---
 
 # spec-kit after-hook mandatory execution bug
+
+> **⚠️ SUPERSEDED (2026-04-22).** This document frames the after-hook non-execution as a **bug** to be patched upstream. The Stream B / Gate 2.5 investigation on 2026-04-22 concluded with verdict **(β) intentional advisory design** — the behavior is *not* a bug. `optional: false` only guarantees the `EXECUTE_COMMAND` marker is rendered; execution is explicitly delegated to the host AI agent per `src/specify_cli/extensions.py:2509`, and upstream community / maintainer signals (issue #2104 OPEN feature request for `auto_run: true`; issue #2279 closed "not a bug") confirm the advisory reading.
+>
+> **Do NOT file the upstream PR this document drafts.** It would be closed as duplicate of #2104 or rejected on design grounds.
+>
+> The accurate mechanical description in this doc (asymmetry identification, template-level diff, code-path trace) remains useful historical record and feeds the classification in the replacement doc. Keep reading this doc *as history*, not as a ticket for action.
+>
+> See `docs/analysis/2026-04-22-speckit-hook-philosophy.md` for the current framing, full evidence, and implications for preflight's enforcement model.
 
 ## Summary
 
