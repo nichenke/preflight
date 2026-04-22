@@ -11,7 +11,7 @@ extension:
   homepage: "https://github.com/nichenke/preflight/tree/main/extensions/preflight"
 
 requires:
-  speckit_version: ">=0.1.0"
+  speckit_version: ">=0.6.2,<0.7.0"
 
 provides:
   commands:
