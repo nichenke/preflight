@@ -16,3 +16,7 @@ skills/*-workspace/
 .venv/
 __pycache__/
 *.pyc
+
+# Research cache — cloned peer-framework repos for rule-design research
+# (see .claude/rules/rule-design.md). Local-only; do not commit.
+cache/
