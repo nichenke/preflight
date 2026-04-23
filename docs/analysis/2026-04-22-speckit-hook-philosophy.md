@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-22
 **Author:** B5 subagent investigation (Stream B, Gate 2.5)
-**Upstream ref:** spec-kit @ `c52ea23` (origin/main, 2026-04-22; local HEAD `c0152e4` slightly stale but asymmetry identical)
+**Upstream ref:** spec-kit @ `c52ea23` (origin/main, 2026-04-22)
 
 ## Classification
 
@@ -10,7 +10,7 @@
 
 The before/after "Wait for the result" asymmetry is not a defect; it reflects a design in which `optional: false` means "not promptable; fire the notification automatically" and *not* "the host agent must block until completion." Spec-kit does no enforcement itself — it emits an `EXECUTE_COMMAND:` marker and delegates execution to the host AI agent.
 
-The same commit (`d0a112c`, PR #1702) introduced both halves of the asymmetry together, by the same author, with distinct structural framing: the pre-hook block sits inside a "Pre-Execution Checks" section with an explicit "before proceeding to the Outline" sequencing directive, while the after-hook block is positioned *after* a "Stop and report: Command ends…" step. Upstream source code confirms the delegation — `src/specify_cli/extensions.py:2509` is explicit: *"The actual execution is delegated to the AI agent."*
+The same commit (`d0a112c`, PR #1702) introduced both halves of the asymmetry together, by the same author, with distinct structural framing: the pre-hook block sits inside a "Pre-Execution Checks" section with an explicit "before proceeding to the Outline" sequencing directive, while the after-hook block is positioned *after* a "Stop and report: Command ends…" step. `src/specify_cli/extensions.py:2509` is explicit: *"The actual execution is delegated to the AI agent."*
 
 Most decisively, open issue #2104 is a community *feature request* asking for a new `auto_run: true` field because `optional: false` empirically does not auto-execute. The community already reads `optional: false` as advisory, and upstream has not treated that reading as a bug.
 

@@ -5,7 +5,7 @@
 **Current upstream HEAD:** v0.7.4 as of 2026-04-22.
 **Scope:** classify each release since v0.6.2 against preflight's 6 outcomes.
 
-This doc does not decide "bump vs pin." Preflight tracks upstream by default. The question per release is: *how do we absorb each change, and is any of it a hard blocker?*
+Preflight classifies each upstream release against preflight outcomes rather than deciding "bump vs pin" — the question per release is *how do we absorb each change, and is any of it a hard blocker?* The current install pin (`>=0.6.2,<0.7.0` in `presets/preflight/preset.yml` and `extensions/preflight/extension.yml`) is behind the v0.7.x classifications below; the pin widens in B4 as adaptation PRs land.
 
 ---
 
