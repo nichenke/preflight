@@ -50,9 +50,17 @@ Each (ii) / (iii) row names the impacted outcome IDs in parentheses, e.g. `(ii: 
 
 ---
 
+## Baseline constraints (independent of release)
+
+Some preflight-relevant properties of spec-kit are baseline — not introduced or changed by any specific release since v0.6.2 — and therefore do not belong in per-release classifications. Document them here so release rows only capture actual deltas.
+
+- **`after_*` hooks are advisory by design.** `optional: false` renders an `EXECUTE_COMMAND:` marker but does not block host-agent completion. Established by spec-kit PR #1702 (2026-03-04, pre-v0.6.0); confirmed by upstream as intentional in issues [spec-kit#2104](https://github.com/github/spec-kit/issues/2104) (OPEN feature request for `auto_run: true`) and [spec-kit#2279](https://github.com/github/spec-kit/issues/2279) (closed "not a bug"). Full analysis: `./2026-04-22-speckit-hook-philosophy.md`. This is the structural reason the current hook-extension composition cannot enforce author-time review; it is *not* a v0.7.x regression.
+
+---
+
 ## Initial pass — v0.6.2 → v0.7.4
 
-Source: 2026-04-22 upstream survey in `../../workflow-research/.dispatch/HANDOFF.md` (and prior survey in the sibling worktree). Per-release summaries below are re-used from that survey. B2 confirmation pending for all (ii)/(iii) classifications unless noted.
+Evidence sources below are all independently verifiable: upstream PR numbers (full URLs where relevant), spec-kit commit SHAs in `~/.cache/spec-kit`, and tag-to-tag `git log` (`git -C ~/.cache/spec-kit log v0.6.2..v0.7.4`). B2 confirmation pending for all (ii)/(iii) classifications unless noted.
 
 ### v0.6.3 (released 2026-04-08..2026-04-09, approximate)
 
@@ -76,7 +84,7 @@ Source: 2026-04-22 upstream survey in `../../workflow-research/.dispatch/HANDOFF
 
 | Change | Classification | Notes |
 |--------|---------------|-------|
-| Workflow engine + catalog (#2158) | **(iii) hard-blocker** (a, b); reclassified: 2026-04-22 (post-B5) | (iii) because B5 confirmed `after_*` hooks are advisory by design — the hook-extension composition's enforcement claim is wrong. The workflow engine (`src/specify_cli/workflows/`) is the designated enforcement primitive; migration to workflow-gate composition is the likely response. See `./2026-04-22-speckit-hook-philosophy.md` §Q3 and ADR-007's "Integration topology" section. |
+| Workflow engine + catalog (#2158) | **(ii) implementation-adjust** (a, b); revised: 2026-04-22 | v0.7.0 introduces `src/specify_cli/workflows/` with Gate/CommandStep/`RunStatus.PAUSED` primitives — a new enforcement surface spec-kit did not have before. Given the advisory-hook baseline constraint (see "Baseline constraints" above), this is the likely migration target for preflight: workflow-gate composition. Evaluation is the integration-topology question tracked in ADR-007; see `./2026-04-22-speckit-hook-philosophy.md` §Q3. |
 | `--ai` → `--integration` CLI rename (#2218) | **(ii) implementation-adjust** (—) | `needs-B2-confirmation`. User-facing CLI flag. If preflight's install commands or documentation reference `--ai`, they need updating. No outcome broken — pure naming flex. |
 
 ### v0.7.1 (released between v0.7.0 and v0.7.2)
@@ -119,7 +127,7 @@ Source: 2026-04-22 upstream survey in `../../workflow-research/.dispatch/HANDOFF
 
 | Entry | Coupled to | Why |
 |-------|-----------|-----|
-| v0.7.0 workflow engine (#2158) | B5 (RESOLVED β) + ADR-007 integration-topology reopen | B5 landed: workflow engine IS the intended enforcement primitive. The hook-extension composition's after-hook enforcement claim does not survive. ADR-007 "Integration topology" section tracks candidate replacements (workflow-gate composition preferred). |
+| v0.7.0 workflow engine (#2158) | ADR-007 integration-topology evaluation | v0.7.0 introduces the workflow engine as a candidate migration target for preflight (workflow-gate composition). Decision tracked in ADR-007 "Integration topology". Baseline advisory-hook constraint (separate, see above) is what motivates considering migration at all. |
 | v0.7.3 marker-based upsert (#2259) | B5 (RESOLVED β) | B5 resolved: #2259 is not an enforcement alternative. Entry reclassified (i). |
 | v0.7.2 `pack_id → preset_id` (#2243) | B2 adaptation test | Classification is provisional — install confirms whether our `preset.yml` format is affected |
 | All other v0.7.x entries | B2 adaptation test | Every provisional classification needs install-level validation |
@@ -152,4 +160,5 @@ These are the questions B2 execution answers. Each answer either confirms a clas
 ## Change log (this doc only)
 
 - 2026-04-22 — initial population from workflow-research handoff survey. All v0.7.x rows marked `needs-B2-confirmation`. Coupling to B5 noted on v0.7.0 and v0.7.3 entries.
-- 2026-04-22 — post-B5 reclassification: v0.7.0 workflow engine upgraded to (iii) hard-blocker (hook-extension composition's enforcement claim broken by design); v0.7.3 marker-based upsert downgraded to (i) no-impact (not a hook-enforcement alternative). Coupling table updated.
+- 2026-04-22 — post-B5 reclassification: v0.7.0 workflow engine upgraded to (iii) hard-blocker; v0.7.3 marker-based upsert downgraded to (i) no-impact (not a hook-enforcement alternative). Coupling table updated.
+- 2026-04-22 — structural revision (Codex PR review): added "Baseline constraints" section separating release-independent properties (advisory `after_*` hooks) from per-release deltas. v0.7.0 workflow engine revised (iii) → (ii) — v0.7.0 introduces a new enforcement surface (opportunity), while the advisory-hook limitation that motivates migration is a baseline constraint (pre-v0.6.0). Source citation replaced sibling-worktree HANDOFF pointer with durable in-repo references (upstream PR numbers, spec-kit SHAs, tag-to-tag `git log`).
