@@ -18,9 +18,9 @@
 
 ## Database provisioning
 
-- [CONST-BOOTDB-01] At boot, `bootstrap.sh --init` SHALL initialize PostgreSQL and write logs to `/var/log/pai/`.
+- [CONST-BOOTDB-01] At boot, `provision.sh --init` SHALL initialize PostgreSQL and write logs to `/var/log/pai/`.
 
-*Shapes embedded: CLI invocation (`bootstrap.sh --init`), tool/vendor name (PostgreSQL), directory path (`/var/log/pai/`). Expected: 3 CONST-R04 findings. This principle tests n=3 distinct shapes in one principle — specifically whether the reviewer caps at 2 findings per principle (a regression that n=2 fixtures would not catch). The CLI flag is `--init` rather than `--db` so the flag does not telegraph the tool/vendor phrase; each of the three shapes must be flagged by independent property-test application.*
+*Shapes embedded: CLI invocation (`provision.sh --init`), tool/vendor name (PostgreSQL), directory path (`/var/log/pai/`). Expected: 3 CONST-R04 findings. This principle tests n=3 distinct shapes in one principle — specifically whether the reviewer caps at 2 findings per principle (a regression that n=2 fixtures would not catch). The CLI flag is `--init` rather than `--db` so the flag does not telegraph the tool/vendor phrase; each of the three shapes must be flagged by independent property-test application.*
 
 ## Pass/fail interpretation
 
