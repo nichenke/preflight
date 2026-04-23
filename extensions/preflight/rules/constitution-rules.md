@@ -59,7 +59,7 @@ One paired before/after per shape. The "bad" column embeds an implementation-sha
 | CLI invocation | New installs SHALL be initialized by running `bootstrap.sh --target <dir>`. | New installs SHALL have a single documented initialization entry point. |
 | Inline code token | Configuration SHALL be read via `fs.readFileSync`. | Configuration SHALL be read synchronously at startup before any request is served. |
 | Tool / vendor | All services SHALL use PostgreSQL for durable state. | All services SHALL use a relational store for durable state. |
-| Version pin | All ADRs SHALL use MADR 4.0 templates. | All ADRs SHALL use a structured decision-record format. |
+| Version pin | All ADRs SHALL use MADR 4.0 templates. | All ADRs SHALL use the MADR format. |
 
 ### When multiple shapes appear in one principle
 

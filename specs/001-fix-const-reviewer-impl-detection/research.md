@@ -56,6 +56,7 @@ Exemplar size: ≤ 1 sentence per side. The rule file stays under ~100 lines.
 **Decision**: Fixture markdown files under `specs/001-fix-const-reviewer-impl-detection/fixtures/`.
 
 - `fixtures/benchmark-issue-13.md` — SC-001 corpus. Five principles, each embedding exactly one of the issue #13 examples. Each principle is a realistic constitution principle (not a contrived synthetic), so the reviewer exercise is faithful to production.
+- `fixtures/benchmark-scaffolding-shapes.md` — SC-003 corpus. Three principles covering the scaffolding shapes not exercised by issue #13: tool/vendor name, inline code token (non-call expression), and version-pinned standard (the FR-003 exemption boundary's must-flag side). Added during PR-#35 review after reviewers noted a regression-detection gap: a reviewer narrowed to the 5 issue-#13 shapes would pass SC-001/SC-002 while silently failing the rule's 8-shape claim.
 - `fixtures/control-agnostic.md` — SC-002 corpus. Eight implementation-agnostic principles drawn from EARS-style outcome statements.
 
 **Rationale**: Feature-local fixtures ship with the spec and archive when the feature ratifies — they are the artifact that pins the acceptance signal. Global `docs/fixtures/` would outlive any single feature and accumulate cruft. ADR-007's feature-folder pattern explicitly supports fixtures as feature-owned content.

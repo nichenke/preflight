@@ -72,11 +72,17 @@ Rules expressing **structural or mechanical constraints** (e.g., "document IDs f
 
 ### Confirmation
 
-Feature `001-fix-const-reviewer-impl-detection` is the first application. The acceptance signal is the feature's SC-001 (issue #13 examples all flagged) and SC-002 (control constitution of implementation-agnostic principles produces zero flags). Both have pinned test corpora — SC-001 draws from issue #13, SC-002 from a hand-curated control set — so neither depends on the reviewer as its own oracle.
+Feature `001-fix-const-reviewer-impl-detection` is the first application. The acceptance signal is the feature's three Success Criteria:
+
+- **SC-001** — issue #13 examples all flagged (regression coverage for the original defect)
+- **SC-002** — control constitution of implementation-agnostic principles produces zero flags (false-positive gate)
+- **SC-003** — scaffolding-shapes fixture exercises the three shapes not covered by issue #13 (tool/vendor, inline code token, version-pinned standard), completing the coverage of the rule's 8-shape claim
+
+All three have pinned test corpora — SC-001 draws from issue #13, SC-002 from a hand-curated control set, SC-003 from a sibling benchmark — so none depend on the reviewer as its own oracle.
 
 If the feature passes its SCs and the reviewer output is consistent across re-runs of the seeded benchmark, this ADR promotes from `Proposed` to `Accepted`. If reviewer output is inconsistent, the ADR is revised before further rule families adopt the shape.
 
-**Scope of this decision**: this ADR authorizes the property-test + illustrative-scaffolding shape as a reusable template. Each application of the shape to a new rule family (e.g., converting a different rule from enumeration to property-test) is a behavioral change under CONST-PROC-02 and requires its own ADR — ADR-008 provides the template, not the authorization. Refining exemplars or property-test wording within an already-applied rule (e.g., adding a new shape to CONST-R04's scaffolding list) is rule-text clarification and does not require a new ADR.
+**Scope of this decision**: this ADR authorizes the property-test + illustrative-scaffolding shape as a reusable template. Each application of the shape to a new rule family (e.g., converting a different rule from enumeration to property-test) is a behavioral change under CONST-PROC-02 and requires its own ADR — ADR-008 provides the template, not the authorization. Refining **non-normative content** within an already-applied rule — the scaffolding list, the exemplar table, the exemption enumeration — is rule-text clarification and does not require a new ADR. Revisions to the **normative property test itself** (the substitution invariance clause, its dimensions, or its pass/fail criteria) are behavioral changes and require their own ADR, because the property-test wording IS the reviewer behavior; changing it changes what gets flagged.
 
 ## Pros and Cons of the Options
 
@@ -157,6 +163,6 @@ Raw research artifacts live in `cache/repos/<framework>/` per `.claude/rules/rul
 
 ### Follow-ups
 
-- Feature 001 SC-001..SC-003 validate the shape empirically. Promote this ADR from `Proposed` to `Accepted` on successful validation.
+- Feature 001 SC-001, SC-002, and SC-003 validate the shape empirically. Promote this ADR from `Proposed` to `Accepted` on successful validation of all three.
 - At next revision of each qualitative rule family, evaluate adoption of this shape. Non-qualitative rules (mechanical/structural) retain their current form.
 - `.claude/rules/rule-design.md` governs the research pattern used for this decision; it is the process artifact that produced this ADR.

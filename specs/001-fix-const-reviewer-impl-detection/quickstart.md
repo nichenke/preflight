@@ -40,6 +40,21 @@ Run the preflight review against the SC-001 fixture:
 - Fewer than five findings → rule-text broadening did not land in the install copy (re-run Step 1) or the property test is too narrow (revise rule text or add exemplars).
 - More than five findings → fixture contains unintended extra leaks (fixture defect, not reviewer defect). Inspect the fixture.
 
+## Step 2b: SC-003 — scaffolding-shapes corpus (coverage gap filler)
+
+```bash
+# In Claude Code
+/speckit.preflight.review specs/001-fix-const-reviewer-impl-detection/fixtures/benchmark-scaffolding-shapes.md
+```
+
+**Expected result**: 3 `CONST-R04` findings — one per principle. The fixture covers the three scaffolding shapes not exercised by the issue #13 benchmark (tool/vendor, inline code token, version-pinned standard).
+
+**Pass condition**: three `CONST-R04` findings in the merged reviewer output.
+
+**Fail modes**:
+- Fewer than three findings → reviewer's detection has narrowed below the rule's 8-shape claim, even though SC-001 still passes. Inspect which shape silently passed; treat as a regression.
+- More than three findings → fixture contains unintended extra leaks (fixture defect). Inspect the fixture.
+
 ## Step 3: SC-002 — control corpus (implementation-agnostic principles)
 
 ```bash

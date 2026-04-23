@@ -17,7 +17,7 @@ Rewrite CONST-R04 in `extensions/preflight/rules/constitution-rules.md` from its
 **Project Type**: Rule authoring / review-pipeline content
 **Performance Goals**: N/A — offline reviewer invocation
 **Constraints**: Rule ID `CONST-R04` must remain stable (FR-004, CONST-CI-03); rule-file source of truth stays at `extensions/preflight/rules/`; install-copy propagation is a planning concern decided in Phase 0 research
-**Scale/Scope**: One rule-text rewrite, one exemplar table (8 rows, one per shape; each row = 1 bad/good pair = 16 example sentences total), benchmark fixture (5 principles, one per issue #13 example) + control fixture (8 principles)
+**Scale/Scope**: One rule-text rewrite, one exemplar table (8 rows, one per shape; each row = 1 bad/good pair = 16 example sentences total), benchmark-issue-13 fixture (5 principles) + benchmark-scaffolding-shapes fixture (3 principles covering shapes not in issue #13) + control fixture (8 principles)
 
 ## Constitution Check
 
@@ -52,8 +52,9 @@ specs/001-fix-const-reviewer-impl-detection/
 ├── checklists/
 │   └── requirements.md  # spec quality checklist (from /speckit.specify)
 └── fixtures/            # Phase 1 output — test corpora
-    ├── benchmark-issue-13.md   # SC-001 corpus (issue #13 examples)
-    └── control-agnostic.md     # SC-002 corpus (clean principles)
+    ├── benchmark-issue-13.md         # SC-001 corpus (issue #13 examples)
+    ├── benchmark-scaffolding-shapes.md  # SC-003 corpus (shapes not in issue #13)
+    └── control-agnostic.md           # SC-002 corpus (clean principles)
 ```
 
 No `data-model.md` — this feature has no data model beyond the existing rule-row + finding shape already documented in ADR-008 and the checklist reviewer prompt.
@@ -75,8 +76,9 @@ presets/preflight/
 
 specs/001-fix-const-reviewer-impl-detection/
 └── fixtures/
-    ├── benchmark-issue-13.md       # NEW — SC-001 corpus
-    └── control-agnostic.md         # NEW — SC-002 corpus
+    ├── benchmark-issue-13.md              # NEW — SC-001 corpus
+    ├── benchmark-scaffolding-shapes.md    # NEW — SC-003 corpus
+    └── control-agnostic.md                # NEW — SC-002 corpus
 ```
 
 Install-copy propagation into `.specify/extensions/preflight/rules/constitution-rules.md` is a re-install step (`specify extension add --dev`), covered in the quickstart.
