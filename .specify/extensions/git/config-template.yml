@@ -13,17 +13,17 @@ init_commit_message: "[Spec Kit] Initial commit"
 auto_commit:
   default: false
   before_clarify:
-    enabled: true
-    message: "[Spec Kit] Add specification"
+    enabled: false
+    message: "[Spec Kit] Save progress before clarification"
   before_plan:
-    enabled: true
-    message: "[Spec Kit] Add clarifications"
+    enabled: false
+    message: "[Spec Kit] Save progress before planning"
   before_tasks:
-    enabled: true
-    message: "[Spec Kit] Add implementation plan"
+    enabled: false
+    message: "[Spec Kit] Save progress before task generation"
   before_implement:
-    enabled: true
-    message: "[Spec Kit] Add tasks"
+    enabled: false
+    message: "[Spec Kit] Save progress before implementation"
   before_checklist:
     enabled: false
     message: "[Spec Kit] Save progress before checklist"
