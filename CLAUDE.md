@@ -30,7 +30,8 @@ preflight/
 
 ## Before modifying behavior
 
-- Any behavioral change requires a version bump in `presets/preflight/preset.yml` and `extensions/preflight/extension.yml` (both track `0.7.0-dev`)
+- Any behavioral change requires a version bump in `presets/preflight/preset.yml` and `extensions/preflight/extension.yml` (both track `0.7.0.dev0` in lock-step)
+- Version strings must be **PEP 440** format — spec-kit validates via `packaging.version.Version` and rejects hyphenated pre-releases like `0.7.0-dev1` or `0.7.0-spike` (see commit `a923e0e`). Tick the dev counter within an ongoing cycle (`0.7.0.dev0` → `0.7.0.dev1` → ...); bump the minor version only after `0.7.0` final ships
 - Any behavioral requirement change requires an ADR (CONST-PROC-02)
 - `.specify/memory/constitution.md` (formerly `specs/constitution.md`, moved 2026-04-15 per ADR-007 Amendment 1) is currently being rewritten — CONST-CI-02 formerly required content to live in `content/` which no longer exists; do not cite CONST-CI-02 in new work until the rewrite lands
 
