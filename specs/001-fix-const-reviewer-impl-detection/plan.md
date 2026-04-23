@@ -17,7 +17,7 @@ Rewrite CONST-R04 in `extensions/preflight/rules/constitution-rules.md` from its
 **Project Type**: Rule authoring / review-pipeline content
 **Performance Goals**: N/A — offline reviewer invocation
 **Constraints**: Rule ID `CONST-R04` must remain stable (FR-004, CONST-CI-03); rule-file source of truth stays at `extensions/preflight/rules/`; install-copy propagation is a planning concern decided in Phase 0 research
-**Scale/Scope**: One rule-text rewrite, one exemplar section (16 examples = 2 pairs × 8 shapes), benchmark fixture (5 principles, one per issue #13 example) + control fixture (8 principles)
+**Scale/Scope**: One rule-text rewrite, one exemplar table (8 rows, one per shape; each row = 1 bad/good pair = 16 example sentences total), benchmark fixture (5 principles, one per issue #13 example) + control fixture (8 principles)
 
 ## Constitution Check
 

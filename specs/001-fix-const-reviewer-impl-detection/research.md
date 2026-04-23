@@ -38,14 +38,14 @@ And below the table:
 
 ## 2. Exemplar count per shape
 
-**Decision**: Two pairs per shape (one good / one bad) for the eight shapes listed in FR-002. Total: 8 pairs.
+**Decision**: One (bad, good) pair per shape for the eight shapes listed in FR-002. Total: 8 pairs = 16 example sentences.
 
-**Rationale**: Peer-framework research (cached under `cache/repos/`) showed spec-kit uses 4 good/bad pairs per property in its specify template, BMAD uses category-based example lists of 3-5 items, and Superpowers uses Red Flags lists of 4-8 items. Two pairs per shape × 8 shapes = 16 examples total, which is enough to calibrate the reviewer's judgment without bloating the rule file. Each pair demonstrates the shape concretely: one principle that embeds the shape (bad) and a minimal rewrite that expresses the same intent without the shape (good).
+**Rationale**: Peer-framework research (cached under `cache/repos/`) showed spec-kit uses 4 good/bad pairs per property in its specify template, BMAD uses category-based example lists of 3-5 items, and Superpowers uses Red Flags lists of 4-8 items. Preflight's eight scaffolding shapes already segment the calibration surface, so a single before/after pair per shape produces ~16 calibration sentences total — comparable to peer frameworks without bloating the rule file. Each pair demonstrates the shape concretely: one principle that embeds the shape (bad) and a minimal rewrite that expresses the same intent without the shape (good). SC-001 and SC-002 validated empirically that this count was sufficient on first implementation run (5/5 expected flags on SC-001, 0/0 expected flags on SC-002).
 
-Exemplar size: ≤ 1 sentence per side. The rule file stays under ~150 lines.
+Exemplar size: ≤ 1 sentence per side. The rule file stays under ~100 lines.
 
 **Alternatives considered**:
-- *One pair per shape (8 pairs total)*: too thin — a single example per category does not distinguish "edge of the shape" from "clear center of the shape."
+- *Two pairs per shape (16 pairs / 32 sentences)*: initially preferred for "edge of shape" vs. "center of shape" calibration coverage, revised after SC-001/SC-002 both passed on first-run implementation with one pair per shape. Keep as the escalation path if future rule-design research surfaces a real edge-case calibration gap.
 - *Three or more pairs per shape (24+ pairs total)*: diminishing returns; rule file bloats past readability threshold.
 - *Exemplars in a separate scaffold file*: rejected — reviewer loading is simpler when the rule and its calibration live in the same file.
 
@@ -122,7 +122,7 @@ Staying within the 0.7.0 dev cycle (not jumping to `0.7.1.dev0`) is correct beca
 | Unknown | Resolution |
 |---|---|
 | Rule-file structure | Subsection under the rule table; one-line table entry cites the subsection |
-| Exemplar count | 2 pairs per shape × 8 shapes = 16 examples |
+| Exemplar count | 1 (bad, good) pair per shape × 8 shapes = 8 pairs = 16 example sentences |
 | Test corpora location | `specs/001-…/fixtures/benchmark-issue-13.md` + `control-agnostic.md` |
 | Install-copy propagation | Manual `specify extension add --dev` documented in quickstart |
 | Reviewer prompt | No change in this feature; risk tracked |
