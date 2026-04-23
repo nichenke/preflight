@@ -115,11 +115,7 @@ Spec-kit's `create-new-feature.sh` creates feature branches in place via `git ch
 
 ## Integration topology (open question)
 
-The *lifecycle shape* decided above is topology-independent. Where preflight lives in the ecosystem — the integration pattern — is a separate, currently **open** question as of 2026-04-22.
-
-The Stream B B5 investigation (`docs/analysis/2026-04-22-speckit-hook-philosophy.md`) established that spec-kit's `optional: false` on `after_*` hooks is intentional advisory design: it only guarantees that an `EXECUTE_COMMAND:` marker is rendered; execution is explicitly delegated to the host AI agent per `src/specify_cli/extensions.py:2509`. Community / maintainer signals (issue #2104 OPEN feature request for `auto_run: true`; issue #2279 closed "not a bug") confirm that the advisory reading is upstream's design. The window for hook-extension composition to close the enforcement gap via an upstream hook change is **closed**, not pending.
-
-That finding invalidates the assumption that preflight's `after_*` hooks would enforce review automatically. It does not invalidate the lifecycle shape above, and it does not invalidate the path reconciliation (`.specify/memory/constitution.md`; `specs/<NNN-slug>/`) — both are topology-independent.
+The *lifecycle shape* decided above is topology-independent. Where preflight lives in the ecosystem — the integration pattern — is a separate, currently **open** question as of 2026-04-22: the Stream B B5 investigation (`docs/analysis/2026-04-22-speckit-hook-philosophy.md`) established that spec-kit's `after_*` hooks are intentional advisory design, invalidating the assumption that preflight's hooks would enforce review automatically. The lifecycle shape and the path reconciliation (`.specify/memory/constitution.md`; `specs/<NNN-slug>/`) above are unaffected — both hold under any integration pattern.
 
 ### Topology taxonomy
 
@@ -127,7 +123,7 @@ Use descriptive names from 2026-04-22 onward. The older "Topology A / B / C / D 
 
 | Descriptive name | Old label | One-liner |
 |------------------|-----------|-----------|
-| **hook-extension composition** | Topology A | Preflight as spec-kit extension; `after_*` hooks dispatch review. **Broken by design per B5** — hooks are advisory-only. |
+| **hook-extension composition** | Topology A | Preflight as spec-kit extension; `after_*` hooks dispatch review. **Enforcement broken by design per B5** — `after_*` hooks are advisory-only. Still viable for template + command distribution. |
 | **workflow-gate composition** | — (new, B5-surfaced) | Preflight as spec-kit **workflow** (`src/specify_cli/workflows/`, v0.7.0+) with Gate steps wrapping native commands. Enforcement is first-class via `Gate.on_reject = abort/retry` and `RunStatus.PAUSED`. |
 | **workflow-extension composite** | — (hybrid, B5-surfaced) | Ships both: a preflight extension AND a preflight-authored workflow. The extension owns template / command overrides and rule artifacts; the workflow owns enforcement. |
 | **docguard-integrated composition** | Topology B | No spec-kit preset; integrate review with the `docguard` project's rule-pack mechanism. Deferred. |
@@ -137,10 +133,10 @@ Use descriptive names from 2026-04-22 onward. The older "Topology A / B / C / D 
 
 ### Candidate integrations (in current preference order)
 
-1. **Workflow-gate composition (preferred).** Migrate review dispatch from the `after_*` hook surface to a spec-kit workflow with Gate steps. Evidence: `src/specify_cli/workflows/` provides `Gate`, `CommandStep`, `RunStatus.{PAUSED,FAILED,ABORTED}` with explicit `on_reject: retry/abort` semantics and on-disk run-state persistence. Preflight ships a bundled workflow: `/speckit.specify` → `Gate: /speckit.preflight.review` → `/speckit.plan` → `Gate: /speckit.preflight.review` → `/speckit.tasks`. Cost: workflow authoring is a different surface from `extensions.yml`; the existing extension may stay (for templates + commands) or migrate.
-2. **Pre-hook relocation.** Move review from `after_specify` / `after_plan` to `before_plan` / `before_tasks` / `before_implement`. Pre-hooks **do** carry "Wait for the result" directives and **are** treated as enforcement by upstream (per B5's survey of issues #2149 and #2178, both closed as bugs-to-fix when pre-hook execution failed per-agent). "Review *before* planning" is arguably more useful than "review *after* specifying" for the user's mental model. Risk: per-agent compliance is imperfect — Cursor and older Claude Code versions are known-flaky per #2149 / #2178.
-3. **Accept advisory semantics.** Keep hook-extension composition. Ship `after_specify` / `after_plan` as `optional: true` with strong prompts; document that reviewers manually run the review between stages. Lowest friction; weakest enforcement. This is what most existing spec-kit extensions already do.
-4. **Upstream proposal.** Comment on #2104 advocating for `auto_run: true` or `blocking: true`. Long-horizon only; do not make preflight's near-term ship depend on it.
+1. **Workflow-gate composition (preferred).** First-class enforcement via the workflow engine's Gate step. Preflight ships a bundled workflow wrapping `/speckit.specify` → `Gate: /speckit.preflight.review` → `/speckit.plan` → `Gate: /speckit.preflight.review` → `/speckit.tasks`. Cost: workflow authoring lives on a different surface than `extensions.yml`; the existing extension can coexist (owning templates + commands) or be absorbed.
+2. **Pre-hook relocation.** Move review from `after_specify` / `after_plan` to `before_plan` / `before_tasks` / `before_implement`. Pre-hooks carry "Wait for the result" directives and are treated as enforcement by upstream (per B5's survey of [spec-kit#2149](https://github.com/github/spec-kit/issues/2149) and [spec-kit#2178](https://github.com/github/spec-kit/issues/2178), both closed as per-agent bugs-to-fix when pre-hook execution failed). "Review before planning" is arguably more useful than "review after specifying" for the user's mental model. Risk: per-agent compliance is imperfect (Cursor and older Claude Code versions are known-flaky).
+3. **Accept advisory semantics.** Keep hook-extension composition; ship `after_*` as `optional: true` with strong prompts and manual invocation. Lowest friction; weakest enforcement. What most existing spec-kit extensions do today.
+4. **Upstream proposal.** Comment on [spec-kit#2104](https://github.com/github/spec-kit/issues/2104) advocating for `auto_run: true` or `blocking: true`. Long-horizon only; do not make preflight's near-term ship depend on it.
 
 Hybrids (e.g. workflow-gate for ratification plus pre-hook relocation for in-stage enforcement) are explicitly permitted and are probably where the evaluation lands. Spike 2 (tack-room launcher), as previously scoped, implicitly assumed hook-extension composition and must pause for topology selection before committing engineering.
 

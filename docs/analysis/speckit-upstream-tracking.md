@@ -76,7 +76,7 @@ Source: 2026-04-22 upstream survey in `../../workflow-research/.dispatch/HANDOFF
 
 | Change | Classification | Notes |
 |--------|---------------|-------|
-| Workflow engine + catalog (#2158) | **(iii) hard-blocker** (a, b) — reclassified 2026-04-22 post-B5 | B5 confirmed (β): `after_*` hooks are advisory by design, never intended to enforce. Workflow engine's Gate/CommandStep/PAUSED primitives (`src/specify_cli/workflows/`) are spec-kit's designated enforcement surface going forward. This is (iii) *not* because workflow engine breaks preflight — it does not — but because the hook-extension composition's "enforcement via after-hooks" claim is wrong by design. Preflight needs to migrate its enforcement model onto workflow Gate steps (workflow-gate composition) or accept advisory-only semantics. See `./2026-04-22-speckit-hook-philosophy.md` §Q3 and ADR-007's "Integration topology" section. |
+| Workflow engine + catalog (#2158) | **(iii) hard-blocker** (a, b); reclassified: 2026-04-22 (post-B5) | (iii) because B5 confirmed `after_*` hooks are advisory by design — the hook-extension composition's enforcement claim is wrong. The workflow engine (`src/specify_cli/workflows/`) is the designated enforcement primitive; migration to workflow-gate composition is the likely response. See `./2026-04-22-speckit-hook-philosophy.md` §Q3 and ADR-007's "Integration topology" section. |
 | `--ai` → `--integration` CLI rename (#2218) | **(ii) implementation-adjust** (—) | `needs-B2-confirmation`. User-facing CLI flag. If preflight's install commands or documentation reference `--ai`, they need updating. No outcome broken — pure naming flex. |
 
 ### v0.7.1 (released between v0.7.0 and v0.7.2)
@@ -101,7 +101,7 @@ Source: 2026-04-22 upstream survey in `../../workflow-research/.dispatch/HANDOFF
 
 | Change | Classification | Notes |
 |--------|---------------|-------|
-| Marker-based context upsert (#2259) | **(i) no-impact** — reclassified 2026-04-22 post-B5 | B5 clarified: #2259 is not a hook-enforcement alternative. It solves a different problem (idempotent agent-context file mutation during `specify` CLI install/switch/uninstall). Not event-driven; no `after_*` equivalent. Preflight's review dispatch surface is unrelated to this mechanism. See `./2026-04-22-speckit-hook-philosophy.md` §Q4. |
+| Marker-based context upsert (#2259) | **(i) no-impact**; reclassified: 2026-04-22 (post-B5) | B5 clarified: #2259 is not a hook-enforcement alternative. It solves a different problem (idempotent agent-context file mutation during `specify` CLI install/switch/uninstall). Not event-driven; no `after_*` equivalent. Preflight's review dispatch surface is unrelated to this mechanism. See `./2026-04-22-speckit-hook-philosophy.md` §Q4. |
 
 ### v0.7.4 (released ~2026-04-22)
 
