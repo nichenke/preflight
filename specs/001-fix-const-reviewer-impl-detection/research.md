@@ -100,14 +100,14 @@ Automating this (e.g., a post-edit hook that re-runs `specify extension add --de
 
 ## 6. Version bump target
 
-**Decision**: Bump `extensions/preflight/extension.yml` from `0.7.0-dev` to `0.7.0-dev1` (or equivalent patch-level pre-release tick). `presets/preflight/preset.yml` is not touched — the preset ships templates, not review rules.
+**Decision**: Bump **both** `extensions/preflight/extension.yml` and `presets/preflight/preset.yml` from `0.7.0-dev` to `0.7.0-dev1` (or equivalent patch-level pre-release tick).
 
-**Rationale**: CONST-PROC-01 requires a version bump on behavioral change. This feature changes reviewer behavior via rule-text. The preset is unaffected; only the extension's rule file changes, so only the extension version moves.
+**Rationale**: CONST-PROC-01 requires a version bump on behavioral change. Project `CLAUDE.md` further requires that preset and extension versions stay in lock-step (both currently track `0.7.0-dev`). This feature changes reviewer behavior via rule-text in the extension; although the preset content is untouched, the lock-step convention exists so downstream consumers can pin a single `0.7.0-devN` tag and get a known pair. Bumping both preserves that invariant.
 
-Full `0.7.0` release is premature — the ADR-007 validation spike (per `docs/spikes/SPIKE_PLAN.md`) still gates the full release. Using a pre-release tick keeps the extension's semver honest without claiming spike completion.
+Full `0.7.0` release is premature — the ADR-007 validation spike (per `docs/spikes/SPIKE_PLAN.md`) still gates the full release. Using a pre-release tick keeps the semver honest without claiming spike completion.
 
 **Alternatives considered**:
-- *Bump both extension and preset*: rejected — the preset has no behavioral change.
+- *Bump extension only*: initially preferred (the preset has no behavioral change), but rejected because it diverges from `CLAUDE.md`'s lock-step convention. If that convention turns out to be dead weight, a follow-up can relax it in `CLAUDE.md` and a future feature can bump them independently.
 - *Move to `0.7.0` stable*: rejected — spike not complete; releasing as stable now would be premature.
 - *No version bump*: rejected — violates CONST-PROC-01.
 
@@ -122,6 +122,6 @@ Full `0.7.0` release is premature — the ADR-007 validation spike (per `docs/sp
 | Test corpora location | `specs/001-…/fixtures/benchmark-issue-13.md` + `control-agnostic.md` |
 | Install-copy propagation | Manual `specify extension add --dev` documented in quickstart |
 | Reviewer prompt | No change in this feature; risk tracked |
-| Version bump | Extension only, `0.7.0-dev` → `0.7.0-dev1`; preset untouched |
+| Version bump | Both extension.yml and preset.yml, `0.7.0-dev` → `0.7.0-dev1` (lock-step per CLAUDE.md) |
 
 No `NEEDS CLARIFICATION` markers remain. Phase 1 proceeds.
