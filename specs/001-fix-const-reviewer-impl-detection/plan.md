@@ -13,11 +13,11 @@ Rewrite CONST-R04 in `extensions/preflight/rules/constitution-rules.md` from its
 **Primary Dependencies**: preflight checklist reviewer agent (reads `extensions/preflight/rules/constitution-rules.md`)
 **Storage**: Git-tracked markdown files under `extensions/preflight/rules/` and `specs/001-fix-const-reviewer-impl-detection/fixtures/`
 **Testing**: Manual review runs using `/speckit.preflight.review` on benchmark + control corpora; SC verification by inspection of reviewer output
-**Target Platform**: spec-kit extension layer (preflight v0.7.0-dev)
+**Target Platform**: spec-kit extension layer (preflight v0.7.0.dev0)
 **Project Type**: Rule authoring / review-pipeline content
 **Performance Goals**: N/A — offline reviewer invocation
 **Constraints**: Rule ID `CONST-R04` must remain stable (FR-004, CONST-CI-03); rule-file source of truth stays at `extensions/preflight/rules/`; install-copy propagation is a planning concern decided in Phase 0 research
-**Scale/Scope**: One rule-text rewrite, one exemplar section (16 examples = 2 pairs × 8 shapes), benchmark fixture (~5 principles) + control fixture (~8 principles)
+**Scale/Scope**: One rule-text rewrite, one exemplar section (16 examples = 2 pairs × 8 shapes), benchmark fixture (5 principles, one per issue #13 example) + control fixture (8 principles)
 
 ## Constitution Check
 
@@ -33,7 +33,7 @@ Checked against `.specify/memory/constitution.md` v1.1.0. Stale principles flagg
 | CONST-DIST-01 (auto-load rules) | N/A | Flagged stale in constitution banner (plugin-specific) |
 | CONST-DIST-02 (no overwrite) | ✓ | Editing preflight-owned rule file, not a project-authored doc |
 | CONST-QA-01 through CONST-QA-05 | SKIP | Flagged stale in constitution banner |
-| CONST-PROC-01 (version bump) | REQUIRED | Bump both `extensions/preflight/extension.yml` and `presets/preflight/preset.yml` in lock-step (CLAUDE.md convention; both currently `0.7.0-dev`) |
+| CONST-PROC-01 (version bump) | REQUIRED | Bump both `extensions/preflight/extension.yml` and `presets/preflight/preset.yml` from `0.7.0.dev0` to `0.7.0.dev1` (PEP 440 dev-counter tick per research.md §6) |
 | CONST-PROC-02 (ADR for behavioral change) | ✓ | ADR-008 covers the shape decision and this first application |
 | CONST-PROC-03 (MADR for ADRs) | ✓ | ADR-008 uses MADR 4.0 |
 

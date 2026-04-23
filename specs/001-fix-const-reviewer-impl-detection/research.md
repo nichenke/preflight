@@ -100,15 +100,19 @@ Automating this (e.g., a post-edit hook that re-runs `specify extension add --de
 
 ## 6. Version bump target
 
-**Decision**: Bump **both** `extensions/preflight/extension.yml` and `presets/preflight/preset.yml` from `0.7.0-dev` to `0.7.0-dev1` (or equivalent patch-level pre-release tick).
+**Decision**: Bump **both** `extensions/preflight/extension.yml` and `presets/preflight/preset.yml` from `0.7.0.dev0` to `0.7.0.dev1` (PEP 440 dev-counter increment).
 
-**Rationale**: CONST-PROC-01 requires a version bump on behavioral change. Project `CLAUDE.md` further requires that preset and extension versions stay in lock-step (both currently track `0.7.0-dev`). This feature changes reviewer behavior via rule-text in the extension; although the preset content is untouched, the lock-step convention exists so downstream consumers can pin a single `0.7.0-devN` tag and get a known pair. Bumping both preserves that invariant.
+**Rationale**: Spec-kit validates version strings with `packaging.version.Version` — that's **PEP 440**, not SemVer. Hyphen-delimited pre-releases like `0.7.0-dev1` are rejected at install time (confirmed by commit `a923e0e` that fixed `0.7.0-spike` → `0.7.0.dev0`). Correct form for the dev-counter tick is `0.7.0.dev0 → 0.7.0.dev1` (dot-separated, numeric).
 
-Full `0.7.0` release is premature — the ADR-007 validation spike (per `docs/spikes/SPIKE_PLAN.md`) still gates the full release. Using a pre-release tick keeps the semver honest without claiming spike completion.
+CONST-PROC-01 requires a version bump on behavioral change. Project `CLAUDE.md` further requires that preset and extension versions stay in lock-step (both currently track `0.7.0.dev0`). This feature changes reviewer behavior via rule-text in the extension; although the preset content is untouched, the lock-step convention exists so downstream consumers can pin a single `0.7.0.devN` tag and get a known pair. Bumping both preserves that invariant.
+
+Staying within the 0.7.0 dev cycle (not jumping to `0.7.1.dev0`) is correct because `0.7.0` final has not shipped yet — the ADR-007 validation spike (per `docs/spikes/SPIKE_PLAN.md`) still gates the final release. PEP 440 orders `0.7.0.dev0 < 0.7.0.dev1 < ... < 0.7.0 final < 0.7.1.dev0`, so ticking the dev counter is the semantically correct move during an ongoing dev cycle.
 
 **Alternatives considered**:
 - *Bump extension only*: initially preferred (the preset has no behavioral change), but rejected because it diverges from `CLAUDE.md`'s lock-step convention. If that convention turns out to be dead weight, a follow-up can relax it in `CLAUDE.md` and a future feature can bump them independently.
+- *Jump to `0.7.1.dev0`*: rejected — implies the 0.7.0 dev cycle is closed, which it isn't (no `0.7.0` final has shipped). Correct signal for an ongoing dev cycle is ticking the dev counter, not bumping the patch number.
 - *Move to `0.7.0` stable*: rejected — spike not complete; releasing as stable now would be premature.
+- *Hyphenated form `0.7.0-dev1`*: rejected — invalid PEP 440 (spec-kit validator rejects hyphens in the pre-release segment).
 - *No version bump*: rejected — violates CONST-PROC-01.
 
 ---
@@ -122,6 +126,6 @@ Full `0.7.0` release is premature — the ADR-007 validation spike (per `docs/sp
 | Test corpora location | `specs/001-…/fixtures/benchmark-issue-13.md` + `control-agnostic.md` |
 | Install-copy propagation | Manual `specify extension add --dev` documented in quickstart |
 | Reviewer prompt | No change in this feature; risk tracked |
-| Version bump | Both extension.yml and preset.yml, `0.7.0-dev` → `0.7.0-dev1` (lock-step per CLAUDE.md) |
+| Version bump | Both extension.yml and preset.yml, `0.7.0.dev0` → `0.7.0.dev1` (PEP 440 dev-counter tick, lock-step per CLAUDE.md) |
 
 No `NEEDS CLARIFICATION` markers remain. Phase 1 proceeds.
