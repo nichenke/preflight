@@ -55,6 +55,21 @@ Run the preflight review against the SC-001 fixture:
 - Fewer than three findings → reviewer's detection has narrowed below the rule's 8-shape claim, even though SC-001 still passes. Inspect which shape silently passed; treat as a regression.
 - More than three findings → fixture contains unintended extra leaks (fixture defect). Inspect the fixture.
 
+## Step 2c: SC-004 — multi-phrase corpus (phrase-level flagging)
+
+```bash
+# In Claude Code
+/speckit.preflight.review specs/001-fix-const-reviewer-impl-detection/fixtures/benchmark-multi-phrase.md
+```
+
+**Expected result**: 4 `CONST-R04` findings — 2 per principle, one per distinct implementation-detail shape within each principle. The fixture contains 2 composite principles (function+file, env var+CLI) to validate the rule's "each offending phrase flagged independently" claim.
+
+**Pass condition**: four `CONST-R04` findings in the merged reviewer output.
+
+**Fail modes**:
+- 2 findings (one per principle) → reviewer truncates at principle-level granularity despite the rule's explicit phrase-level claim. The multi-phrase guarantee is aspirational rather than operational. File an issue; either tighten reviewer prompting or weaken the rule's claim.
+- Any other count → inspect which shape(s) produced duplicate or missing flags.
+
 ## Step 3: SC-002 — control corpus (implementation-agnostic principles)
 
 ```bash

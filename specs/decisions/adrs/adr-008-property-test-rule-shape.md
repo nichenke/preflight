@@ -72,13 +72,14 @@ Rules expressing **structural or mechanical constraints** (e.g., "document IDs f
 
 ### Confirmation
 
-Feature `001-fix-const-reviewer-impl-detection` is the first application. The acceptance signal is the feature's three Success Criteria:
+Feature `001-fix-const-reviewer-impl-detection` is the first application. The acceptance signal is the feature's four Success Criteria:
 
 - **SC-001** — issue #13 examples all flagged (regression coverage for the original defect)
 - **SC-002** — control constitution of implementation-agnostic principles produces zero flags (false-positive gate)
 - **SC-003** — scaffolding-shapes fixture exercises the three shapes not covered by issue #13 (tool/vendor, inline code token, version-pinned standard), completing the coverage of the rule's 8-shape claim
+- **SC-004** — multi-phrase fixture exercises phrase-level flagging (the rule's "each offending phrase flagged independently" claim)
 
-All three have pinned test corpora — SC-001 draws from issue #13, SC-002 from a hand-curated control set, SC-003 from a sibling benchmark — so none depend on the reviewer as its own oracle.
+All four have pinned test corpora — SC-001 draws from issue #13, SC-002 from a hand-curated control set, SC-003 and SC-004 from sibling benchmarks — so none depend on the reviewer as its own oracle.
 
 If the feature passes its SCs and the reviewer output is consistent across re-runs of the seeded benchmark, this ADR promotes from `Proposed` to `Accepted`. If reviewer output is inconsistent, the ADR is revised before further rule families adopt the shape.
 
@@ -163,6 +164,6 @@ Raw research artifacts live in `cache/repos/<framework>/` per `.claude/rules/rul
 
 ### Follow-ups
 
-- Feature 001 SC-001, SC-002, and SC-003 validate the shape empirically. Promote this ADR from `Proposed` to `Accepted` on successful validation of all three.
+- Feature 001 SC-001, SC-002, SC-003, and SC-004 validate the shape empirically. Promote this ADR from `Proposed` to `Accepted` on successful validation of all four.
 - At next revision of each qualitative rule family, evaluate adoption of this shape. Non-qualitative rules (mechanical/structural) retain their current form.
 - `.claude/rules/rule-design.md` governs the research pattern used for this decision; it is the process artifact that produced this ADR.
