@@ -1,7 +1,7 @@
 # Quickstart: Verifying feature 001 acceptance
 
 **Feature**: `001-fix-const-reviewer-impl-detection`
-**Purpose**: Run the preflight review against the SC-001 and SC-002 fixture corpora and confirm both pass.
+**Purpose**: Run the preflight review against the SC-001, SC-002, SC-003, and SC-004 fixture corpora and confirm all four pass.
 
 Use this after Phase 2 implementation lands (CONST-R04 rewritten, exemplars authored, fixtures written) and before promoting ADR-008 from `Proposed` to `Accepted`.
 

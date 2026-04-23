@@ -16,11 +16,11 @@
 
 *Shapes embedded: environment variable expression (`$PAI_CONFIG_DIR`), CLI invocation (`migrate.sh --latest`). Expected: 2 CONST-R04 findings.*
 
-## Boot
+## Database provisioning
 
-- [CONST-BOOT-01] At boot, `bootstrap.sh --db` SHALL initialize PostgreSQL and write logs to `/var/log/pai/`.
+- [CONST-BOOTDB-01] At boot, `bootstrap.sh --init` SHALL initialize PostgreSQL and write logs to `/var/log/pai/`.
 
-*Shapes embedded: CLI invocation (`bootstrap.sh --db`), tool/vendor name (PostgreSQL), file path (`/var/log/pai/`). Expected: 3 CONST-R04 findings. This principle tests n=3 distinct shapes in one principle — specifically whether the reviewer caps at 2 findings per principle (a regression that n=2 fixtures would not catch).*
+*Shapes embedded: CLI invocation (`bootstrap.sh --init`), tool/vendor name (PostgreSQL), directory path (`/var/log/pai/`). Expected: 3 CONST-R04 findings. This principle tests n=3 distinct shapes in one principle — specifically whether the reviewer caps at 2 findings per principle (a regression that n=2 fixtures would not catch). The CLI flag is `--init` rather than `--db` so the flag does not telegraph the tool/vendor phrase; each of the three shapes must be flagged by independent property-test application.*
 
 ## Pass/fail interpretation
 
