@@ -125,7 +125,7 @@ Staying within the 0.7.0 dev cycle (not jumping to `0.7.1.dev0`) is correct beca
 |---|---|
 | Rule-file structure | Subsection under the rule table; one-line table entry cites the subsection |
 | Exemplar count | 1 (bad, good) pair per shape × 8 shapes = 8 pairs = 16 example sentences |
-| Test corpora location | `specs/001-…/fixtures/benchmark-issue-13.md` + `control-agnostic.md` |
+| Test corpora location | Four files under `specs/001-…/fixtures/` — `benchmark-issue-13.md` (SC-001), `benchmark-scaffolding-shapes.md` (SC-003), `benchmark-multi-phrase.md` (SC-004), `control-agnostic.md` (SC-002). See §3. |
 | Install-copy propagation | Manual `specify extension add --dev` documented in quickstart |
 | Reviewer prompt | No change in this feature; risk tracked |
 | Version bump | Both extension.yml and preset.yml, `0.7.0.dev0` → `0.7.0.dev1` (PEP 440 dev-counter tick, lock-step per CLAUDE.md) |

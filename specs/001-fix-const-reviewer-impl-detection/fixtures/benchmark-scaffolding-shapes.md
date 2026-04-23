@@ -2,16 +2,18 @@
 
 **Purpose**: exercise CONST-R04's property test against the three scaffolding shapes not covered by the issue #13 benchmark (`benchmark-issue-13.md`). Without this fixture, a reviewer regression that silently narrowed detection to function/file/directory/env/CLI shapes would pass SC-001 and SC-002 while failing the rule's broader 8-shape claim.
 
+To test property-test *generalization* rather than exemplar recognition, the principles below do not reuse the rule file's exemplar sentences verbatim.
+
 **Expected result**: 3 `CONST-R04` findings — one per principle.
 
 ## Durability
 
 - [CONST-PERSIST-01] All durable state SHALL be persisted to PostgreSQL.
 
-## Serialization
+## Transport headers
 
-- [CONST-SER-01] All outbound messages SHALL be serialized with `JSON.stringify` before transport.
+- [CONST-SER-01] All outbound request bodies SHALL include `Content-Type: application/json` in the header line.
 
-## Decisions
+## Versioning
 
-- [CONST-DEC-01] All ADRs SHALL use MADR 4.0 templates.
+- [CONST-VER-01] All public APIs SHALL follow SemVer 2.0.0.

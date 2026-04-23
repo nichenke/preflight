@@ -62,13 +62,14 @@ Run the preflight review against the SC-001 fixture:
 /speckit.preflight.review specs/001-fix-const-reviewer-impl-detection/fixtures/benchmark-multi-phrase.md
 ```
 
-**Expected result**: 4 `CONST-R04` findings — 2 per principle, one per distinct implementation-detail shape within each principle. The fixture contains 2 composite principles (function+file, env var+CLI) to validate the rule's "each offending phrase flagged independently" claim.
+**Expected result**: 7 `CONST-R04` findings — one per distinct implementation-detail phrase across the three principles (2 + 2 + 3). The fixture contains three composite principles (function+file, env var+CLI, CLI+tool/vendor+directory at n=3) to validate the rule's "each offending phrase flagged independently" claim at both n=2 and n=3 shape counts per principle.
 
-**Pass condition**: four `CONST-R04` findings in the merged reviewer output.
+**Pass condition**: seven `CONST-R04` findings in the merged reviewer output.
 
 **Fail modes**:
-- 2 findings (one per principle) → reviewer truncates at principle-level granularity despite the rule's explicit phrase-level claim. The multi-phrase guarantee is aspirational rather than operational. File an issue; either tighten reviewer prompting or weaken the rule's claim.
-- Any other count → inspect which shape(s) produced duplicate or missing flags.
+- 6 findings (3-shape principle flags only 2) → reviewer silently caps findings at 2 per principle. This regression is invisible to n=2 fixtures.
+- 3 or 4 findings → reviewer truncates at principle-level granularity despite the rule's explicit phrase-level claim.
+- Any other count → inspect which phrases produced duplicate or missing flags.
 
 ## Step 3: SC-002 — control corpus (implementation-agnostic principles)
 
@@ -86,7 +87,7 @@ Run the preflight review against the SC-001 fixture:
 
 ## Step 4: Record results
 
-Paste the reviewer output summaries for each step into this feature's eventual ratification PR description. Both SC-001 and SC-002 passing is the signal to:
+Paste the reviewer output summaries for each step into this feature's eventual ratification PR description. All four SCs (SC-001, SC-002, SC-003, SC-004) passing is the signal to:
 
 1. Mark feature 001 ready for ratification.
 2. Promote ADR-008 from `Proposed` to `Accepted`.
@@ -94,6 +95,6 @@ Paste the reviewer output summaries for each step into this feature's eventual r
 
 ## Rollback
 
-If SC-001 or SC-002 fail persistently and the cause is in the rule text itself (not a fixture defect), revert the CONST-R04 subsection edit in `extensions/preflight/rules/constitution-rules.md` to the prior narrow-enumeration text. The rule ID `CONST-R04` remains stable either way (FR-004 / CONST-CI-03) — external references continue to resolve.
+If any of SC-001 through SC-004 fail persistently and the cause is in the rule text itself (not a fixture defect), revert the CONST-R04 subsection edit in `extensions/preflight/rules/constitution-rules.md` to the prior narrow-enumeration text. The rule ID `CONST-R04` remains stable either way (FR-004 / CONST-CI-03) — external references continue to resolve.
 
 Open a follow-up issue documenting which SC failed and why. The ADR-008 Confirmation section explicitly allows ADR revision when SCs do not pass.
