@@ -61,4 +61,4 @@ Templates, rules, agent prompts, and scaffolds live **inside** `presets/prefligh
 
 ## Spike status
 
-Preflight is currently in Phase 1 of the ADR-007 validation spike. Preflight ships as a spec-kit extension + preset; the *integration-topology* question (hook-extension vs workflow-gate vs hybrid) is currently open per Stream B's 2026-04-22 B5 finding — see ADR-007 "Integration topology". See `docs/spikes/SPIKE_PLAN.md` for phase status and open questions. Until the spike promotes ADR-007, the layout should be considered provisional.
+Preflight is currently in Phase 1 of the ADR-007 validation spike. Preflight ships as a spec-kit extension + preset; the *integration-topology* question (which surfaces carry what) was resolved by ADR-009 (Proposed) — see `specs/decisions/adrs/adr-009-integration-topology.md`. Enforcement orchestration (whether and how to automate review firing) is deferred to a follow-on ADR. See `docs/spikes/SPIKE_PLAN.md` for overall spike status; until ADR-007 moves to Accepted, the layout should be considered provisional.

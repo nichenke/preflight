@@ -4,16 +4,16 @@ description: Review a spec document against preflight rules using a two-agent en
 
 # /speckit.preflight.review — preflight extension
 
-Validate a spec document by dispatching two reviewer subagents and merging their findings. Do **not** modify the document.
+Validate a spec document by dispatching two reviewer subagents and merging their findings. Do **not** modify the document. Invocation is **on-demand** per ADR-009 — this command is not auto-triggered by spec-kit hooks.
 
 This command is a faithful port of the preflight plugin's `skills/review/` skill into native spec-kit form. The two reviewer prompts live at `.specify/extensions/preflight/agents/reviewers/checklist-reviewer.md` and `.../bogey-reviewer.md` and are dispatched via the host agent's subagent/Task mechanism.
 
 ## 1. Determine the target document
 
-This command runs **on demand** (per ADR-009 — no spec-kit hook fires it automatically). The target is determined in this order:
+The target is determined in this order:
 
 1. **Explicit argument** — if the user passed a path, use it. Resolve relative paths from the project root.
-2. **Most recent feature doc** — Glob `specs/*/spec.md` and `specs/*/plan.md` and pick the single most recently modified file across both sets. Spec-kit writes feature documents to the project-root `specs/` directory (e.g. `specs/001-reverse-string/spec.md`), not `.specify/features/`. This captures the common case: the user just ran `/speckit.specify` or `/speckit.plan` and wants the artifact they just generated reviewed.
+2. **Most recent feature doc** — Glob `specs/*/spec.md` and `specs/*/plan.md` and pick the single most recently modified file across both sets. Spec-kit writes feature documents to the project-root `specs/` directory (e.g. `specs/001-reverse-string/spec.md`), not `.specify/features/`. If mtime does not reflect the user's intent (e.g., multiple feature folders touched near-simultaneously, or PostToolUse extensions rewriting timestamps on unrelated files), pass an explicit path via step 1.
 3. **Interactive fallback** — if no feature docs exist, Glob `{project_docs_dir}/**/*.md` (default `docs/` if no `{project_docs_dir}` is configured), present the list, and ask the user to pick one. Wait for their selection before proceeding.
 
 ## 2. Identify document type
