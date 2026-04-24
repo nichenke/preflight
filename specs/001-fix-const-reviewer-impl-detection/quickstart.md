@@ -91,7 +91,7 @@ Paste the reviewer output summaries for each step into this feature's eventual r
 
 1. Mark feature 001 ready for ratification.
 2. Promote ADR-008 from `Proposed` to `Accepted`.
-3. Bump `extensions/preflight/extension.yml` **and** `presets/preflight/preset.yml` versions in lock-step per CONST-PROC-01 + CLAUDE.md (see research.md § 6).
+3. Confirm `extensions/preflight/extension.yml` **and** `presets/preflight/preset.yml` versions were already bumped in lock-step during Phase 1 per CONST-PROC-01 + CLAUDE.md (see plan.md Constitution Check and research.md § 6).
 
 ## Rollback
 

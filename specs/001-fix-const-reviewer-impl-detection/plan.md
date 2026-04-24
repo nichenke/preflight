@@ -5,7 +5,7 @@
 
 ## Summary
 
-Rewrite CONST-R04 in `extensions/preflight/rules/constitution-rules.md` from its current narrow enumeration ("principles shall not prescribe specific tools or versions") into the **property-test + illustrative scaffolding** shape established by ADR-008. The rule's normative clause becomes a single substitution-test invariant; the existing shape list moves into a non-normative exemplar section with paired good/bad examples. Authors a small benchmark corpus (issue #13 examples) and a control corpus (implementation-agnostic principles) to satisfy SC-001 and SC-002.
+Rewrite CONST-R04 in `extensions/preflight/rules/constitution-rules.md` from its current narrow enumeration ("principles shall not prescribe specific tools or versions") into the **property-test + illustrative scaffolding** shape established by ADR-008. The rule's normative clause becomes a single substitution-test invariant; the existing shape list moves into a non-normative exemplar section with paired good/bad examples. Authors four fixtures — a benchmark corpus (issue #13 examples), a scaffolding-shapes corpus (shapes not in issue #13), a multi-phrase corpus (composite principles at n=2 and n=3), and a control corpus (implementation-agnostic principles) — to satisfy SC-001 through SC-004.
 
 ## Technical Context
 
@@ -13,7 +13,7 @@ Rewrite CONST-R04 in `extensions/preflight/rules/constitution-rules.md` from its
 **Primary Dependencies**: preflight checklist reviewer agent (reads `extensions/preflight/rules/constitution-rules.md`)
 **Storage**: Git-tracked markdown files under `extensions/preflight/rules/` and `specs/001-fix-const-reviewer-impl-detection/fixtures/`
 **Testing**: Manual review runs using `/speckit.preflight.review` on benchmark + control corpora; SC verification by inspection of reviewer output
-**Target Platform**: spec-kit extension layer (preflight v0.7.0.dev0)
+**Target Platform**: spec-kit extension layer (preflight `0.7.0.devN` dev cycle)
 **Project Type**: Rule authoring / review-pipeline content
 **Performance Goals**: N/A — offline reviewer invocation
 **Constraints**: Rule ID `CONST-R04` must remain stable (FR-004, CONST-CI-03); rule-file source of truth stays at `extensions/preflight/rules/`; install-copy propagation is a planning concern decided in Phase 0 research

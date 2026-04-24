@@ -40,12 +40,12 @@ And below the table:
 
 **Decision**: One (bad, good) pair per shape for the eight shapes listed in FR-002. Total: 8 pairs = 16 example sentences.
 
-**Rationale**: Peer-framework research (cached under `cache/repos/`) showed spec-kit uses 4 good/bad pairs per property in its specify template, BMAD uses category-based example lists of 3-5 items, and Superpowers uses Red Flags lists of 4-8 items. Preflight's eight scaffolding shapes already segment the calibration surface, so a single before/after pair per shape produces ~16 calibration sentences total — comparable to peer frameworks without bloating the rule file. Each pair demonstrates the shape concretely: one principle that embeds the shape (bad) and a minimal rewrite that expresses the same intent without the shape (good). SC-001 and SC-002 validated empirically that this count was sufficient on first implementation run (5/5 expected flags on SC-001, 0/0 expected flags on SC-002).
+**Rationale**: Peer-framework research (cached under `cache/repos/`) showed spec-kit uses 4 good/bad pairs per property in its specify template, BMAD uses category-based example lists of 3-5 items, and Superpowers uses Red Flags lists of 4-8 items. Preflight's eight scaffolding shapes already segment the calibration surface, so a single before/after pair per shape produces ~16 calibration sentences total — comparable to peer frameworks without bloating the rule file. Each pair demonstrates the shape concretely: one principle that embeds the shape (bad) and a minimal rewrite that expresses the same intent without the shape (good). At the time of first implementation, SC-001 and SC-002 validated empirically that this count was sufficient (5/5 expected flags on SC-001, 0/0 expected flags on SC-002); SC-003 and SC-004, added later during PR-#35 review, also passed at the same one-pair-per-shape count.
 
 Exemplar size: ≤ 1 sentence per side. The rule file stays under ~100 lines.
 
 **Alternatives considered**:
-- *Two pairs per shape (16 pairs / 32 sentences)*: initially preferred for "edge of shape" vs. "center of shape" calibration coverage, revised after SC-001/SC-002 both passed on first-run implementation with one pair per shape. Keep as the escalation path if future rule-design research surfaces a real edge-case calibration gap.
+- *Two pairs per shape (16 pairs / 32 sentences)*: initially preferred for "edge of shape" vs. "center of shape" calibration coverage, revised after SC-001 and SC-002 both passed on first-run implementation with one pair per shape (SC-003 and SC-004, added later, also passed without requiring additional pairs). Keep as the escalation path if future rule-design research surfaces a real edge-case calibration gap.
 - *Three or more pairs per shape (24+ pairs total)*: diminishing returns; rule file bloats past readability threshold.
 - *Exemplars in a separate scaffold file*: rejected — reviewer loading is simpler when the rule and its calibration live in the same file.
 
@@ -92,11 +92,11 @@ Automating this (e.g., a post-edit hook that re-runs `specify extension add --de
 
 **Rationale**: Spec Assumption 2 scopes reviewer prompt changes as out-of-bounds for this feature. Reviewing the current `extensions/preflight/agents/reviewers/checklist-reviewer.md` confirms the prompt is rule-text-driven — it does not encode per-rule heuristics. If SC-001 / SC-002 fail empirically after Phase 2 implementation lands, prompt revision becomes a separate follow-up.
 
-**Risk**: the property test is more abstract than pattern-matching and may require reviewer-prompt calibration to elicit reliably. This risk is acknowledged in ADR-008 (L68) and is the primary reason the ADR's Confirmation section gates promotion to `Accepted` on SC-001 + SC-002 passing empirically.
+**Risk**: the property test is more abstract than pattern-matching and may require reviewer-prompt calibration to elicit reliably. This risk is acknowledged in ADR-008 (L68) and is the primary reason the ADR's Confirmation section gates promotion to `Accepted` on SC-001 through SC-004 all passing empirically.
 
 **Alternatives considered**:
 - *Proactive prompt revision in this feature*: rejected — scope creep; the spec deliberately separated rule-text edits from prompt engineering to keep the feature tight.
-- *Add a property-test invocation wrapper to the reviewer prompt*: rejected — premature optimization; measure first via SC-001/SC-002.
+- *Add a property-test invocation wrapper to the reviewer prompt*: rejected — premature optimization; measure first via SC-001 through SC-004.
 
 ---
 

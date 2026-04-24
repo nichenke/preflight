@@ -26,5 +26,5 @@
 
 - 7 findings → reviewer honors the rule's phrase-level flagging claim across n=2 and n=3 shape counts. Pass.
 - 6 findings, 3-shape principle flags only 2 → reviewer silently caps at 2 findings per principle. Catch the regression here; SC-001..SC-003 would still pass.
-- 4 findings (2 per principle, third principle flags only one) or 3 findings (one per principle) → reviewer truncates at principle level. Multi-phrase guarantee is aspirational, not operational.
+- 4 findings (2 per principle, third principle flags none) or 3 findings (one per principle) → reviewer truncates at principle level. Multi-phrase guarantee is aspirational, not operational.
 - Any other count → inspect which phrases produced duplicate or missing flags.
