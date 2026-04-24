@@ -40,6 +40,22 @@ Each (ii) / (iii) row names the impacted outcome IDs in parentheses, e.g. `(ii: 
 
 ---
 
+## Stream B workstreams
+
+This doc is part of preflight's Stream B work — spec-kit upstream tracking, adaptation, and hook-philosophy investigation. Stream A (core spike execution on issue #13, tack-room launcher, PAI brownfield) runs in parallel from the `workflow-research` worktree. Labels referenced throughout this doc:
+
+| Label | Workstream |
+|-------|-----------|
+| **B1** | Living upstream tracking doc — this file |
+| **B2** | Test adaptation: install preflight against current upstream; validate classifications |
+| **B3** | Requirements / architecture review when a (ii) or (iii) alters preflight's observable behavior (per CONST-PROC-02) |
+| **B4** | Adaptation PRs per (ii); escalation design docs per (iii); pin widening in `preset.yml` / `extension.yml` |
+| **B5** | Hook philosophy investigation (subagent) — output at `./2026-04-22-speckit-hook-philosophy.md`, verdict β |
+
+**Gate 2.5** (load-bearing): Spike 2 in the sibling worktree cannot proceed until B5's classification (done) plus integration-topology selection lands in writing. See ADR-007 "Integration topology" for the current state.
+
+---
+
 ## Maintenance convention
 
 - **Living doc.** No date prefix on the filename. Update in-place as releases land.
@@ -149,8 +165,6 @@ These are the questions B2 execution answers. Each answer either confirms a clas
 
 ## Cross-references
 
-- Sibling worktree handoff (Stream A context): `../../workflow-research/.dispatch/HANDOFF.md`
-- Stream B handoff (this worktree): `../../.dispatch/HANDOFF.md`
 - Hook philosophy classification (B5, verdict β): `./2026-04-22-speckit-hook-philosophy.md`
 - ADR-007 — integration-topology reopened per B5: `../../specs/decisions/adrs/adr-007-feature-folder-lifecycle.md`
 - Preset pin source: `../../presets/preflight/preset.yml` (`requires.speckit_version`)
@@ -162,3 +176,4 @@ These are the questions B2 execution answers. Each answer either confirms a clas
 - 2026-04-22 — initial population from workflow-research handoff survey. All v0.7.x rows marked `needs-B2-confirmation`. Coupling to B5 noted on v0.7.0 and v0.7.3 entries.
 - 2026-04-22 — post-B5 reclassification: v0.7.0 workflow engine upgraded to (iii) hard-blocker; v0.7.3 marker-based upsert downgraded to (i) no-impact (not a hook-enforcement alternative). Coupling table updated.
 - 2026-04-22 — structural revision (Codex PR review): added "Baseline constraints" section separating release-independent properties (advisory `after_*` hooks) from per-release deltas. v0.7.0 workflow engine revised (iii) → (ii) — v0.7.0 introduces a new enforcement surface (opportunity), while the advisory-hook limitation that motivates migration is a baseline constraint (pre-v0.6.0). Source citation replaced sibling-worktree HANDOFF pointer with durable in-repo references (upstream PR numbers, spec-kit SHAs, tag-to-tag `git log`).
+- 2026-04-23 — removed dead HANDOFF cross-references (`.dispatch/` is untracked, session-scoped). Added "Stream B workstreams" section defining B1–B5 labels and Stream A/B context in-file, so the doc stands on its own without relying on external dispatch artifacts.
