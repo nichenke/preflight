@@ -1,6 +1,6 @@
 # Preflight — spec-kit preset + extension
 
-Preflight is a [spec-kit](https://github.com/github/spec-kit) preset and extension for spec-driven development. It ships curated doc-type templates, a 48-rule review rule set, and a two-agent review ensemble (checklist + bogey) that hooks into spec-kit's `after_specify` / `after_plan` stages.
+Preflight is a [spec-kit](https://github.com/github/spec-kit) preset and extension for spec-driven development. It ships curated doc-type templates, a 48-rule review rule set, and a two-agent review ensemble (checklist + bogey) invoked on-demand via `/speckit.preflight.review`.
 
 Preflight was previously distributed as a Claude Code plugin (v0.6.x). See `git log` for the 2026-04-14 conversion from plugin to spec-kit extension form.
 
@@ -12,8 +12,8 @@ preflight/
 │   ├── preset.yml                   # preset manifest
 │   ├── templates/                   # 7 doc-type templates (ADR, RFC, architecture, etc.)
 │   └── commands/                    # speckit.tasks, speckit.implement (PAI redirects)
-├── extensions/preflight/            # spec-kit extension (review + hooks)
-│   ├── extension.yml                # extension manifest with after_specify / after_plan hooks
+├── extensions/preflight/            # spec-kit extension (on-demand review command)
+│   ├── extension.yml                # extension manifest (provides speckit.preflight.review)
 │   ├── commands/
 │   │   └── speckit.preflight.review.md   # orchestrator (two-agent ensemble)
 │   ├── agents/reviewers/            # checklist-reviewer + bogey-reviewer prompts
