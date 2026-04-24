@@ -65,7 +65,7 @@ The original ADR-007 value proposition ("prevent forgotten updates") is **preser
 Preflight ships two artifacts:
 
 - **Preset** (`presets/preflight/`) — template overrides for 7 doc types.
-- **Extension** (`extensions/preflight/`) — registers `/speckit.preflight.review`, ships the 48-rule set, carries the two-agent reviewer ensemble. **`after_*` hooks are dropped** (B5 invalidated the enforcement claim); they are **not replaced** — preflight makes no author-time enforcement claim in this ADR.
+- **Extension** (`extensions/preflight/`) — registers `/speckit.preflight.review`, ships the 48-rule set, carries the two-agent reviewer ensemble. **`after_*` hooks will be removed from `extensions/preflight/extension.yml` as part of this ADR's implementation** (B5 invalidated the enforcement claim); they will **not be replaced** — preflight makes no author-time enforcement claim in this ADR. This ADR is docs-only; the hook removal is tracked as Acceptance criterion #1 and lands in a follow-up PR.
 
 Review is invoked **on demand**: user or any orchestrator calls `/speckit.preflight.review`. The extension remains useful standalone.
 
@@ -98,7 +98,7 @@ Documented for the future ADR; none selected here:
 - **Good**, because no pre-1.0 framework-glue dependency is added. Pass 5 rate-of-change preference honored.
 - **Good**, because Stream A is unblocked on the actual topology question. Spike 2 can proceed knowing the surface.
 - **Good**, because the extension remains useful standalone for on-demand review.
-- **Neutral**, because PAI-specific `speckit.tasks` / `speckit.implement` redirects are removed from preflight's preset as part of this ADR's implementation — preflight must work without PAI. PAI-side wiring is filed separately in `pai-source`.
+- **Neutral**, because PAI-specific `speckit.tasks` / `speckit.implement` redirects **will be removed** from `presets/preflight/preset.yml` as part of this ADR's implementation — preflight must work without PAI. PAI-side wiring is filed separately in `pai-source`. Tracked as Acceptance criterion #3; removal lands in a follow-up PR (this ADR is docs-only).
 - **Neutral**, because "multi-agent reach via `CommandRegistrar`" is available through the extension but not a cited user requirement.
 - **Bad**, because preflight explicitly relaxes author-time enforcement as a near-term claim. Review happens if and only if the user or orchestrator invokes it. "Every doc gets reviewed" is no longer an automatic outcome.
 - **Bad**, because the enforcement-orchestration question requires a follow-on ADR plus research. Spike 2 may run into enforcement-shape questions before that ADR exists; those conversations feed into the orchestration research rather than blocking on it.
@@ -136,7 +136,7 @@ ADR-009 moves from Proposed to Accepted when:
 
 ### Resolved during ADR review
 
-- **PAI-specific `speckit.tasks` / `speckit.implement` redirect placement** — out of scope for preflight. Filed in `pai-source` repo for PAI-side wiring. Existing redirects removed from preflight's preset as part of this ADR's implementation.
+- **PAI-specific `speckit.tasks` / `speckit.implement` redirect placement** — out of scope for preflight. Filed in `pai-source` repo for PAI-side wiring. Existing redirects will be removed from preflight's preset as part of this ADR's implementation (follow-up PR per Acceptance criterion #3).
 - **Workflow distribution mechanism** — `specify workflow add` already exists in spec-kit v0.8.0 (`src/specify_cli/__init__.py:4854-4900`). Not an open question. Relevant only to the future orchestration ADR.
 - **B4 pin-widening** — no workflow adoption under this ADR, so the current pin `>=0.6.2,<0.7.0` on preset + extension can stay. If other reasons to widen arise, decide independently.
 - **Issue #31 (auto-commit)** — deferred to the future orchestration ADR. Not resolved by ADR-009.
