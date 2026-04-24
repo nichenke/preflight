@@ -22,6 +22,23 @@ Two earlier drafts of this ADR (committed as c02b5c1, 83f6e6d on this branch) tr
 
 This ADR separates those decisions. It ratifies the **topology** (which surfaces carry which artifacts) and **explicitly defers enforcement orchestration** to a future ADR informed by on-the-loop orchestration pattern research. Author-time blocking as a preflight-owned capability is relaxed as a near-term goal.
 
+### Scope change — record explicitly
+
+ADR-007 grounded preflight's purpose in *preventing forgotten updates*: author-time blocking against typed spec grammar with FR/NFR/ADR ID traceability, rejecting manual/advisory paths because they reproduce the original failure mode. **Option E narrows that scope in the near term.**
+
+**What preflight claims under ADR-009 (Option E):**
+
+- Preflight ships a **versioned, testable review artifact surface** — 48 rules, two-reviewer ensemble, registered `/speckit.preflight.review` command, 7 doc-type templates — distributed via spec-kit's preset + extension mechanisms.
+- Review is **reachable on demand**: any user, orchestrator, CI step, or agent loop that can invoke a spec-kit command can run the review.
+- Review output is a **structured finding set with rule IDs, severities, and fix suggestions** — consumable by humans and by downstream tooling that chooses to act on it.
+
+**What preflight does *not* claim under ADR-009:**
+
+- Preflight does **not** guarantee every document gets reviewed before commit, PR, merge, or any other author-time gate. That guarantee requires an enforcement-orchestration decision this ADR defers.
+- Preflight does **not** claim author-time blocking against review findings. Orchestrators may choose to block on review verdict; preflight itself does not enforce that choice.
+
+The original ADR-007 value proposition ("prevent forgotten updates") is **preserved in intent** for the future orchestration ADR, which is expected to pick the mechanism that delivers author-time enforcement. ADR-009 does not abandon the goal; it sequences the decision.
+
 ## Decision Drivers
 
 - **Artifact hygiene** — large rule sets, multi-agent reviewer prompts, and reusable commands are expressed as first-class versioned artifacts in a distribution surface, not inline strings in workflow YAML.
@@ -39,7 +56,7 @@ This ADR separates those decisions. It ratifies the **topology** (which surfaces
 
 **"Accept advisory" was off the shortlist** per earlier direction — B5 established hooks are advisory-by-design; adopting "advisory" as the topology renames the problem without resolving it.
 
-**Ruled out from prior-pass research** (not re-evaluated): docguard-integrated composition (vendor lock-in), portable rule-core with adapters (extraction cost unjustified), multi-adapter rulepack (violates rate-of-change).
+**Ruled out from prior-pass research** (not re-evaluated; see `docs/analysis/2026-04-13-speckit-composition-topologies.md` for the original A–E decomposition): docguard-integrated composition (vendor lock-in), portable rule-core with adapters (extraction cost unjustified), multi-adapter rulepack (violates rate-of-change).
 
 ## Decision Outcome
 
@@ -70,7 +87,7 @@ Documented for the future ADR; none selected here:
 
 - Workflow-engine Gate steps (spec-kit's designated primitive; mechanism-level questions captured in `docs/analysis/2026-04-24-speckit-workflow-engine-mechanism.md`)
 - Pre-hook relocation (existing, non-designated)
-- Upstream `blocking: true` on hooks if [#2104](https://github.com/github/spec-kit/issues/2104) lands
+- Upstream `blocking: true` on hooks **— contingent on spec-kit [#2104](https://github.com/github/spec-kit/issues/2104) landing a behavior change; currently a feature request against an advisory-by-design surface, not a viable option today**
 - CI-driven review (run `/speckit.preflight.review` in a GitHub Action or equivalent)
 - Agent-driven loop (host agent invokes review as part of its own workflow)
 - Future on-the-loop orchestration runtimes (Claude Code subagent patterns, other)
@@ -100,18 +117,18 @@ ADR-009 moves from Proposed to Accepted when:
 1. **`after_*` hooks are removed from `extensions/preflight/extension.yml`.** The enforcement claim they encoded is retired in writing.
 2. **Existing preset + extension artifacts remain installable and usable.** `/speckit.preflight.review` continues to work on-demand; 48 rules continue to load; two-agent reviewer ensemble continues to run.
 3. **PAI-specific redirects removed from the preset.** Separate issue filed in `pai-source` for PAI-side wiring.
-4. **Research doc §6 corrected** for `specify workflow add` existence (flagged by adversarial review; material to any future orchestration ADR).
+4. **Constitution + requirements rewrite PRs are opened (not necessarily landed)** carrying the on-demand-review + no-enforcement-claim stance into the authoritative governance docs. This closes the "stale principles in force while ADR declares governance closure" gap the adversarial review flagged.
 
 **Relationship to ADR-007 gate #3:** closes on this ADR moving to Proposed — "an integration topology is selected in writing" is satisfied by written selection regardless of whether enforcement orchestration has been picked. The separation of topology from enforcement is the substance of ADR-009's contribution.
 
-**Relationship to Stream A Spike 2:** unblocked by Proposed state. Spike 2 builds on preset + extension as the topology; enforcement-shape questions Spike 2 surfaces become inputs to the future orchestration ADR.
+**Relationship to Stream A Spike 2:** unblocked *on the topology question* by Proposed state. Spike 2 builds on preset + extension as the chosen distribution topology. **Interim review invocation for Spike 2: manual `/speckit.preflight.review` calls** — not a pre-committed orchestration choice, just the baseline on-demand path preflight now provides. If Spike 2 surfaces enforcement-shape blockers (e.g., "review must fire automatically at this point"), those become inputs to the future orchestration ADR rather than triggering an ADR-009 re-open; Spike 2 is constrained to work that does *not* depend on enforcement automation existing. ADR-007's acceptance criterion ("no mechanism outside what this ADR describes is required to make the spike work") is honored by this scoping: Spike 2 runs against the topology ADR-009 describes (preset + extension, on-demand review), not against an implied future orchestration mechanism.
 
-### Tripwire — on v0.9.0 release OR 2026-06-13, whichever first
+### Tripwire — on v0.9.0 release OR 2026-06-11, whichever first
 
 - **Workflow engine API shape changes** — tracked for the future orchestration ADR, not for this one
 - **Community workflow catalog growth** — signal for orchestration pattern maturity
 - **`auto_run` / `blocking: true` on hooks** — if [#2104](https://github.com/github/spec-kit/issues/2104) lands, reopens pre-hook as an enforcement candidate
-- **Industry on-the-loop orchestration patterns** — literature and framework review (per `rule-design.md`); prerequisite for the orchestration ADR
+- **Industry on-the-loop orchestration patterns** — concrete deliverable: one research doc surveying gate/review/enforcement patterns across the six reference frameworks named in `.claude/rules/rule-design.md` (spec-kit, BMAD, GSD, Superpowers, OpenSpec, Gas Town). Owner: Nic. Target: landed before Spike 2 exits or before the orchestration ADR opens, whichever first. Prevents this prerequisite from becoming an indefinite deferral (the failure mode named in the premortem).
 
 ## Scope and follow-ups
 
@@ -127,7 +144,7 @@ ADR-009 moves from Proposed to Accepted when:
 1. **ADR-010 (or later): Enforcement orchestration.** Opens after industry on-the-loop orchestration pattern analysis is complete. Candidate set already documented above.
 2. **Constitution amendment.** The constitution rewrite currently in progress should add a principle: *"preflight provides review artifacts and on-demand invocation; enforcement orchestration is the user's or orchestrator's choice."* See Governance notes.
 3. **Requirements refresh.** The requirements.md rewrite (already flagged as needed) should reflect on-demand review as the primary invocation mode.
-4. **Mechanism research doc §6 correction.** Update to reflect `specify workflow add` existence.
+4. **Mechanism research doc §6 correction.** Already applied in commit `ace605b`; reflects `specify workflow add` existence. Kept in follow-ups as process hygiene record, not a topology-decision gate.
 
 ## Governance notes
 
@@ -136,9 +153,10 @@ ADR-009 moves from Proposed to Accepted when:
 - **CONST-PROC-01** applies to preset and extension version bumps in lock-step (already project practice per CLAUDE.md).
 - **CONST-QA-01 through CONST-QA-05** remain stale (plugin-era refs; already flagged). Option E does not require new quality gates; the existing preset/extension structure validation continues to apply.
 - **CONST-CI-01** (git = canonical source) and **CONST-CI-03** (rule IDs stable) remain valid and respected.
+- **CONST-CI-02** (template location, updated 2026-04-14 to `presets/preflight/templates/`) remains flagged stale pending the constitution rewrite (per CLAUDE.md); preset template location is correctly reflected in current practice.
 - **CONST-PROC-02** (behavioral changes require ADR): this ADR is itself the governance artifact for the enforcement-stance change.
 - **ADR-003's plugin quality gates** (CONST-QA-03/-04/-05) were framed in plugin-era terms. Follow-up: either re-express for extension form in the future orchestration ADR, or accept as permanently stale once the constitution rewrite lands.
-- **Pass 5 rate-of-change preference** — *honored* by this ADR. The prior composite-direction drafts overrode it; Option E does not.
+- **Pass 5 rate-of-change preference** — *honored by this ADR relative to Option 2 (composite)*. Narrowly: Option E adds no new pre-1.0 framework-glue dependency, which is what pass 5's "prefer content over plumbing" heuristic calls for. Broadly: preflight still carries ongoing spec-kit version tracking (`speckit-upstream-tracking.md`) and preset/extension version bumps per CLAUDE.md lock-step — rate-of-change isn't zero for the project. The honored claim is against the incremental cost this ADR would have added, not against the project-wide baseline.
 
 ## Pros and Cons of the Options
 

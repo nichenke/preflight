@@ -1,9 +1,9 @@
 ---
-status: draft
+status: reference
 date: 2026-04-24
 type: analysis
 owner: nic
-supports: ADR-009
+supports: future enforcement-orchestration ADR (informed by ADR-009 Option E deferral)
 ---
 
 # Spec-kit workflow engine mechanism — research for the future orchestration ADR
@@ -193,29 +193,23 @@ Note what the bundled workflow does **not** do:
 
 **Implication:** the bundled workflow is a valid structural template for Gate-based approval, but it doesn't answer preflight's specific review-shaped needs.
 
-## 9. Candidate orchestration sketch — workflow-gate
+## 9. Candidate orchestration sketches
 
-An earlier draft of ADR-009 proposed a workflow-gate composition with this shape; retained here as **one candidate's design sketch** for the future orchestration ADR to consider, *not* as a preflight commitment:
+Under ADR-009 Option E, multiple enforcement orchestrations remain candidates. Each deserves equal treatment; this section intentionally keeps sketches short and balanced so the research doc does not bias the future orchestration ADR toward any one candidate.
 
-```
-specify (CommandStep)                → /speckit.specify
-preflight-review-spec (CommandStep)  → /speckit.preflight.review  [OPEN: dispatch concern]
-gate-spec (Gate)                     → message + [approve|reject], on_reject: abort
-plan (CommandStep)                   → /speckit.plan
-preflight-review-plan (CommandStep)  → /speckit.preflight.review  [OPEN: dispatch concern]
-gate-plan (Gate)                     → message + [approve|reject], on_reject: abort
-tasks (CommandStep)                  → /speckit.tasks
-implement (CommandStep)              → /speckit.implement
-[optional] commit (PromptStep)       → "commit these changes"       [OPEN: permission/verification]
-```
+**Workflow-gate** — commands-plus-gates in a spec-kit workflow; dispatched via `specify workflow run`. Open concerns: namespaced command dispatch (§ 3), PromptStep permission surface (§ 4), output handoff to Gate (§ 4). Installed via `specify workflow add` (§ 6).
 
-Open questions for this candidate:
+**Pre-hook relocation** — review runs on `before_*` hooks in the existing extension. Open concerns: per-agent compliance ([#2149](https://github.com/github/spec-kit/issues/2149), [#2178](https://github.com/github/spec-kit/issues/2178)); pre-hook is stable but upstream non-designated surface going forward.
 
-- Review command dispatch — § 3 (CommandStep dispatch concern on namespaced names)
-- Review output surfacing — § 4 concern 2 (PromptStep output capture, CommandStep stdout, or file-based handoff via Gate `show_file`)
-- Auto-commit via PromptStep — § 4 concern 1 (permission surface) + concern 2 (verification)
+**Upstream `blocking: true` on hooks** — only viable if spec-kit [#2104](https://github.com/github/spec-kit/issues/2104) is accepted and the behavior ships. Currently a feature request against an advisory-by-design surface; not a present option.
 
-These questions should be resolved by the orchestration-mechanism research that precedes any future orchestration ADR — not by preflight alone, because they depend on broader on-the-loop agent-orchestration patterns (subprocess vs subagent, permission surfaces, output capture conventions) that extend beyond spec-kit.
+**CI-driven review** — `/speckit.preflight.review` invoked from GitHub Actions or equivalent, blocking merge on findings. Open concerns: round-trip latency; GitHub Action cost; doesn't catch issues until PR time.
+
+**Agent-driven loop** — the host agent invokes review as part of its own workflow (explicit instruction in CLAUDE.md, skill, or agent prompt). Open concerns: depends on prompt-obedience; per-agent behavior variance.
+
+**Future on-the-loop runtimes** — Claude Code subagent patterns, external orchestration frameworks, or new spec-kit primitives not yet shipped. Open concerns: doesn't exist yet; included as a placeholder for continued ecosystem watch.
+
+Each candidate carries its own mechanism-level questions. The workflow-gate candidate happens to have the most prior spec-kit source investigation (§§ 2–8); that reflects where preflight's research has gone, not a tacit preference. The future orchestration ADR should extend equivalent investigation to the other candidates before picking.
 
 ## 10. Open orchestration-research questions (future ADR prerequisite)
 
