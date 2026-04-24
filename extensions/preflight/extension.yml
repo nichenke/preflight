@@ -3,8 +3,8 @@ schema_version: "1.0"
 extension:
   id: "preflight"
   name: "Preflight — rule-based document review"
-  version: "0.7.0.dev1"
-  description: "Runs preflight's curated rule set against spec.md and plan.md via after_specify / after_plan hooks. Rules loaded as prompt context; findings reported by severity with stable rule IDs."
+  version: "0.7.0.dev2"
+  description: "Runs preflight's curated rule set against spec.md or plan.md on demand via /speckit.preflight.review. Rules loaded as prompt context; findings reported by severity with stable rule IDs."
   author: "nichenke"
   repository: "https://github.com/nichenke/preflight"
   license: "MIT"
@@ -19,16 +19,6 @@ provides:
       file: "commands/speckit.preflight.review.md"
       description: "Review the active feature's spec.md or plan.md against preflight's rule set"
       aliases: ["preflight.review"]
-
-hooks:
-  after_specify:
-    command: "speckit.preflight.review"
-    optional: false
-    description: "Run preflight rule-based review on spec.md after /speckit.specify"
-  after_plan:
-    command: "speckit.preflight.review"
-    optional: false
-    description: "Run preflight rule-based review on plan.md after /speckit.plan"
 
 tags:
   - "preflight"
