@@ -355,7 +355,7 @@ Phase 1 exit criteria (install cleanly, templates resolve, review command invoca
 - [ ] Decide distribution: lives in preflight repo vs separate `preflight-preset` repo
 - [ ] Build the preflight CLI wrapper if it didn't exist (review-engine entry point)
 - [ ] Version bump plugin.json v0.6.x → v0.7.0
-- [ ] Submit upstream contribution to spec-kit's extension RFC discussion: blocking hooks via exit code propagation
+- [ ] ~~Submit upstream contribution to spec-kit's extension RFC discussion: blocking hooks via exit code propagation~~ (withdrawn 2026-04-22 per Stream B B5 finding — blocking-hook semantics are not on upstream's roadmap; enforcement primitive going forward is the workflow engine's Gate step. If engaging upstream, comment on issue #2104 instead. See `docs/analysis/2026-04-22-speckit-hook-philosophy.md`.)
 
 ### If standalone Path A wins
 
@@ -485,8 +485,8 @@ These block phase 1 and must be answered in phase 0.
 - **If Topology C is picked**: add a Phase 0.5 "substrate-neutral core extraction audit" task before Phase 1; update Phase 1 to build two adapters instead of one preset; keep Phase 4 multi-agent test as load-bearing validation.
 - **If Topology E is picked**: delete Phases 1, 2, and 4 of this plan; keep Phase 3 (PAI brownfield sanity check) and promote ADR-007 under the original Path A plan with no preset work at all.
 - **If Topologies B or D are picked**: Phase 1–4 need significant rewriting; flag as a plan-level change.
-- **Status**: **answered 2026-04-14** — **Topology A selected**
-- **Answer**: **Topology A — preflight becomes a spec-kit extension.** Rationale (from nic via Notion): "want to see what it's like living directly in the ecosystem rather than dipping our toes and missing something. The cleanest future solution if we don't care about BMAD, OpenSpec, etc — and we don't, for now."
+- **Status**: **answered 2026-04-14, REOPENED 2026-04-22** — original "Topology A selected" answer below is **superseded** by the Stream B B5 finding (verdict β: `after_*` hooks are advisory by design, not a bug). Topology A's enforcement-via-hooks claim does not survive; the integration topology is now an open question tracked in ADR-007 "Integration topology". See `../analysis/2026-04-22-speckit-hook-philosophy.md` and `../analysis/speckit-upstream-tracking.md` for current framing. The Phase 1 scaffold described below (preset + extension + `after_*` hooks) still stands as the *current* install shape — it just is not the enforcement mechanism the selection assumed. Selection of the successor topology is a Confirmation gate before Spike 2 commits code per ADR-007.
+- **Answer (superseded 2026-04-22)**: **Topology A — preflight becomes a spec-kit extension.** Rationale (from nic via Notion): "want to see what it's like living directly in the ecosystem rather than dipping our toes and missing something. The cleanest future solution if we don't care about BMAD, OpenSpec, etc — and we don't, for now."
 
   **Scope narrowing for the initial spike** (refined 2026-04-14 from Notion comments):
   - ✅ **Include** `archive` extension (`stn1slv/spec-kit-archive`) — 1 command, isolated, maps directly to ADR-007's ratification step. Compose as a peer, not a dependency. Install + call its command at ship time. Near-zero composition cost.
@@ -515,13 +515,13 @@ Append findings here as spikes complete. Each entry: phase, date, finding, actio
 
 **How discovered**: ran `/speckit.specify` in the test project after setting `optional: false` on preflight's `after_specify` / `after_plan` hooks. Spec-kit correctly emitted "Automatic Hook: preflight / EXECUTE_COMMAND: speckit.preflight.review" but Claude Code stopped after printing it. Traced to missing "Wait for the result" instruction in `templates/commands/specify.md:257-264`.
 
-**Full analysis**: [`docs/analysis/2026-04-14-speckit-after-hook-execution-bug.md`](../analysis/2026-04-14-speckit-after-hook-execution-bug.md) — includes reproduction, root cause in prompt template, upstream patch diff, impact assessment.
+**Full analysis (current)**: [`docs/analysis/2026-04-22-speckit-hook-philosophy.md`](../analysis/2026-04-22-speckit-hook-philosophy.md) — Stream B B5 classification reframes this finding as **(β) intentional advisory design**, not a bug. (The earlier "bug" analysis at `docs/analysis/2026-04-14-speckit-after-hook-execution-bug.md` was deleted 2026-04-22; see git log for the original text.)
 
-**Action implication**:
-1. **Workaround for Phase 2 spike 1**: manually invoke `/speckit.preflight.review` after `/speckit.specify` and `/speckit.plan`. Acceptable for validating ensemble dispatch and review content; auto-fire mechanism is orthogonal.
-2. **Upstream PR** to `github/spec-kit` (deferred from Phase 6, moved up): patches all 9 templates + `extensions.py:2456` Pre-Hook / Post-Hook label distinction. File issue + PR as first preflight contribution to spec-kit ecosystem. This is the research arc's Q1 / "has blocking hooks shipped?" question answered with a concrete upstream fix preflight is uniquely positioned to propose.
-3. **Q1 framing update**: spec-kit's `optional: false` IS the "blocking hooks" mechanism the research asked about, but only the before-hook half works. Post-fix, it will fully work. Preflight's Topology A enforcement-via-hooks claim is valid pending the upstream fix.
-4. **Exception to "no upstream contributions during spikes"**: this specific bug blocks validation of preflight's after-hook enforcement and is small enough to land in parallel with Phase 2. Granted as an exception. Filed as [preflight issue #25](https://github.com/nichenke/preflight/issues/25) for analysis review before upstream filing.
+**Action implication** (updated 2026-04-22 per B5):
+1. **Workaround for Phase 2 spike 1**: manually invoke `/speckit.preflight.review` after `/speckit.specify` and `/speckit.plan`. Unchanged — still the right workaround, now understood as the *expected* interaction pattern under advisory hook semantics, not a temporary mitigation for a bug.
+2. ~~**Upstream PR** to `github/spec-kit`...~~ **Withdrawn 2026-04-22.** The behavior is intentional upstream design (evidence: `src/specify_cli/extensions.py:2509` explicitly delegates execution to the host AI agent; issue #2104 is an OPEN feature request asking for `auto_run: true`; issue #2279 was closed "not a bug" by maintainer). Filing a patch would be closed as duplicate or rejected on design grounds. If preflight engages upstream, comment on #2104 instead.
+3. **Q1 framing update (superseded)**: the original claim that `optional: false` is the "blocking hooks" mechanism the research asked about is wrong. Spec-kit's designated enforcement primitive is the workflow engine's Gate step (PR #2158, v0.7.0+), on a different integration surface than hooks. Preflight's hook-extension composition cannot enforce author-time review — the integration-topology question is reopened in ADR-007's "Integration topology" section.
+4. ~~**Exception to "no upstream contributions during spikes"**...~~ **Moot.** No upstream patch is being filed. Issue #25 remains in preflight's tracker as the local record of the investigation; it does not require upstream filing.
 
 ### Phase 1 — 2026-04-14 — ensemble dispatch validated on first manual review
 

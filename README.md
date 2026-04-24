@@ -2,7 +2,7 @@
 
 A [spec-kit](https://github.com/github/spec-kit) preset and extension for spec-driven development. Ships curated doc-type templates, a 48-rule review rule set, and a two-agent review ensemble that hooks into spec-kit's lifecycle.
 
-> **Note.** Preflight is currently in a validation spike (ADR-007, Topology A). It was previously distributed as a Claude Code plugin — the conversion to a spec-kit extension is in progress. See `docs/spikes/SPIKE_PLAN.md` for status.
+> **Note.** Preflight is currently in a validation spike for ADR-007 (feature-folder lifecycle). It was previously distributed as a Claude Code plugin — the conversion to a spec-kit extension is in progress, and the integration-topology question (how preflight composes with spec-kit — hook-extension vs workflow-gate vs hybrid) is currently reopened per Stream B's 2026-04-22 B5 finding. See `docs/spikes/SPIKE_PLAN.md` for status and ADR-007 "Integration topology" for the reopen.
 
 ## What you get
 
@@ -45,7 +45,7 @@ The preset and extension install into `.specify/presets/preflight/` and `.specif
 /speckit.archive <feature>          # ratify the feature folder (via archive extension)
 ```
 
-> **⚠ Manual invocation required (upstream bug).** Preflight declares `after_specify` and `after_plan` hooks with `optional: false`, intending the review ensemble to auto-fire after each scaffold command. Spec-kit's command templates currently ship with an asymmetric hook-execution bug: `before_*` mandatory hooks auto-execute, but `after_*` mandatory hooks emit an `EXECUTE_COMMAND` directive without the "Wait for the result" sequencing instruction, so host agents (Claude Code) print the directive as informational text and stop. Until this is fixed upstream, **manually invoke `/speckit.preflight.review` after each `/speckit.specify` and `/speckit.plan`**. Full analysis and the upstream patch are at `docs/analysis/2026-04-14-speckit-after-hook-execution-bug.md`; tracked as [preflight issue #25](https://github.com/nichenke/preflight/issues/25).
+> **⚠ Manual invocation required.** Preflight declares `after_specify` and `after_plan` hooks with `optional: false`. Spec-kit's `after_*` hooks are **advisory by upstream design** — `optional: false` only guarantees an `EXECUTE_COMMAND:` marker is rendered; execution is delegated to the host AI agent (per `src/specify_cli/extensions.py:2509`), and host agents typically treat the marker as informational and stop. This is intentional, not a bug (see `docs/analysis/2026-04-22-speckit-hook-philosophy.md`). Until preflight migrates to a composition pattern with real enforcement (spec-kit workflow + Gate steps, or pre-hook relocation — ADR-007 "Integration topology" tracks the decision), **manually invoke `/speckit.preflight.review` after each `/speckit.specify` and `/speckit.plan`**. Tracked as [preflight issue #25](https://github.com/nichenke/preflight/issues/25).
 
 ## Doc types
 
