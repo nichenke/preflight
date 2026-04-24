@@ -113,9 +113,13 @@ Spec-kit's `create-new-feature.sh` creates feature branches in place via `git ch
 - **Bad**, because the shape is not compatible with other frameworks' folder conventions (openspec, spec-kit, BMAD). Cross-tool portability is explicitly not a goal per pass 4 — accepted.
 - **Neutral**, because this adopts openspec's apply/archive pattern for one surface (`requirements.md` and `architecture.md` inside feature folders) without adopting openspec as substrate. A small, legible format borrow consistent with pass 4's task.md guidance.
 
-## Integration topology (open question)
+## Integration topology (resolved — see ADR-009)
 
-The *lifecycle shape* decided above is topology-independent. Where preflight lives in the ecosystem — the integration pattern — is a separate, currently **open** question as of 2026-04-22: the Stream B B5 investigation (`docs/analysis/2026-04-22-speckit-hook-philosophy.md`) established that spec-kit's `after_*` hooks are intentional advisory design, invalidating the assumption that preflight's hooks would enforce review automatically. The lifecycle shape and the path reconciliation (`.specify/memory/constitution.md`; `specs/<NNN-slug>/`) above are unaffected — both hold under any integration pattern.
+The *lifecycle shape* decided above is topology-independent. Where preflight lives in the ecosystem — the integration pattern — was opened as a separate question on 2026-04-22 following the Stream B B5 investigation (`docs/analysis/2026-04-22-speckit-hook-philosophy.md`), which established that spec-kit's `after_*` hooks are intentional advisory design and invalidated the assumption that preflight's hooks would enforce review automatically. The lifecycle shape and the path reconciliation (`.specify/memory/constitution.md`; `specs/<NNN-slug>/`) hold under any integration pattern and were not reopened by B5.
+
+**Resolved 2026-04-24 by ADR-009 (Option E):** preflight adopts **preset + extension** as its distribution topology; enforcement orchestration is explicitly deferred to a follow-on ADR pending on-the-loop orchestration pattern research. See ADR-009 for the full decision and candidate-orchestration analysis.
+
+The taxonomy below and the candidate ordering that followed are retained as the pre-resolution framing that led to ADR-009 — *not* a currently-active preference ranking. ADR-009 explicitly decided against picking an enforcement mechanism at this point.
 
 ### Topology taxonomy
 
@@ -131,14 +135,14 @@ Use descriptive names from 2026-04-22 onward. The older "Topology A / B / C / D 
 | **multi-adapter rulepack** | Topology D | Rule-core scaled to 3+ adapters. Dropped — violates rate-of-change principle. |
 | **preflight-native (no spec-kit)** | Topology E | Ship preflight as a standalone tool; treat docguard / archive / ci-guard as prior art only. |
 
-### Candidate integrations (in current preference order)
+### Candidate integrations (pre-resolution framing — superseded by ADR-009)
 
 1. **Workflow-gate composition (preferred).** First-class enforcement via the workflow engine's Gate step (`Gate.on_reject = abort/retry`, `RunStatus.PAUSED`). Preflight ships a bundled workflow wrapping `/speckit.specify` → `Gate: /speckit.preflight.review` → `/speckit.plan` → `Gate: /speckit.preflight.review` → `/speckit.tasks`. Cost: workflow authoring lives on a different surface than `extensions.yml`; the existing extension can coexist (owning templates + commands) or be absorbed.
 2. **Pre-hook relocation.** Move review from `after_specify` / `after_plan` to `before_plan` / `before_tasks` / `before_implement`. Pre-hooks carry "Wait for the result" directives and are treated as enforcement by upstream (per B5's survey of [spec-kit#2149](https://github.com/github/spec-kit/issues/2149) and [spec-kit#2178](https://github.com/github/spec-kit/issues/2178), both closed as per-agent bugs-to-fix when pre-hook execution failed). "Review before planning" is arguably more useful than "review after specifying" for the user's mental model. Risk: per-agent compliance is imperfect (Cursor and older Claude Code versions are known-flaky).
 3. **Accept advisory semantics.** Keep hook-extension composition; ship `after_*` as `optional: true` with strong prompts and manual invocation. Lowest friction; weakest enforcement. What most existing spec-kit extensions do today.
 4. **Upstream proposal.** Comment on [spec-kit#2104](https://github.com/github/spec-kit/issues/2104) advocating for `auto_run: true` or `blocking: true`. Long-horizon only; do not make preflight's near-term ship depend on it.
 
-Hybrids (e.g. workflow-gate for ratification plus pre-hook relocation for in-stage enforcement) are explicitly permitted and are probably where the evaluation lands. Spike 2 (tack-room launcher), as previously scoped, implicitly assumed hook-extension composition and must pause for topology selection before committing engineering.
+Hybrids (e.g. workflow-gate for ratification plus pre-hook relocation for in-stage enforcement) were explicitly permitted in the pre-resolution framing and were considered a probable landing spot. **ADR-009 superseded this ranking** by deferring enforcement-mechanism selection entirely; Spike 2 is unblocked and proceeds with manual `/speckit.preflight.review` invocation as the interim review pattern (see ADR-009 § Relationship to Stream A Spike 2).
 
 ## Confirmation
 
@@ -154,7 +158,7 @@ Acceptance criteria for promoting this ADR to Accepted:
 
 - The small spike either succeeds as a feature folder or produces a clear rule for when Option A applies instead.
 - The large spike produces at least two plans, one mid-build revision, and one successful ratification PR.
-- No mechanism outside what this ADR describes is required to make either spike work. If new mechanism is needed, this ADR is revised before acceptance.
+- No new feature-folder-lifecycle mechanism beyond what this ADR describes is required to make either spike work. If Spike 1 or Spike 2 surfaces a feature-folder-lifecycle blocker, this ADR is revised before acceptance. Review invocation during Spike 2 is handled by manual `/speckit.preflight.review` calls — which is ADR-009's scope (preset + extension distribution topology with enforcement orchestration deferred to a future ADR), not ADR-007's, and does not constitute feature-folder-lifecycle mechanism. Enforcement-shape blockers Spike 2 surfaces route to the orchestration ADR, not to ADR-007 revision.
 - Reviewer experience (diff readability, review skill output on feature folders) is subjectively at least as clear as current main-editing flows.
 - An integration topology is selected in writing.
 
@@ -165,7 +169,7 @@ Refresh rate-of-change data, list actual frictions, re-evaluate deferred items. 
 - **OpenSpec pre-apply validator hooks** — if these ship, substrate-alternative Option B3 becomes more viable.
 - **OpenSpec rule-as-code DSL** — same.
 - **BMAD / GSD-2 rate-of-change** — watch for a viable composition target emerging from either.
-- **Spec-kit workflow engine maturation** — watch for workflow-surface API stability, Gate-step semantics changes, and community workflow-authored extensions as signal for adoption patterns. Relevant because workflow-gate composition is a candidate integration topology.
+- **Spec-kit workflow engine maturation** — watch for workflow-surface API stability, Gate-step semantics changes, and community workflow-authored extensions as signal for adoption patterns. Relevant because workflow-gate composition remains a candidate enforcement mechanism for the future orchestration ADR (per ADR-009).
 
 The previous "spec-kit `blocking: true` hook semantics" watch is **closed** per the B5 investigation. Upstream's position is established; no hook-blocking field is coming, and the workflow engine + Gate steps is spec-kit's chosen enforcement primitive going forward.
 
@@ -235,7 +239,7 @@ The previous "spec-kit `blocking: true` hook semantics" watch is **closed** per 
 - Bad, because spec-kit's preset template resolution is replace-based, not merge-based — a higher-priority preset installing later can silently override preflight's templates
 - Bad, because the same 40 content rules still live in preflight (no reduction in rule-engine scope)
 - Estimated weighted score: ~130–135/175. The strongest alternative to Path A as a pure preset-plus-hook integration, but still loses to Path A by ~25–30 points because enforcement is advisory, not blocking.
-- The viable path forward for preflight composing with spec-kit is **workflow-gate composition** (see "Integration topology" above), not B4 as originally framed. Workflows give first-class enforcement; hook extensions do not.
+- This bullet originally argued workflow-gate composition as the viable path forward. **Superseded by ADR-009:** the integration-topology question is resolved with **preset + extension** as the distribution topology and enforcement orchestration deferred to a follow-on ADR. Workflow-gate composition was one candidate considered during deferral; it was not ratified. See "Integration topology" above and ADR-009 for the current state.
 
 ## More Information
 
