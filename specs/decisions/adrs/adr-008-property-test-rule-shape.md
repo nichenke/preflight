@@ -1,5 +1,5 @@
 ---
-status: Proposed
+status: Accepted
 date: 2026-04-22
 deciders: nic
 consulted: claude-code (research agents across spec-kit, BMAD, GSD, Superpowers, OpenSpec, Gas Town)
