@@ -169,7 +169,7 @@ Refresh rate-of-change data, list actual frictions, re-evaluate deferred items. 
 - **OpenSpec pre-apply validator hooks** — if these ship, substrate-alternative Option B3 becomes more viable.
 - **OpenSpec rule-as-code DSL** — same.
 - **BMAD / GSD-2 rate-of-change** — watch for a viable composition target emerging from either.
-- **Spec-kit workflow engine maturation** — watch for workflow-surface API stability, Gate-step semantics changes, and community workflow-authored extensions as signal for adoption patterns. Relevant because workflow-gate composition is a candidate integration topology.
+- **Spec-kit workflow engine maturation** — watch for workflow-surface API stability, Gate-step semantics changes, and community workflow-authored extensions as signal for adoption patterns. Relevant because workflow-gate composition remains a candidate enforcement mechanism for the future orchestration ADR (per ADR-009).
 
 The previous "spec-kit `blocking: true` hook semantics" watch is **closed** per the B5 investigation. Upstream's position is established; no hook-blocking field is coming, and the workflow engine + Gate steps is spec-kit's chosen enforcement primitive going forward.
 
@@ -239,7 +239,7 @@ The previous "spec-kit `blocking: true` hook semantics" watch is **closed** per 
 - Bad, because spec-kit's preset template resolution is replace-based, not merge-based — a higher-priority preset installing later can silently override preflight's templates
 - Bad, because the same 40 content rules still live in preflight (no reduction in rule-engine scope)
 - Estimated weighted score: ~130–135/175. The strongest alternative to Path A as a pure preset-plus-hook integration, but still loses to Path A by ~25–30 points because enforcement is advisory, not blocking.
-- The viable path forward for preflight composing with spec-kit is **workflow-gate composition** (see "Integration topology" above), not B4 as originally framed. Workflows give first-class enforcement; hook extensions do not.
+- This bullet originally argued workflow-gate composition as the viable path forward. **Superseded by ADR-009:** the integration-topology question is resolved with **preset + extension** as the distribution topology and enforcement orchestration deferred to a follow-on ADR. Workflow-gate composition was one candidate considered during deferral; it was not ratified. See "Integration topology" above and ADR-009 for the current state.
 
 ## More Information
 
