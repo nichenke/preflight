@@ -117,11 +117,13 @@ ADR-009 moves from Proposed to Accepted when:
 1. **`after_*` hooks are removed from `extensions/preflight/extension.yml`.** The enforcement claim they encoded is retired in writing.
 2. **Existing preset + extension artifacts remain installable and usable.** `/speckit.preflight.review` continues to work on-demand; 48 rules continue to load; two-agent reviewer ensemble continues to run.
 3. **PAI-specific redirects removed from the preset.** Separate issue filed in `pai-source` for PAI-side wiring.
-4. **Constitution + requirements rewrite PRs are opened (not necessarily landed)** carrying the on-demand-review + no-enforcement-claim stance into the authoritative governance docs. This closes the "stale principles in force while ADR declares governance closure" gap the adversarial review flagged.
+4. **Constitution + requirements rewrite PRs are opened** carrying the on-demand-review + no-enforcement-claim stance into the authoritative governance docs. **Accepted state does not wait on those PRs merging** — this is an explicit compromise, not a governance-closure claim. ADR-009 is Accepted **with known governance drift**: stale CONST-QA-01..05 and ADR-003's plugin-era gates remain in force in `.specify/memory/constitution.md` and `specs/requirements.md` until the rewrite PRs land. This ADR takes precedence over stale articles where they conflict; reviewers and future ADRs resolve to ADR-009 when the documents disagree.
 
 **Relationship to ADR-007 gate #3:** closes on this ADR moving to Proposed — "an integration topology is selected in writing" is satisfied by written selection regardless of whether enforcement orchestration has been picked. The separation of topology from enforcement is the substance of ADR-009's contribution.
 
-**Relationship to Stream A Spike 2:** unblocked *on the topology question* by Proposed state. Spike 2 builds on preset + extension as the chosen distribution topology. **Interim review invocation for Spike 2: manual `/speckit.preflight.review` calls** — not a pre-committed orchestration choice, just the baseline on-demand path preflight now provides. If Spike 2 surfaces enforcement-shape blockers (e.g., "review must fire automatically at this point"), those become inputs to the future orchestration ADR rather than triggering an ADR-009 re-open; Spike 2 is constrained to work that does *not* depend on enforcement automation existing. ADR-007's acceptance criterion ("no mechanism outside what this ADR describes is required to make the spike work") is honored by this scoping: Spike 2 runs against the topology ADR-009 describes (preset + extension, on-demand review), not against an implied future orchestration mechanism.
+**Relationship to Stream A Spike 2:** unblocked *on the topology question* by Proposed state. Spike 2 builds on preset + extension as the chosen distribution topology. **Interim review invocation for Spike 2: manual `/speckit.preflight.review` calls** — not a pre-committed orchestration choice, just the baseline on-demand path preflight now provides. If Spike 2 surfaces enforcement-shape blockers (e.g., "review must fire automatically at this point"), those become inputs to the future orchestration ADR rather than triggering an ADR-009 re-open; Spike 2 is constrained to work that does *not* depend on enforcement automation existing.
+
+**Normative alignment with ADR-007:** rather than reinterpret ADR-007's "no mechanism outside what this ADR describes" clause (line 157), this PR **updates ADR-007** (which is itself Proposed, so revision is permitted under MADR rules) with an explicit clarification scoping that criterion to feature-folder-lifecycle mechanism. Under that clarification, Spike 2's manual review invocation is on-baseline for ADR-007 and does not constitute new mechanism. Enforcement-shape blockers surfaced by Spike 2 route to the orchestration ADR instead of triggering ADR-007 revision. The rule is normative, not asserted.
 
 ### Tripwire — on v0.9.0 release OR 2026-06-11, whichever first
 
@@ -214,7 +216,7 @@ ADR-009 moves from Proposed to Accepted when:
 
 - ADR-007 (feature folder lifecycle) — this ADR satisfies its Confirmation gate #3 by written selection
 - Issue [#31](https://github.com/nichenke/preflight/issues/31) — auto-commit, deferred to the future orchestration ADR
-- PR [#37](https://github.com/nichenke/preflight/pull/37), PR #38 — user signals informing framing
+- PR [#37](https://github.com/nichenke/preflight/pull/37), PR [#38](https://github.com/nichenke/preflight/pull/38) — user signals informing framing
 
 <!--
 Y-Statement:

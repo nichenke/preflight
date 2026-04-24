@@ -154,7 +154,7 @@ Acceptance criteria for promoting this ADR to Accepted:
 
 - The small spike either succeeds as a feature folder or produces a clear rule for when Option A applies instead.
 - The large spike produces at least two plans, one mid-build revision, and one successful ratification PR.
-- No mechanism outside what this ADR describes is required to make either spike work. If new mechanism is needed, this ADR is revised before acceptance.
+- No mechanism outside what this ADR describes is required to make either spike work. If new mechanism is needed, this ADR is revised before acceptance. *(Clarification added 2026-04-24 per ADR-009 Option E: this criterion concerns **feature-folder-lifecycle** mechanism — the scope of ADR-007. Enforcement orchestration for review invocation is scoped to ADR-009 and its follow-on orchestration ADR; Spike 2 uses manual `/speckit.preflight.review` invocation as the interim pattern, which does not constitute new mechanism for ADR-007's purposes. If Spike 2 surfaces a **feature-folder-lifecycle** blocker, the revision clause applies; enforcement-shape blockers route to the orchestration ADR instead of triggering ADR-007 revision.)*
 - Reviewer experience (diff readability, review skill output on feature folders) is subjectively at least as clear as current main-editing flows.
 - An integration topology is selected in writing.
 
