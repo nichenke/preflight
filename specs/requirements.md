@@ -14,7 +14,7 @@ stakeholders: []
 >
 > **What's probably still meaningful** (substrate-independent): FR-023, FR-024 (ADR impact propagation), FR-027 (requirement-ID traceability for behavioral fixes). Re-express in spec-kit form post-spike.
 >
-> **Explicitly NOT doing a mechanical path-only rewrite**: the semantics would still be wrong and the resulting file would be worse than honest staleness. Test-by-using will expose which requirements actually matter. Rewrite via ADR-008 after the spike, or reauthor entirely if ADR-007 is accepted.
+> **Explicitly NOT doing a mechanical path-only rewrite**: the semantics would still be wrong and the resulting file would be worse than honest staleness. Test-by-using will expose which requirements actually matter. Rewrite via a future requirements-amendment ADR after the spike (ADR-008 is now taken by the property-test rule shape decision), or reauthor entirely if ADR-007 is accepted.
 >
 > **Do not cite stale FRs in new work.** If you need a requirement ID for traceability, either use one flagged "probably still meaningful" above, or flag the gap explicitly and let PAI / the review command report it.
 

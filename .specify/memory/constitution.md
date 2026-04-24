@@ -20,7 +20,7 @@ amendment_adrs: [ADR-003]
 >
 > **CONST-CI-01**, **CONST-CI-03**, **CONST-PROC-02**, and **CONST-PROC-03** remain valid as-is.
 >
-> A full rewrite is tracked as a follow-up — either via ADR-008 (constitution amendment) if ADR-007 is accepted, or deferred until the spike outcome is known. Do not cite stale principles in new work.
+> A full rewrite is tracked as a follow-up — via a future constitution-amendment ADR (ADR-008 is now taken by the property-test rule shape decision) if ADR-007 is accepted, or deferred until the spike outcome is known. Do not cite stale principles in new work.
 
 > **📍 LOCATION (2026-04-15):** This constitution moved from `specs/constitution.md` to `.specify/memory/constitution.md` per ADR-007 (path reconciliation with spec-kit). The spec-kit native `/speckit-constitution` skill edits this file. Historical references in ADR-002, docs/analysis/*, docs/plans/*, and docs/specs/* preserve the old path as a historical fact.
 
