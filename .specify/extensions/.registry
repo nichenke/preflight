@@ -18,6 +18,21 @@
       },
       "registered_skills": [],
       "installed_at": "2026-04-16T03:09:11.748419+00:00"
+    },
+    "preflight": {
+      "version": "0.7.0.dev1",
+      "source": "local",
+      "manifest_hash": "sha256:07e98e56547ce2792762ea88048e4a7c4d6f5b777cbd9c723fdf3a9018f783da",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "claude": [
+          "speckit.preflight.review",
+          "preflight.review"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-04-23T20:47:00.757178+00:00"
     }
   }
 }

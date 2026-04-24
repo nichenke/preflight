@@ -9,6 +9,11 @@
 .specify/presets/preflight/
 .claude/skills/speckit-preflight-review/
 
+# spec-kit active-feature pointer — populated by /speckit.specify, pins
+# the worktree to one feature. Local-only; committing it would force all
+# branches to operate on whichever feature happened to be current.
+.specify/feature.json
+
 # Skill eval run artifacts
 skills/*-workspace/
 
@@ -16,3 +21,7 @@ skills/*-workspace/
 .venv/
 __pycache__/
 *.pyc
+
+# Research cache — cloned peer-framework repos for rule-design research
+# (see .claude/rules/rule-design.md). Local-only; do not commit.
+cache/
