@@ -2,7 +2,7 @@
 
 **Status:** living doc — updated per upstream release, not batched.
 **Baseline:** preflight was validated against spec-kit **v0.6.2** (pin: `">=0.6.2,<0.7.0"`).
-**Current upstream HEAD:** v0.8.0 as of 2026-04-24.
+**Current upstream HEAD:** v0.8.0 as of 2026-04-24 (B2-follow-up executed against v0.8.0, same day).
 **Scope:** classify each release since v0.6.2 against preflight's 6 outcomes.
 
 Preflight classifies each upstream release against preflight outcomes rather than deciding "bump vs pin" — the question per release is *how do we absorb each change, and is any of it a hard blocker?* The current install pin (`>=0.6.2,<0.7.0` in `presets/preflight/preset.yml` and `extensions/preflight/extension.yml`) is behind the v0.7.x classifications below; the pin widens in B4 as adaptation PRs land.
@@ -144,7 +144,7 @@ Evidence sources below are all independently verifiable: upstream PR numbers (fu
 
 | Change | Classification | Notes |
 |--------|---------------|-------|
-| Preset wrap strategy (#2189) | **(ii) implementation-adjust** (f) — provisional | Enables preset composition where a downstream preset wraps an upstream one. Preflight's preset currently installs at default priority 10 with no composition strategy declared — existing behavior preserved. Potential opportunity: preflight preset could declare `compose: wrap` to play nicer with community presets. `needs-B2-follow-up` against v0.7.5+ install. |
+| Preset wrap strategy (#2189) | **(ii) implementation-adjust** (f) — opportunity, not required; B2-follow-up: 2026-04-24 | B2-follow-up against v0.8.0 (superset of v0.7.5) confirmed: `strategy` is a **per-template field** on preset entries in `presets.py` (`VALID_PRESET_STRATEGIES = {"replace", "prepend", "append", "wrap"}`), defaults to `"replace"`. Preflight's preset installs cleanly without declaring `strategy` — default `replace` preserves v0.7.x priority-based behavior. Opt-in to `strategy: "wrap"` on `speckit.tasks`/`speckit.implement` would let preflight compose with upstream defaults instead of fully replacing; opportunity flagged for ADR-007 topology evaluation. |
 | Directory-traversal block in command write paths (#2296) | **(i) no-impact**; reclassified: 2026-04-24 (B2) | Security hardening — blocks extensions from writing outside their owned paths. Verified all preflight reviewer rule + agent + command files live under `extensions/preflight/` with no `..` path components. Previous placement of #2296 under v0.7.4 was incorrect; `git tag --contains 569d18a` confirms first release is v0.7.5. |
 | `specify self check` / `self upgrade` stub (#2316) | (i) no-impact | CLI self-management subcommand. Does not affect preset/extension contract. |
 | Skill placeholder resolution for all agents (#2313) | (i) no-impact | Agent-integration internal. Does not affect preflight extension dispatch surface. |
@@ -155,8 +155,8 @@ Evidence sources below are all independently verifiable: upstream PR numbers (fu
 
 | Change | Classification | Notes |
 |--------|---------------|-------|
-| Composition strategies — prepend/append/wrap for templates, commands, scripts (#2133) | **(ii) implementation-adjust** (f) — provisional | Major extension-composition feature. Preflight's command overrides in the preset (`speckit.tasks`, `speckit.implement` → PAI redirects) currently rely on priority-based resolution. Composition strategies give finer-grained control; worth evaluating alongside integration-topology selection in ADR-007. `needs-B2-follow-up` against v0.8.0 install. |
-| `--force` overwrites shared infra on init/upgrade (#2320) | **(ii) implementation-adjust** (—) — provisional | Behavior change on `specify init --force` and upgrade paths. Preflight install docs use `--force` to re-init test projects; semantics now include overwriting `.specify/integrations/`, `.specify/workflows/`, etc. Verify our `--dev` install flow is unaffected (it operates on preset/extension dirs, not shared infra). `needs-B2-follow-up`. |
+| Composition strategies — prepend/append/wrap for templates, commands, scripts (#2133) | **(ii) implementation-adjust** (f) — opportunity, not required; B2-follow-up: 2026-04-24 | v0.8.0 supersets v0.7.5's `--wrap` with full prepend/append/wrap for templates + commands; scripts limited to `{replace, wrap}` (prepend/append don't make sense for executables). Default strategy is `"replace"` — preflight's existing preset (no `strategy` declared) behaves identically to v0.7.x. Opportunity: preflight's `speckit.tasks`/`speckit.implement` overrides could declare `strategy: "wrap"` to compose with upstream defaults. Resolver internals (`_reconcile_composed_commands`, `PresetResolver.resolve` with `skip_presets` flag) only activate when a non-replace strategy is in the stack. Topology-relevant — see ADR-007. |
+| `--force` overwrites shared infra on init/upgrade (#2320) | **(i) no-impact**; B2-follow-up: 2026-04-24 | `_install_shared_infra(force=True)` is wired only to `specify init --here --force` and `specify integration upgrade --force` (per `git show 3970855`). It is **not** wired to `specify preset add` or `specify extension add`. Preflight's `--dev` install flow operates on preset/extension dirs exclusively and is unaffected by this change. Reclassified provisional `(ii)` → `(i) no-impact`. |
 | Copilot `--integration-options="--skills"` (#2324) | (i) no-impact | Copilot-specific surface for skills-based scaffolding. Preflight targets Claude; does not use copilot integration. |
 
 ---
@@ -167,9 +167,8 @@ Evidence sources below are all independently verifiable: upstream PR numbers (fu
 |-------|-----------|-----|
 | v0.7.0 workflow engine (#2158) | ADR-007 integration-topology evaluation | v0.7.0 introduces the workflow engine as a candidate migration target for preflight (workflow-gate composition). Decision tracked in ADR-007 "Integration topology". Baseline advisory-hook constraint (separate, see above) is what motivates considering migration at all. B2 (2026-04-24) confirms the engine coexists with the current hook-extension composition. |
 | v0.7.3 marker-based upsert (#2259) | B5 (RESOLVED β) | B5 resolved: #2259 is not an enforcement alternative. Entry reclassified (i). |
-| v0.7.5 preset wrap strategy (#2189) | ADR-007 integration-topology evaluation | Preset composition strategies widen the design space for preflight's preset (command overrides, template wrapping). Worth evaluating alongside topology selection. B2-follow-up against v0.7.5+ still pending. |
-| v0.8.0 composition strategies (#2133) | ADR-007 integration-topology evaluation | Finer-grained composition control for templates/commands/scripts — directly relevant to preflight's `speckit.tasks`/`speckit.implement` PAI-redirect overrides. B2-follow-up against v0.8.0 still pending. |
-| v0.8.0 `--force` shared-infra overwrite (#2320) | B2 follow-up | Install-flow semantics change; verify no impact on `--dev` preset/extension paths. |
+| v0.7.5 preset wrap strategy (#2189) | ADR-007 integration-topology evaluation | Preset composition strategies widen the design space for preflight's preset. B2-follow-up (2026-04-24) confirmed schema (`strategy: "wrap"` per-template, default `replace`). Opt-in only — existing preflight preset unaffected. |
+| v0.8.0 composition strategies (#2133) | ADR-007 integration-topology evaluation | Finer-grained composition control for templates/commands/scripts. B2-follow-up (2026-04-24) confirmed default `replace` preserves current behavior; `wrap` opt-in could let preflight compose with upstream defaults on `speckit.tasks`/`speckit.implement`. |
 
 ---
 
@@ -195,14 +194,21 @@ Answers to the original 6 outstanding questions. Each answer reflects an install
 6. **Are any preflight reviewer rule files tripping the v0.7.4 directory-traversal block?**
    **Answer: N/A at v0.7.4 — #2296 is v0.7.5, not v0.7.4.** `git tag --contains 569d18a` resolves to v0.7.5 and v0.8.0 only. The original doc row misplaced #2296 under v0.7.4; fixed. For v0.7.5+ readiness: all preflight reviewer files live under `extensions/preflight/{rules,agents,commands}` with no `..` path components, so the block should not trip. B2-follow-up will confirm against v0.7.5+ install.
 
-## Outstanding questions for B2-follow-up (v0.7.5 + v0.8.0)
+## B2-follow-up — v0.7.5 + v0.8.0 (executed 2026-04-24)
 
-New releases since 2026-04-22 (v0.7.5 on ~2026-04-23; v0.8.0 on ~2026-04-24) introduced composition-strategy features that warrant a follow-up adaptation pass. Today's session focused on v0.7.4 per original scope — these questions queue behind B2:
+Answers to the 4 follow-up questions. Tested against v0.8.0 (which supersets v0.7.5 for the questions at hand — dir-traversal block + preset wrap both ship in v0.7.5 and persist in v0.8.0). Install in `/Users/Shared/sv-nic/src/tmp/test-preflight/` against `specify 0.8.0` using temp-widened pin `<0.9.0`.
 
-1. Does the v0.7.5 directory-traversal block (#2296) allow preflight's reviewer dispatch paths without adjustment?
-2. Does the v0.7.5 preset wrap strategy (#2189) open a cleaner composition path for preflight's preset command overrides (`speckit.tasks`, `speckit.implement` → PAI redirects)?
-3. Does the v0.8.0 composition strategies feature (#2133) change how preflight's command overrides resolve under priority-based conflict?
-4. Does the v0.8.0 `--force` shared-infra overwrite (#2320) affect `--dev` install flows, or only init/upgrade paths?
+1. **Does the v0.7.5 directory-traversal block (#2296) allow preflight's reviewer dispatch paths without adjustment?**
+   **Answer: yes.** Preflight's full `specify preset add --dev` + `specify extension add --dev` cycle succeeds on v0.8.0 without dir-traversal errors. All reviewer rule + agent + command file paths live under `extensions/preflight/{rules,agents,commands}` with no `..` components. Hooks register correctly (`after_specify` + `after_plan` both present in `.specify/extensions.yml`).
+
+2. **Does the v0.7.5 preset wrap strategy (#2189) open a cleaner composition path for preflight's preset command overrides?**
+   **Answer: yes, as an opt-in opportunity.** `VALID_PRESET_STRATEGIES = {"replace", "prepend", "append", "wrap"}` per `src/specify_cli/presets.py` at v0.8.0; `strategy` is a per-template field on preset entries, default `"replace"`. Preflight's `speckit.tasks`/`speckit.implement` overrides could declare `strategy: "wrap"` to compose with upstream defaults (PAI-redirect wrapping upstream invocation) instead of fully replacing. Not required for current behavior preservation. Decision belongs to ADR-007 integration-topology evaluation.
+
+3. **Does the v0.8.0 composition strategies feature (#2133) change how preflight's command overrides resolve under priority-based conflict?**
+   **Answer: no, not by default.** Default `strategy` is `"replace"` for all preset entries lacking an explicit field. `_reconcile_composed_commands` and `PresetResolver.resolve(skip_presets=...)` only activate when a non-replace strategy exists in the resolution stack. Preflight's existing preset (no strategy declared) resolves by priority exactly as in v0.7.x. Scripts are limited to `{replace, wrap}` — preflight does not ship scripts, so this limitation is unaffecting.
+
+4. **Does the v0.8.0 `--force` shared-infra overwrite (#2320) affect `--dev` install flows?**
+   **Answer: no.** `_install_shared_infra(force=True)` per `git show 3970855` is wired only to `specify init --here --force` and `specify integration upgrade --force`. The `--dev` paths on `preset add` and `extension add` do not call `_install_shared_infra`. Preflight's `--dev` install flow is unaffected. Reclassified the v0.8.0 `--force` row from provisional `(ii)` → `(i) no-impact`.
 
 ---
 
@@ -221,3 +227,4 @@ New releases since 2026-04-22 (v0.7.5 on ~2026-04-23; v0.8.0 on ~2026-04-24) int
 - 2026-04-22 — structural revision (Codex PR review): added "Baseline constraints" section separating release-independent properties (advisory `after_*` hooks) from per-release deltas. v0.7.0 workflow engine revised (iii) → (ii) — v0.7.0 introduces a new enforcement surface (opportunity), while the advisory-hook limitation that motivates migration is a baseline constraint (pre-v0.6.0). Source citation replaced sibling-worktree HANDOFF pointer with durable in-repo references (upstream PR numbers, spec-kit SHAs, tag-to-tag `git log`).
 - 2026-04-23 — removed dead HANDOFF cross-references (`.dispatch/` is untracked, session-scoped). Added "Stream B workstreams" section defining B1–B5 labels and Stream A/B context in-file, so the doc stands on its own without relying on external dispatch artifacts.
 - 2026-04-24 — B2 adaptation test executed against spec-kit v0.7.4. All 6 original outstanding questions answered with evidence (install run, `.specify/extensions.yml` inspection, `git show` for #2243). Reclassifications: v0.6.3/v0.6.4/v0.7.1/v0.7.2/v0.7.4 rows moved from `needs-B2-confirmation` to `(i)/(ii)` with 2026-04-24 markers. Fixed misplaced #2296 dir-traversal row: moved from v0.7.4 section to new v0.7.5 section (`git tag --contains 569d18a` = v0.7.5+). Added v0.7.5 and v0.8.0 sections per "no batching" maintenance rule, with provisional classifications flagged `needs-B2-follow-up`. "Current upstream HEAD" updated v0.7.4 → v0.8.0. Committed `requires.speckit_version` pin in `presets/preflight/preset.yml` and `extensions/preflight/extension.yml` deliberately unchanged — pin widening stays gated on topology selection (B4).
+- 2026-04-24 — B2-follow-up executed against spec-kit v0.8.0 (superset of v0.7.5). All 4 follow-up questions answered with evidence (install run + code inspection of `src/specify_cli/presets.py` + `git show` on #2133/#2189/#2320). Reclassifications: v0.7.5 preset-wrap and v0.8.0 composition-strategies rows confirmed `(ii)` as **opt-in opportunities, not required adjustments** (default `strategy: "replace"` preserves v0.7.x behavior); v0.8.0 `--force` shared-infra overwrite reclassified provisional `(ii)` → `(i) no-impact` (force semantics wired only to init/integration-upgrade paths, not `--dev` preset/extension adds). Committed pin still unchanged.
