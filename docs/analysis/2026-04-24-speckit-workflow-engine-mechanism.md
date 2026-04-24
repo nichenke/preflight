@@ -6,11 +6,13 @@ owner: nic
 supports: ADR-009
 ---
 
-# Spec-kit workflow engine mechanism — research for ADR-009
+# Spec-kit workflow engine mechanism — research for the future orchestration ADR
 
-Research input for ADR-009 (integration topology ratification). ADR-009 chose **workflow-extension composite** as the topology on artifact-hygiene and enforcement-strength grounds. This document captures what the workflow engine *actually does* at spec-kit v0.8.0 — separating validated behavior from unvalidated assumptions — and names the concrete mechanism questions a validation spike must answer before ADR-009 moves Proposed → Accepted.
+**Status:** reference material for the future enforcement-orchestration ADR.
 
-This doc deliberately contains mechanism-level detail that does not belong in the topology ADR itself. The ADR decides the shape; this doc tracks the plumbing; the spike validates the plumbing.
+ADR-009 (Option E, committed 2026-04-24) chose **preset + extension** as preflight's distribution topology and **explicitly deferred** enforcement orchestration to a later ADR informed by industry on-the-loop orchestration pattern analysis. This document captures what spec-kit's workflow engine — one candidate orchestration runtime — *actually does* at v0.8.0: validated behavior, unvalidated assumptions, and open questions for the future ADR to resolve.
+
+The workflow-gate sketch in § 9 is retained as one candidate's design, not a preflight commitment. The open questions in § 10 are inputs to the future orchestration ADR's research, not spike charter for ADR-009.
 
 All citations against spec-kit at tag `v0.8.0` cached at `~/.cache/spec-kit`.
 
@@ -116,21 +118,20 @@ Runs arbitrary shell commands via `subprocess.run(shell=True, timeout=300)` with
 
 **Note:** spec-kit's security guidance (per a comment in `steps/shell/__init__.py`) is that "workflow authors control commands; catalog-installed workflows should be reviewed before use." ShellStep exists but is not a replacement for PromptStep for cases where LLM judgment is desired (e.g. commit message formation).
 
-## 6. Workflow distribution — partially validated
+## 6. Workflow distribution — validated (correction from prior draft)
 
-**Source:** `src/specify_cli/workflows/catalog.py`; `src/specify_cli/__init__.py:1354-1380`
+**Source:** `src/specify_cli/__init__.py:4854-4900` (CLI entry point), `:5009-5017`, `:1354-1378` (bundled install path); `src/specify_cli/workflows/engine.py:362-371`; `src/specify_cli/workflows/catalog.py`
 
 Spec-kit v0.8.0 ships:
 
 - `workflows/catalog.json` with one bundled workflow: `speckit` ("Full SDD Cycle")
 - `workflows/catalog.community.json` — **empty** (`"workflows": {}`)
-- No `specify workflow add` CLI verb equivalent to `specify preset add` / `specify extension add`
+- **`specify workflow add` CLI verb exists** (caught during adversarial review of ADR-009 c02b5c1). Accepts workflow ID, URL, or local path; copies YAML into `.specify/workflows/<id>/workflow.yml`; updates `.specify/workflows/workflow-registry.json`.
+- `specify init` uses the same install path for the bundled workflow.
 
-The bundled-workflow install appears to happen as a one-shot shell-out during `specify init`. For third-party workflows:
+**Prior draft of this section was factually wrong** — it treated third-party workflow distribution as an open question requiring manual copy + registry edit. Spec-kit already supports native install. The correction is important because it simplifies the mechanism story for any future orchestration ADR that selects workflow-gate as the enforcement runtime.
 
-- **Observation:** workflow registry state appears to persist in `.specify/workflows/workflow-registry.json` (schema at `workflows/catalog.py:57-121`)
-- **Open question for the spike:** can a third-party workflow be installed by manual file copy + manual registry edit, or does spec-kit expect the registry to be written only by spec-kit-owned code paths?
-- **Open question for the spike:** what is the actual load path? `.specify/workflows/<id>/workflow.yml`? Confirm from source.
+**Implication for preflight:** if a future orchestration ADR picks workflow-gate, preflight can author a `workflows/preflight/workflow.yml` and publish via spec-kit's community catalog, with `specify workflow add preflight` as the install path. No `preflight install` wrapper is required solely for workflow distribution.
 
 ## 7. Preset and extension manifests — no cross-version declaration fields
 
@@ -192,9 +193,9 @@ Note what the bundled workflow does **not** do:
 
 **Implication:** the bundled workflow is a valid structural template for Gate-based approval, but it doesn't answer preflight's specific review-shaped needs.
 
-## 9. Proposed preflight workflow shape (sketch — unvalidated)
+## 9. Candidate orchestration sketch — workflow-gate
 
-An earlier draft of ADR-009 proposed:
+An earlier draft of ADR-009 proposed a workflow-gate composition with this shape; retained here as **one candidate's design sketch** for the future orchestration ADR to consider, *not* as a preflight commitment:
 
 ```
 specify (CommandStep)                → /speckit.specify
@@ -208,25 +209,31 @@ implement (CommandStep)              → /speckit.implement
 [optional] commit (PromptStep)       → "commit these changes"       [OPEN: permission/verification]
 ```
 
-Open questions mapped to sections above:
+Open questions for this candidate:
+
 - Review command dispatch — § 3 (CommandStep dispatch concern on namespaced names)
-- Review output surfacing — § 4 concern 2 (PromptStep output capture, or CommandStep stdout capture, or file-based handoff via Gate `show_file`)
+- Review output surfacing — § 4 concern 2 (PromptStep output capture, CommandStep stdout, or file-based handoff via Gate `show_file`)
 - Auto-commit via PromptStep — § 4 concern 1 (permission surface) + concern 2 (verification)
-- Workflow distribution — § 6
 
-## 10. Open mechanism questions the spike must answer
+These questions should be resolved by the orchestration-mechanism research that precedes any future orchestration ADR — not by preflight alone, because they depend on broader on-the-loop agent-orchestration patterns (subprocess vs subagent, permission surfaces, output capture conventions) that extend beyond spec-kit.
 
-A 1–2 day validation spike should produce concrete answers to:
+## 10. Open orchestration-research questions (future ADR prerequisite)
 
-1. **Command dispatch for namespaced extension commands.** Build a minimal preflight-extension + preflight-workflow where the workflow tries to dispatch the registered review command via CommandStep. Record: what gets invoked? If it fails, try single-segment naming (§ 3 option (a)) and measure friction. This determines whether preflight can use CommandStep at all for its review command, or must route through PromptStep.
+Under ADR-009 (Option E), preflight defers enforcement orchestration to a future ADR. That ADR should be informed by research along these axes:
 
-2. **Review output handoff to Gate.** Produce a preflight review output (from the existing reviewer ensemble) inside the workflow, such that the subsequent Gate step displays it to the user. Determine the mechanism: does the review command write a file the Gate reads via `show_file`? Does stdout surfacing work? Both? Neither? Pick the working path.
+1. **On-the-loop orchestration patterns in adjacent frameworks.** Per `rule-design.md`: survey how comparable frameworks (spec-kit workflows, BMAD, OpenSpec, Superpowers, Gas Town) express gate/approval/review-invoke patterns. Identify convergence vs divergence. Cross-framework consensus informs the right axis to pick on.
 
-3. **Auto-commit via PromptStep.** Implement a PromptStep that prompts the agent to commit changes. Test: does it work with default user settings? What permission pre-approval is required? Is the failure mode "permission prompt stalls silently" or "subprocess exits clean but no commit created" or something else? Based on findings, either document the permission contract or retire #31 to "unproven follow-up."
+2. **Subprocess vs subagent enforcement.** When enforcement invokes an LLM-driven review, does it run as a subprocess (`claude -p ...` or equivalent — captured by spec-kit's current `dispatch_command` model) or as a subagent (child of the host agent, sharing tool-use context)? Each has different permission, output-capture, and observability semantics. The choice likely determines which orchestration runtime works best.
 
-4. **Workflow install path.** Actually install a third-party (preflight-authored) workflow into a test project. Manual copy + registry edit if needed. Document the steps. This becomes the basis for the `preflight install` wrapper's workflow-copy logic.
+3. **Command-dispatch path for namespaced extension commands in whichever runtime is selected.** If workflow-gate is the chosen orchestration, § 3 above is the specific question. If a different runtime is chosen, a different equivalent question arises.
 
-The spike produces a short writeup answering these four questions. ADR-009 then gets a revision that folds answers in and moves Proposed → Accepted (or triggers a re-evaluation if answers invalidate the composite choice).
+4. **Output handoff.** How do structured review findings surface to the approval primitive (Gate, UI, other)? Does review write a file the orchestrator reads, or stream stdout, or return a structured response? Runtime-specific.
+
+5. **Permission surface for agent tool use during review / commit.** § 4 concern 1. Whether the orchestrator grants tool-use permissions, requires user pre-approval, or defers to the host agent's existing permission state. Affects #31 auto-commit feasibility.
+
+6. **Distribution path.** For workflow-gate, `specify workflow add` already exists (§ 6). For other runtimes, distribution may look different.
+
+These are **inputs to the future orchestration ADR**, not gates on ADR-009 acceptance. ADR-009 acceptance depends only on the topology-level items in its Confirmation section.
 
 ## 11. Citations
 
@@ -256,11 +263,13 @@ All source line-references are against spec-kit `v0.8.0` at `~/.cache/spec-kit`.
 
 ## 12. Review-and-revision trail
 
-This document consolidates mechanism-level findings that surfaced during ADR-009 stress-testing:
+This document consolidates mechanism-level findings surfaced during ADR-009 stress-testing (commits c02b5c1, 83f6e6d on `feature/topology-adr`):
 
 - Initial Explore pass (2026-04-24) — workflow engine stability + peer evidence scan
 - Codex second-opinion (first draft) — Gate-vs-CommandStep factual correction
-- Codex adversarial review (final committed draft) — namespaced-command dispatch concern + PromptStep permission concern + `>=0.7.2` overstatement + `StepStatus.FAILED` vs `RunStatus.ABORTED` conflation
-- Technical red-team agent — same findings as Codex adversarial plus Gate TTY-detection fragility in Claude-agent shell, workflow-registry stale-state after re-runs, permission-prompt storm on `claude -p` spawns
+- Technical red-team agent — namespaced-command dispatch concern, PromptStep permission concern, `StepStatus.FAILED` vs `RunStatus.ABORTED` conflation, Gate TTY-detection fragility in Claude-agent shell, workflow-registry stale-state after re-runs, permission-prompt storm on `claude -p` spawns
+- Strategic red-team agent — circular ADR-007↔ADR-009 dependency, rate-of-change override, constitution drift
+- Codex adversarial review (first trimmed draft) — **`specify workflow add` exists** (§ 6 correction), trim still carried mechanism claims, governance hole in acceptance criteria
+- Red-team second-pass review — trim-completeness check; three medium findings on spike charter scoping
 
-The ADR was reshaped to topology-scope-only after these findings; this document inherits the mechanism content for the spike to validate.
+After the second-round reviews, ADR-009 pivoted to Option E (preset + extension topology; enforcement deferred). This document's role shifted from "spike charter for ADR-009 acceptance" to "reference material for the future enforcement-orchestration ADR." The content is unchanged in facts (except § 6 `specify workflow add` correction); the framing is different.
