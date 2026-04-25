@@ -3,7 +3,7 @@ schema_version: "1.0"
 extension:
   id: "preflight"
   name: "Preflight — rule-based document review"
-  version: "0.7.0.dev2"
+  version: "0.7.0.dev3"
   description: "Runs preflight's curated rule set against spec.md or plan.md on demand via /speckit.preflight.review. Rules loaded as prompt context; findings reported by severity with stable rule IDs."
   author: "nichenke"
   repository: "https://github.com/nichenke/preflight"
