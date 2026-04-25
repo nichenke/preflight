@@ -39,3 +39,5 @@ The companion `speckit-tasks` project-local skill delegates `/speckit.tasks` to 
 The core command's prerequisite check (`check-prerequisites.sh --require-tasks`) will fail if `tasks.md` is missing. Either:
 - Run PAI Algorithm directly (recommended)
 - Or create a one-line pointer `tasks.md` per the guidance in `/speckit.tasks`, then invoke the core `/speckit.implement` — though that bypasses the intent of these project-local skills
+
+This skill applies only when working inside the preflight repo; downstream projects using preflight's preset get spec-kit's default `/speckit.implement` behavior.
