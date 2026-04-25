@@ -1,6 +1,7 @@
 ---
-status: Proposed
+status: Accepted
 date: 2026-04-24
+accepted: 2026-04-25
 deciders: Nic
 consulted: Stream B research (B2, B5); spec-kit upstream via source analysis; adversarial review (Codex + red-team x2)
 informed: Stream A (Spike 2 blocker); future enforcement-orchestration ADR
