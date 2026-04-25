@@ -6,7 +6,7 @@ A [spec-kit](https://github.com/github/spec-kit) preset and extension for spec-d
 
 ## What you get
 
-- **Preset** (`presets/preflight/`) — 7 doc-type templates (ADR, RFC, architecture, constitution, interface contract, requirements, test strategy) plus command overrides for `/speckit.tasks` and `/speckit.implement` that delegate task decomposition and execution to PAI Algorithm.
+- **Preset** (`presets/preflight/`) — 7 doc-type templates (ADR, RFC, architecture, constitution, interface contract, requirements, test strategy).
 - **Extension** (`extensions/preflight/`) — a `speckit.preflight.review` command that runs a two-agent review ensemble (checklist + bogey) on your `spec.md` or `plan.md` on demand. Findings report in severity-graded format with stable rule IDs.
 
 ## Why two reviewers
@@ -40,8 +40,8 @@ The preset and extension install into `.specify/presets/preflight/` and `.specif
 /speckit.preflight.review           # on-demand review of spec.md
 /speckit.plan                       # scaffolds plan.md
 /speckit.preflight.review           # on-demand review of plan.md
-# (Task decomposition delegated to PAI Algorithm reading plan.md directly)
-# (Implementation delegated to PAI Algorithm)
+/speckit.tasks                      # spec-kit core (or your preferred decomposer)
+/speckit.implement                  # spec-kit core (or your preferred executor)
 /speckit.archive <feature>          # ratify the feature folder (via archive extension)
 ```
 

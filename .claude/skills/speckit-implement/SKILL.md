@@ -4,16 +4,18 @@ description: Execute all tasks from the task breakdown to build the feature.
 compatibility: Requires spec-kit project structure with .specify/ directory
 metadata:
   author: github-spec-kit
-  source: preset:preflight
+  source: preflight-project-local
 user-invocable: true
 disable-model-invocation: true
 ---
 
 # Speckit Implement Skill
 
-# /speckit.implement — preflight preset override
+# /speckit.implement — preflight project-local override
 
-This preset delegates implementation to **PAI Algorithm**, which consumes `plan.md` directly without requiring a separate `tasks.md`.
+When working inside the preflight repo, this skill replaces spec-kit's default `/speckit.implement` behavior with PAI delegation. It is a project-local Claude Code skill (under `.claude/skills/`), not part of the preset preflight ships to end users — preflight's preset declares only doc-type templates per ADR-009 criterion #3.
+
+In this project, implementation is delegated to **PAI Algorithm**, which consumes `plan.md` directly without requiring a separate `tasks.md`.
 
 ## What to do
 
@@ -30,10 +32,12 @@ This preset delegates implementation to **PAI Algorithm**, which consumes `plan.
 
 ## Why no tasks.md
 
-Under this preset, `/speckit.tasks` is also overridden to a PAI delegation. PAI's ISC criteria are more atomic and more verifiable than `tasks.md`'s typed task list, and maintaining two task representations creates drift.
+The companion `speckit-tasks` project-local skill delegates `/speckit.tasks` to PAI as well. PAI's ISC criteria are more atomic and more verifiable than `tasks.md`'s typed task list, and maintaining two task representations creates drift.
 
 ## If the core `/speckit.implement` is invoked by habit
 
 The core command's prerequisite check (`check-prerequisites.sh --require-tasks`) will fail if `tasks.md` is missing. Either:
 - Run PAI Algorithm directly (recommended)
-- Or create a one-line pointer `tasks.md` per the guidance in `/speckit.tasks`, then invoke the core `/speckit.implement` — though that bypasses the intent of this preset
+- Or create a one-line pointer `tasks.md` per the guidance in `/speckit.tasks`, then invoke the core `/speckit.implement` — though that bypasses the intent of these project-local skills
+
+This skill applies only when working inside the preflight repo; downstream projects using preflight's preset get spec-kit's default `/speckit.implement` behavior.

@@ -8,10 +8,9 @@ Preflight was previously distributed as a Claude Code plugin (v0.6.x). See `git 
 
 ```
 preflight/
-├── presets/preflight/               # spec-kit preset (template + command overrides)
+├── presets/preflight/               # spec-kit preset (doc-type templates)
 │   ├── preset.yml                   # preset manifest
-│   ├── templates/                   # 7 doc-type templates (ADR, RFC, architecture, etc.)
-│   └── commands/                    # speckit.tasks, speckit.implement (PAI redirects)
+│   └── templates/                   # 7 doc-type templates (ADR, RFC, architecture, etc.)
 ├── extensions/preflight/            # spec-kit extension (on-demand review command)
 │   ├── extension.yml                # extension manifest (provides speckit.preflight.review)
 │   ├── commands/
