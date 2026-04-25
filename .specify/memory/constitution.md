@@ -1,16 +1,16 @@
 ---
 status: Under Review — plugin-to-extension conversion in progress
-version: 1.1.0
+version: 1.2.0
 date: 2026-03-25
 owner: nic
 ratified_by: [nic]
-last_amended: 2026-03-28
-amendment_adrs: [ADR-003]
+last_amended: 2026-04-25
+amendment_adrs: [ADR-003, ADR-009]
 ---
 
 # Engineering Constitution
 
-> **⚠️ STATUS (2026-04-15): Under partial rewrite.** Preflight is converting from a Claude Code plugin to a native spec-kit extension (see ADR-007 and `docs/spikes/SPIKE_PLAN.md`). Several constitutional principles below reference plugin-form concepts that no longer apply:
+> **⚠️ STATUS (2026-04-25): Under partial rewrite.** Preflight is converting from a Claude Code plugin to a native spec-kit extension (see ADR-007 and `docs/spikes/SPIKE_PLAN.md`). Several constitutional principles below reference plugin-form concepts that no longer apply:
 >
 > - **CONST-CI-02** path reference fixed below (was `content/templates/`, now `presets/preflight/templates/`)
 > - **CONST-DIST-01** — `.claude/rules/` auto-load pattern is plugin-specific; spec-kit extensions distribute via `specify extension add`. Principle is stale pending rewrite.
@@ -18,7 +18,7 @@ amendment_adrs: [ADR-003]
 > - **CONST-QA-01 through CONST-QA-05** — reference "skills" and "plugin releases" that no longer exist. Eval suite concept may survive in spec-kit-native form; needs rewrite.
 > - **CONST-PROC-01** — "plugin change bumps version" becomes "preset or extension change bumps version in preset.yml / extension.yml". Semver intent unchanged.
 >
-> **CONST-CI-01**, **CONST-CI-03**, **CONST-PROC-02**, and **CONST-PROC-03** remain valid as-is.
+> **CONST-CI-01**, **CONST-CI-03**, **CONST-PROC-02**, **CONST-PROC-03**, and the new **CONST-REV-01**/**CONST-REV-02** (added 2026-04-25 per ADR-009) are valid as-is.
 >
 > A full rewrite is tracked as a follow-up — via a future constitution-amendment ADR (ADR-008 is now taken by the property-test rule shape decision) if ADR-007 is accepted, or deferred until the spike outcome is known. Do not cite stale principles in new work.
 
@@ -49,8 +49,13 @@ This constitution defines non-negotiable engineering principles for preflight. A
 - [CONST-PROC-02] All behavioral requirement changes require an ADR (REQ-R07)
 - [CONST-PROC-03] ADRs use MADR 4.0 format
 
+## Review and Enforcement
+- [CONST-REV-01] Preflight review (`/speckit.preflight.review`) is invoked on demand by the user or orchestrator; preflight does not auto-fire review at workflow gates
+- [CONST-REV-02] Preflight asserts no author-time enforcement of review; whether and how to automate review firing is the user's or orchestrator's choice and is delegated to a follow-on orchestration ADR
+
 ## Amendment Log
 | Version | Date | ADR | Change Summary |
 |---------|------|-----|----------------|
 | 1.0.0 | 2026-03-25 | (bootstrap) | Initial ratification — pre-plugin era, no ADR exists |
 | 1.1.0 | 2026-03-28 | ADR-003 | Add CONST-QA-03 through CONST-QA-05 — automated quality gates for plugin releases |
+| 1.2.0 | 2026-04-25 | ADR-009 | Add CONST-REV-01 and CONST-REV-02 — on-demand review invocation; preflight asserts no author-time enforcement |

@@ -1,22 +1,28 @@
 ---
 status: Under Review — plugin-to-extension conversion in progress
-version: 0.1.0
+version: 0.2.0
 owner: nic
 date: 2026-03-25
+last_amended: 2026-04-25
 stakeholders: []
 ---
 
 # Preflight — Requirements Specification
 
-> **⚠️ STATUS (2026-04-14): Heavily stale.** This file was authored during the Claude Code plugin era (v0.6.x). Preflight is now a spec-kit preset + extension (see ADR-007 and `docs/spikes/SPIKE_PLAN.md`). The plugin-form semantics baked into this document are mostly invalidated — FR-001 through FR-029 reference `/preflight scaffold`, `.preflight/_rules/`, `/preflight new`, `/preflight review`, `plugin.json` versioning, `.claude/rules/` auto-loading, and `PreToolUse` hooks that no longer exist.
+> **⚠️ STATUS (2026-04-25): Heavily stale; partial rewrite per ADR-009.** This file was authored during the Claude Code plugin era (v0.6.x). Preflight is now a spec-kit preset + extension (see ADR-007 and `docs/spikes/SPIKE_PLAN.md`). The plugin-form semantics baked into this document are mostly invalidated — FR-001 through FR-029 reference `/preflight scaffold`, `.preflight/_rules/`, `/preflight new`, `/preflight review`, `plugin.json` versioning, `.claude/rules/` auto-loading, and `PreToolUse` hooks that no longer exist.
 >
-> **What's almost certainly dead** (plugin-form only): FR-001 through FR-009 (plugin scaffold journey), FR-010 through FR-016 (plugin `/preflight new` elicitation), FR-017 through FR-020, FR-025, FR-030 (plugin `/preflight review`), FR-021, FR-022 (`.claude/rules/` auto-load), FR-026 (`.claude/skills/` triage skill), FR-028, FR-029 (Claude Code PreToolUse hooks). NFR-001 through NFR-008 reference plugin-dev validation, skill evals, and plugin install paths.
+> **2026-04-25 update (per ADR-009 acceptance criterion #4):**
+>
+> - **Added** FR-031, FR-032 (on-demand review invocation, no author-time enforcement claim) — see new section "On-demand review (ADR-009)" below.
+> - **Removed** FR-021, FR-022 (`.claude/rules/` auto-load), FR-028, FR-029 (`PreToolUse` git-workflow hooks). IDs retained as strikethrough placeholders per "IDs are sequential and never reused" — see in-place removal notes below.
+>
+> **What's almost certainly still dead** (plugin-form only, not yet rewritten in this PR): FR-001 through FR-009 (plugin scaffold journey), FR-010 through FR-016 (plugin `/preflight new` elicitation), FR-017 through FR-020, FR-025, FR-030 (plugin `/preflight review`), FR-026 (`.claude/skills/` triage skill). NFR-001 through NFR-008 reference plugin-dev validation, skill evals, and plugin install paths.
 >
 > **What's probably still meaningful** (substrate-independent): FR-023, FR-024 (ADR impact propagation), FR-027 (requirement-ID traceability for behavioral fixes). Re-express in spec-kit form post-spike.
 >
-> **Explicitly NOT doing a mechanical path-only rewrite**: the semantics would still be wrong and the resulting file would be worse than honest staleness. Test-by-using will expose which requirements actually matter. Rewrite via a future requirements-amendment ADR after the spike (ADR-008 is now taken by the property-test rule shape decision), or reauthor entirely if ADR-007 is accepted.
+> **Broader rewrite still pending**: this PR is scoped to the ADR-009 cascade (criterion #4). A full re-author of the remaining stale FRs / NFRs to spec-kit-extension semantics is a separate amendment (deferred until the ADR-007 spike outcome is known). Test-by-using will expose which legacy requirements still matter.
 >
-> **Do not cite stale FRs in new work.** If you need a requirement ID for traceability, either use one flagged "probably still meaningful" above, or flag the gap explicitly and let PAI / the review command report it.
+> **Do not cite stale FRs in new work.** If you need a requirement ID for traceability, use one flagged substrate-current (FR-023, FR-024, FR-027, FR-031, FR-032), or flag the gap explicitly and let the review command report it.
 
 ## 1. Problem Statement
 
@@ -172,15 +178,20 @@ tested, and synced across the repo and any Notion upstream.
 
 ### Rules auto-loading
 
-- FR-021: The plugin shall auto-load framework rules into agent context via `.claude/rules/` without requiring CLAUDE.md edits in the target project.
-- FR-022: When the plugin installs rules via `/preflight scaffold`, the plugin shall include in the auto-loaded rules file: the read-before-coding sequence (constitution, requirements, architecture, interfaces — ADRs excluded, referenced only when modifying requirements or architecture), requirements change governance (REQ-R07), and EARS quick reference.
+- ~~FR-021: The plugin shall auto-load framework rules into agent context via `.claude/rules/` without requiring CLAUDE.md edits in the target project.~~ — **REMOVED 2026-04-25 per ADR-009**: `.claude/rules/` auto-load is plugin-specific; spec-kit extensions distribute via `specify extension add` and do not auto-load rules. ID retained as a placeholder.
+- ~~FR-022: When the plugin installs rules via `/preflight scaffold`, the plugin shall include in the auto-loaded rules file: the read-before-coding sequence (constitution, requirements, architecture, interfaces — ADRs excluded, referenced only when modifying requirements or architecture), requirements change governance (REQ-R07), and EARS quick reference.~~ — **REMOVED 2026-04-25 per ADR-009**: tied to FR-021's auto-load mechanism. ID retained.
 
 ### Maintainer workflow (Persona: plugin author) — ADR-005
 
 - FR-026: The plugin repo shall provide a local issue-triage skill (`.claude/skills/`) that produces structured assessments with evidence-backed validity verdicts, spec gap maps, governance classifications, and dependency-ordered fix decompositions.
 - FR-027: Every proposed behavioral fix shall trace to a requirement ID (FR/NFR/CONST) or explicitly identify a missing requirement — enforced by an auto-loaded rule in `.claude/rules/`.
-- FR-028: The plugin repo shall enforce git workflow invariants (worktrees, feature branches, PRs — no direct commits to main) via PreToolUse hooks that block violations deterministically.
-- FR-029: While a git workflow hook blocks a tool use, the hook shall report which invariant was violated and what the correct workflow is.
+- ~~FR-028: The plugin repo shall enforce git workflow invariants (worktrees, feature branches, PRs — no direct commits to main) via PreToolUse hooks that block violations deterministically.~~ — **REMOVED 2026-04-25 per ADR-009**: spec-kit extensions do not register `PreToolUse` hooks; git-workflow enforcement is now a project-local concern (not a preflight-shipped requirement). ID retained.
+- ~~FR-029: While a git workflow hook blocks a tool use, the hook shall report which invariant was violated and what the correct workflow is.~~ — **REMOVED 2026-04-25 per ADR-009**: tied to FR-028's removed mechanism. ID retained.
+
+### On-demand review (ADR-009)
+
+- FR-031: When the user or orchestrator runs `/speckit.preflight.review` against a spec or plan document, the preflight extension shall produce a severity-graded findings report (Critical / Important / Suggestion) with stable rule IDs and source-line references.
+- FR-032: The preflight extension shall not auto-fire review at workflow gates; review invocation is the user's or orchestrator's choice. Whether and how to automate review firing is delegated to a follow-on orchestration ADR (CONST-REV-01, CONST-REV-02).
 
 ## 5. Non-Functional Requirements
 
