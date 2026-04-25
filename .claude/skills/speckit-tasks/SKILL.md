@@ -4,18 +4,18 @@ description: Break down implementation plans into actionable task lists.
 compatibility: Requires spec-kit project structure with .specify/ directory
 metadata:
   author: github-spec-kit
-  source: preset:preflight
+  source: preflight-project-local
 user-invocable: true
 disable-model-invocation: true
 ---
 
 # Speckit Tasks Skill
 
-# /speckit.tasks — preflight preset override
+# /speckit.tasks — preflight project-local override
 
-This preset intentionally does not generate `tasks.md`.
+When working inside the preflight repo, this skill replaces spec-kit's default `/speckit.tasks` behavior with PAI delegation. It is a project-local Claude Code skill (under `.claude/skills/`), not part of the preset preflight ships to end users — preflight's preset declares only doc-type templates per ADR-009 criterion #3.
 
-Under the preflight preset, task decomposition is delegated to **PAI Algorithm**. PAI reads `plan.md` directly during its OBSERVE phase, decomposes the plan's acceptance section into atomic ISC (Ideal State Criteria), and tracks progress in its own PRD. `tasks.md` is redundant and would drift from PAI's ground truth.
+In this project, task decomposition is delegated to **PAI Algorithm**. PAI reads `plan.md` directly during its OBSERVE phase, decomposes the plan's acceptance section into atomic ISC (Ideal State Criteria), and tracks progress in its own PRD. `tasks.md` is redundant and would drift from PAI's ground truth.
 
 ## What to do instead
 
@@ -25,7 +25,7 @@ Under the preflight preset, task decomposition is delegated to **PAI Algorithm**
 
 ## If you need a placeholder `tasks.md`
 
-`/speckit.implement`'s core command will error if `tasks.md` is missing (hard prerequisite in `.specify/scripts/bash/check-prerequisites.sh`). Since this preset also overrides `/speckit.implement` to delegate to PAI, that check is bypassed. But if another tool in your stack expects `tasks.md` to exist, create a one-line pointer:
+`/speckit.implement`'s core command will error if `tasks.md` is missing (hard prerequisite in `.specify/scripts/bash/check-prerequisites.sh`). The companion `speckit-implement` project-local skill also delegates to PAI, so that check is bypassed when `/speckit.implement` is invoked here. But if another tool in your stack expects `tasks.md` to exist, create a one-line pointer:
 
 ```
 echo "# PAI owns task decomposition — see plan.md acceptance" > specs/<NNN-feature>/tasks.md
@@ -33,4 +33,4 @@ echo "# PAI owns task decomposition — see plan.md acceptance" > specs/<NNN-fea
 
 ## Why this override exists
 
-See `docs/analysis/2026-04-13-composable-architecture.md` and ADR-007 in the preflight repo. The composable architecture deliberately separates "what to build" (spec.md + plan.md) from "how to decompose work" (PAI's OBSERVE phase), because PAI's atomic-ISC decomposition is more granular and verifiable than `tasks.md`'s typed task list.
+See `docs/analysis/2026-04-13-composable-architecture.md` and ADR-007 in the preflight repo. The composable architecture deliberately separates "what to build" (spec.md + plan.md) from "how to decompose work" (PAI's OBSERVE phase), because PAI's atomic-ISC decomposition is more granular and verifiable than `tasks.md`'s typed task list. This skill applies only when working inside the preflight repo; downstream projects using preflight's preset get spec-kit's default `/speckit.tasks` behavior.

@@ -32,12 +32,12 @@ provides:
     - type: "template"
       name: "interface-contract"
       file: "templates/interface-contract-template.md"
-      description: "Interface contract for cross-component boundaries"
+      description: "Interface contract"
 
     - type: "template"
       name: "requirements"
       file: "templates/requirements-template.md"
-      description: "EARS-syntax requirements document"
+      description: "Requirements document (EARS syntax)"
 
     - type: "template"
       name: "rfc"
