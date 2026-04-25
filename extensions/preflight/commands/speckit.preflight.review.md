@@ -4,7 +4,7 @@ description: Review a spec document against preflight rules using a two-agent en
 
 # /speckit.preflight.review — preflight extension
 
-Validate a spec document by dispatching two reviewer subagents and merging their findings. Do **not** modify the document. Invocation is **on-demand** per ADR-009 — this command is not auto-triggered by spec-kit hooks.
+Validate a spec document by dispatching two reviewer subagents and merging their findings. Do **not** modify the document.
 
 This command is a faithful port of the preflight plugin's `skills/review/` skill into native spec-kit form. The two reviewer prompts live at `.specify/extensions/preflight/agents/reviewers/checklist-reviewer.md` and `.../bogey-reviewer.md` and are dispatched via the host agent's subagent/Task mechanism.
 
