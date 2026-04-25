@@ -1,13 +1,13 @@
 # Preflight
 
-A [spec-kit](https://github.com/github/spec-kit) preset and extension for spec-driven development. Ships curated doc-type templates, a 48-rule review rule set, and a two-agent review ensemble that hooks into spec-kit's lifecycle.
+A [spec-kit](https://github.com/github/spec-kit) preset and extension for spec-driven development. Ships curated doc-type templates, a 48-rule review rule set, and a two-agent review ensemble invokable on-demand via `/speckit.preflight.review`.
 
-> **Note.** Preflight is currently in a validation spike for ADR-007 (feature-folder lifecycle). It was previously distributed as a Claude Code plugin — the conversion to a spec-kit extension is in progress, and the integration-topology question (how preflight composes with spec-kit — hook-extension vs workflow-gate vs hybrid) is currently reopened per Stream B's 2026-04-22 B5 finding. See `docs/spikes/SPIKE_PLAN.md` for status and ADR-007 "Integration topology" for the reopen.
+> **Note.** Preflight is currently in a validation spike for ADR-007 (feature-folder lifecycle). It was previously distributed as a Claude Code plugin — the conversion to a spec-kit extension is in progress. The integration-topology question (how preflight composes with spec-kit) is resolved in writing by ADR-009 (preset + extension as the distribution topology; enforcement-orchestration choice deferred to a follow-on ADR). See `docs/spikes/SPIKE_PLAN.md` for spike status and `specs/decisions/adrs/adr-009-integration-topology.md` for the topology decision.
 
 ## What you get
 
 - **Preset** (`presets/preflight/`) — 7 doc-type templates (ADR, RFC, architecture, constitution, interface contract, requirements, test strategy) plus command overrides for `/speckit.tasks` and `/speckit.implement` that delegate task decomposition and execution to PAI Algorithm.
-- **Extension** (`extensions/preflight/`) — a `speckit.preflight.review` command that runs a two-agent review ensemble (checklist + bogey) on your `spec.md` or `plan.md` via `after_specify` and `after_plan` hooks. Findings report in severity-graded format with stable rule IDs.
+- **Extension** (`extensions/preflight/`) — a `speckit.preflight.review` command that runs a two-agent review ensemble (checklist + bogey) on your `spec.md` or `plan.md` on demand. Findings report in severity-graded format with stable rule IDs.
 
 ## Why two reviewers
 
@@ -37,15 +37,15 @@ The preset and extension install into `.specify/presets/preflight/` and `.specif
 
 ```
 /speckit.specify <feature>          # scaffolds spec.md in preflight format
-/speckit.preflight.review           # manual review of spec.md (see note below)
+/speckit.preflight.review           # on-demand review of spec.md
 /speckit.plan                       # scaffolds plan.md
-/speckit.preflight.review           # manual review of plan.md (see note below)
+/speckit.preflight.review           # on-demand review of plan.md
 # (Task decomposition delegated to PAI Algorithm reading plan.md directly)
 # (Implementation delegated to PAI Algorithm)
 /speckit.archive <feature>          # ratify the feature folder (via archive extension)
 ```
 
-> **⚠ Manual invocation required.** Preflight declares `after_specify` and `after_plan` hooks with `optional: false`. Spec-kit's `after_*` hooks are **advisory by upstream design** — `optional: false` only guarantees an `EXECUTE_COMMAND:` marker is rendered; execution is delegated to the host AI agent (per `src/specify_cli/extensions.py:2509`), and host agents typically treat the marker as informational and stop. This is intentional, not a bug (see `docs/analysis/2026-04-22-speckit-hook-philosophy.md`). Until preflight migrates to a composition pattern with real enforcement (spec-kit workflow + Gate steps, or pre-hook relocation — ADR-007 "Integration topology" tracks the decision), **manually invoke `/speckit.preflight.review` after each `/speckit.specify` and `/speckit.plan`**. Tracked as [preflight issue #25](https://github.com/nichenke/preflight/issues/25).
+> **Note on invocation.** Preflight review runs **on demand** via `/speckit.preflight.review` — it is not auto-triggered by spec-kit hooks. Per ADR-009 (integration topology), preflight ratifies the preset + extension distribution topology and defers enforcement orchestration (whether and how to automate review firing) to a follow-on ADR. Until that decision lands, **manually invoke `/speckit.preflight.review` after each `/speckit.specify` and `/speckit.plan`** to review the generated artifacts. Background on why `after_*` hooks don't enforce: `docs/analysis/2026-04-22-speckit-hook-philosophy.md`.
 
 ## Doc types
 
