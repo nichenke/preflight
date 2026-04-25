@@ -18,7 +18,7 @@ amendment_adrs: [ADR-003, ADR-009]
 > - **CONST-QA-01 through CONST-QA-05** — reference "skills" and "plugin releases" that no longer exist. Eval suite concept may survive in spec-kit-native form; needs rewrite.
 > - **CONST-PROC-01** — "plugin change bumps version" becomes "preset or extension change bumps version in preset.yml / extension.yml". Semver intent unchanged.
 >
-> **CONST-CI-01**, **CONST-CI-03**, **CONST-PROC-02**, **CONST-PROC-03**, and the new **CONST-REV-01**/**CONST-REV-02** (added 2026-04-25 per ADR-009) are valid as-is.
+> **CONST-CI-01**, **CONST-CI-03**, **CONST-PROC-02**, **CONST-PROC-03**, **CONST-REV-01**, and **CONST-REV-02** (the last two added 2026-04-25 per ADR-009) remain valid as-is.
 >
 > A full rewrite is tracked as a follow-up — via a future constitution-amendment ADR (ADR-008 is now taken by the property-test rule shape decision) if ADR-007 is accepted, or deferred until the spike outcome is known. Do not cite stale principles in new work.
 

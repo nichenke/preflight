@@ -190,8 +190,10 @@ tested, and synced across the repo and any Notion upstream.
 
 ### On-demand review (ADR-009)
 
-- FR-031: When the user or orchestrator runs `/speckit.preflight.review` against a spec or plan document, the preflight extension shall produce a severity-graded findings report (Critical / Important / Suggestion) with stable rule IDs and source-line references.
-- FR-032: The preflight extension shall not auto-fire review at workflow gates; review invocation is the user's or orchestrator's choice. Whether and how to automate review firing is delegated to a follow-on orchestration ADR (CONST-REV-01, CONST-REV-02).
+- FR-031: When the user or orchestrator runs `/speckit.preflight.review` against a spec or plan document, the preflight extension shall produce a findings report that includes (a) severity grades drawn from {Critical, Important, Suggestion}, (b) stable rule IDs, and (c) source-line references.
+- FR-032: The preflight extension shall not auto-fire review at workflow gates.
+
+  Notes: review invocation is the user's or orchestrator's choice; whether and how to automate review firing is delegated to a follow-on orchestration ADR (see CONST-REV-01, CONST-REV-02).
 
 ## 5. Non-Functional Requirements
 

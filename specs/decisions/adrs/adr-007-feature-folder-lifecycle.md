@@ -262,7 +262,7 @@ The previous "spec-kit `blocking: true` hook semantics" watch is **closed** per 
 
 - CONST-PROC-01 (version bump on behavior change) — applies at ratification PR
 - CONST-PROC-02 (ADR on behavioral requirement change) — this ADR satisfies the requirement for the shape decision; individual features do not re-trigger it unless they independently change a behavioral requirement
-- FR-028 (worktree enforcement) — feature folders live in worktrees like any other change
+- Project-local git workflow (`.claude/rules/git-workflow.md`) — feature folders live in worktrees like any other change. (Originally FR-028; FR removed 2026-04-25 per ADR-009 acceptance criterion #4 because spec-kit extensions do not register `PreToolUse` hooks. The project-local rule still applies to development in this repo.)
 - ADR-005 (maintainer workflow requirements) — feature folder lifecycle is consistent with the single-maintainer assumption
 - ADR-006 (review finding locations) — review findings on feature folders will use the file:line-range format from ADR-006
 
