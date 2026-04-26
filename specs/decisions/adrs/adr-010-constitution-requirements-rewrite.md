@@ -75,7 +75,7 @@ Frontmatter: version `1.2.0 → 2.0.0` (major bump because CONST-DIST-01's artic
 | ~~FR-035~~ | **NOT AUTHORED** | Council synthesis (Codex P3): ADR-010 explicitly chose **not** to author a new FR for the two-agent ensemble shape, deferring instead to ADR-004's existing ratification. Phrased as "not authored" rather than "dropped" because FR-035 never existed in `requirements.md`. |
 | NFR-001 (no external deps) | **REPHRASE**: "The preset and extension shall have no external runtime dependencies — content is markdown + YAML manifests within the preset/extension directories." | Same intent. |
 | NFR-002 (`/preflight scaffold` <5s) | **REMOVE** | Mechanism doesn't exist. |
-| NFR-003 (auto-loaded rules <80 lines) | **REPHRASE**: "Rules loaded as prompt context per `/speckit.preflight.review` shall stay within an agent-context budget (target: <80 lines per file)." | Council synthesis: the auto-load mechanism is dead but the underlying budget rationale (rules must be agent-context-friendly, scannable) survives. Preserves the principle in current invocation form. |
+| NFR-003 (auto-loaded rules <80 lines) | **REPHRASE**: "Rules loaded as prompt context for preflight review shall stay within an agent-context budget (target: <80 lines per file)." | Council synthesis + Codex P2 (v3): the auto-load mechanism is dead but the underlying budget rationale (rules must be agent-context-friendly, scannable) survives. Wording is substrate-neutral — drops `/speckit.preflight.review` to avoid Spike 2 shape-dependence; "preflight review" is a behavior phrase that survives both direct-invocation and workflow-engine-mediation futures. |
 | NFR-004 (skill evals ≥80%) | **Deferred to ADR-011** | Names "skills"; replacement vocabulary is shape-dependent on Spike 2 + companion CONST-QA-01/-02 rewrite. |
 | NFR-005 (content integrity tests bash) | **REPHRASE** with vocabulary update: "preset + extension shall include automated content integrity tests..." | Same intent. |
 | NFR-006 (plugin-dev validation) | **Deferred to ADR-011** | Replacement names spec-kit's `PresetManifest` / `ExtensionManifest` validators — shape-dependent on Spike 2 (workflow-engine mediation may change validator surface). |
@@ -148,6 +148,7 @@ ADR-010 moves from Proposed to Accepted when:
 - CONST-QA-01..05: rewrite or REMOVE depending on whether eval-suite + release-process mechanisms exist post-Spike 2
 - NFR-004 (eval thresholds): same dependency
 - NFR-006, NFR-007: substrate-current install + e2e scope, dependent on Spike 2's invocation choice (direct command vs workflow-engine)
+- **FR-031, FR-032** (added in PR #42 under ADR-009): both name `/speckit.preflight.review` directly. By the same Codex P2 (v3) logic that pulled NFR-003's slash-command name out of this ADR, FR-031/-032 are conditionally-stale under Spike 2. Out of scope for ADR-010 (would mean editing FRs authored under a different ADR's authority); revisit under ADR-011 alongside the other shape-dependent items.
 - Optional: ADR-004 amendment if vocabulary audit (Confirmation #4 above) finds it requires update
 
 ADR-011 opens after Spike 2 exits (or at 2026-06-11 tripwire, whichever first).
