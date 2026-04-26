@@ -130,7 +130,7 @@ ADR-010 moves from Proposed to Accepted when:
 - Good: governance-compliant (CONST-PROC-02 satisfied for the in-scope changes)
 - Good: stops citation rot for unambiguously-dead articles immediately
 - Good: addresses the load-bearing shipped-template propagation issue
-- Good: defers shape-dependent articles to ADR-011 — zero conditionally-stale governance shipped
+- Good: defers shape-dependent articles to ADR-011 — ADR-010 itself ships no new conditional staleness; pre-existing FR-031/-032 (PR #42) already scoped into ADR-011
 - Good: enumerated deltas + concrete confirmation grep make the rewrite reviewable
 - Bad: requires two amendment ADRs eventually (one now, one post-spike)
 - Bad: leaves QA-* / NFR-006/-007 visibly stale in the v2.0.0 constitution banner until ADR-011
