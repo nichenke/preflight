@@ -4,7 +4,7 @@
 
 ## What this doc is for
 
-This document names the jobs preflight is for, the personas it serves, and the jobs it explicitly is not for. Its operational purpose is to **make the Q2 reshape decision falsifiable**: if the jobs below are real and load-bearing, the reshape (drop spec-kit substrate, ship as a Claude Code skill bundle invoked by PAI during BUILD — see `docs/plans/2026-04-26-preflight-roadmap.md`) earns its keep. If any Job comes out worse under the reshape, the reshape bends.
+This document names the jobs preflight is for, the personas it serves, and the jobs it explicitly is not for. Its operational purpose is to **make the Q2 reshape decision falsifiable**: if the jobs below are real and load-bearing, the reshape (drop spec-kit substrate, ship as a Claude Code skill bundle invoked by PAI during BUILD — see PR #45 / `feature/reimagine` for the full reshape proposal) earns its keep. If any Job comes out worse under the reshape, the reshape bends.
 
 The Job most likely to falsify the reshape is **J4 — durable contributor-readable artifacts** (added during adversarial review specifically because v0 had no reshape-loseable Job). Phase 1.2 should weight J4 heaviest when re-evaluating: does the skill-bundle reshape preserve `specs/*.md` as the contributor-readable surface, or does it move state into agent-mediated forms?
 
@@ -51,7 +51,7 @@ Evidence: `extensions/preflight/agents/reviewers/bogey-reviewer.md` (defect clas
 
 **Justifies:** the Explore workflow (deep elicitation + doc-type routing + draft generation) and a future gap-reviewer focused on *missing* categories rather than *malformed* content. **Prevents:** the *"shipped against an under-specified intent"* failure mode where the agent guesses and the guess turns out to be wrong in production.
 
-Evidence: `docs/analysis/2026-04-26-preflight-strategic-reimagine.md` §"Reshape — what preflight becomes" (Explore workflow); `docs/plans/2026-04-26-preflight-roadmap.md` Phase 3.3 (deep elicitation question bank, doc-type routing rules); `docs/reference/l4-autonomy-category-framework.md` (25-category taxonomy, 13-category MVP for L4-ready specs).
+Evidence: `docs/plans/2026-03-31-ensemble-reviewer-design.md` (reviewer-agent dispatching pattern that gap-elicitation extends); `docs/analysis/2026-04-22-reviewer-rule-gap-cluster.md` (the rule-gap clusters that motivate moving from malformed-content review to missing-content review); `docs/reference/l4-autonomy-category-framework.md` (25-category taxonomy, 13-category MVP for L4-ready specs). The Explore workflow itself (deep elicitation + doc-type routing + draft generation) is proposed in PR #45 / `feature/reimagine` and is the design J2 anticipates.
 
 ### J3 — Prevent silent reversals across time and contributors
 
@@ -71,7 +71,7 @@ Evidence: `extensions/preflight/rules/requirements-rules.md` REQ-R07 (ADR-requir
 
 This Job is what a substrate-changing reshape (skill bundle, dropping spec-kit) has to satisfy. If the reshape moves spec state into agent-mediated invocations or tooling-specific formats, J4 is at risk; if the reshape preserves `specs/*.md` as the contributor surface and only changes how the *reviewer* is invoked, J4 is safe. **This is the Job Phase 1.2 should test most carefully.** *v0 — will evolve;* J4 was added after RedTeam pointed out that v0 had no Job opposing the reshape, which made the doc structurally unable to do its stated load-bearing work.
 
-Evidence: `CLAUDE.md` ("Templates, rules, agent prompts, and scaffolds live **inside** `presets/preflight/` and `extensions/preflight/`"); `docs/analysis/2026-04-26-preflight-strategic-reimagine.md` §"Reshape — what preflight becomes" (the reshape preserves `specs/` as markdown but moves invocation surface from extension command to skill); `extensions/preflight/rules/universal-rules.md` UNIV-01 (file-anchored evidence is the rule for reviewer findings, which depends on durable text artifacts).
+Evidence: `CLAUDE.md` ("Templates, rules, agent prompts, and scaffolds live **inside** `presets/preflight/` and `extensions/preflight/`" — content is checked-in markdown, not agent state); `extensions/preflight/rules/universal-rules.md` UNIV-01 (file-anchored evidence is the rule for reviewer findings, which depends on durable text artifacts); `docs/reference/l4-autonomy-category-framework.md` (the autonomy framework cites text-artifact readability as a precondition for both human supervision and agent execution). The reshape proposal (PR #45 / `feature/reimagine`) preserves `specs/*.md` as the contributor-readable surface and moves only the invocation surface to a skill — this Job is the test of whether that commitment holds.
 
 ## User stories
 
@@ -103,7 +103,7 @@ Two stories per Job, anchored to specific personas + situations. Each story has 
 
 ### S7 — Returning contributor, J4
 *As a contributor who hasn't touched this project in three months, I want to read the current spec by opening files in my editor, so that I can answer "what does the system do today?" without invoking any agent or tool.*
-- Acceptance hint: opening `specs/requirements.md`, `specs/architecture.md`, and the relevant ADR(s) is sufficient to understand current system behavior; no read path requires running preflight, an agent, or any external tool.
+- Acceptance hint: opening `specs/requirements.md` and the relevant ADR(s) under `specs/decisions/adrs/` is sufficient to understand current system behavior; no read path requires running preflight, an agent, or any external tool. (When `specs/architecture.md` exists in a project, it joins this read set; preflight does not assume its presence.)
 
 ## Anti-jobs
 
