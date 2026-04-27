@@ -12,9 +12,11 @@
 
 ## North star
 
-Preflight is a Claude Code skill bundle invoked by PAI during BUILD when the task involves spec creation/modification. Its value is **deep elicitation + smart doc-type routing + gap-catching reviewers** — not a template library users pick from. Templates and rules are inputs to the workflow.
+Preflight is a Claude Code skill bundle invoked by PAI during BUILD when the task involves harness creation or modification. Its value is **building, modifying, reviewing, and re-reading the durable project harness your agents execute against** — not a template library users pick from. Templates and rules are inputs to the workflow, not the user-facing surface.
 
 User experience: talk to PAI → PAI invokes preflight Explore → workflow asks deep questions → workflow drafts the right preflight docs → reviewers catch gaps → loop with user → handoff to PAI BUILD against validated specs.
+
+Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a few hours or less, M = up to roughly a day, L = multi-day. Time-on-clock is a poor metric for whether something is "real time to re-derive" and tends to anchor expectations badly; size signals are honest about relative scope without committing to a clock.
 
 ---
 
@@ -32,18 +34,18 @@ User experience: talk to PAI → PAI invokes preflight Explore → workflow asks
 
 ### Tasks
 
-- [ ] **1.1 — Write `specs/jtbd.md`** (1 day)
+- [ ] **1.1 — Write `specs/jtbd.md`** (M)
   - Three sections: Jobs (what's preflight hired to do), User Stories (≥5 concrete narratives), Anti-Jobs (what preflight is NOT for)
   - Self-contained — no obtuse cross-doc references
   - References to FRs only when concrete
   - Exit: file exists, ≥5 stories, anti-jobs section names PAI/spec-kit/migration boundaries explicitly
 
-- [ ] **1.2 — Re-evaluate decisions against JTBD** (½ day)
-  - Confirm: drop spec-kit, drop self-constitution, drop ADR-007 lifecycle, ship as skill bundle
+- [ ] **1.2 — Re-evaluate decisions against JTBD** (M)
+  - Confirm: drop spec-kit, drop self-constitution, drop ADR-007 lifecycle, ship as skill bundle, ADRs survive (architecture-sized choices only — not behavior-change governance)
   - Document any reversals as commits to the analysis doc
   - Exit: roadmap updated if JTBD surfaces anything that contradicts current direction
 
-- [ ] **1.3 — Archive workstream HANDOFFs** (½ hr)
+- [ ] **1.3 — Archive workstream HANDOFFs** (S)
   - Create `archive/handoffs/` directory
   - Move `.dispatch/HANDOFF.md` (main) → `archive/handoffs/2026-04-13-feature-folder-design.md`
   - Move `.worktrees/workflow-research/.dispatch/HANDOFF.md` → `archive/handoffs/2026-04-24-stream-a-spike1-closed.md`
@@ -51,7 +53,7 @@ User experience: talk to PAI → PAI invokes preflight Explore → workflow asks
   - Each gets a 3-line preamble noting why it's archived
   - Exit: all 3 HANDOFFs in archive, originals removed from active worktrees
 
-- [ ] **1.4 — Merge PR #22 (fix-req-findings)** (15 min)
+- [ ] **1.4 — Merge PR #22 (fix-req-findings)** (S)
   - Already clean: 99/99 tests, 0 Critical, 0 Important. Just stale (since 2026-04-12).
   - Closes #21
   - Exit: PR merged, branch deleted, worktree removed
@@ -70,14 +72,14 @@ User experience: talk to PAI → PAI invokes preflight Explore → workflow asks
 
 ### Tasks
 
-- [ ] **2.1 — Harvest UNIV-01 fix from `test-pai-preset` worktree** (½ day)
+- [ ] **2.1 — Harvest UNIV-01 fix from `test-pai-preset` worktree** (M)
   - The fix itself is real (doc-type-aware required-field table in `universal-rules.md`, ~30 LOC)
   - Strip the spec-kit chain artifacts (15KB spec.md, research.md, data-model.md, quickstart.md, contracts/, tasks.md)
   - Land as a normal PR against main
   - Closes #34
   - Exit: PR merged, fix on main, test-pai-preset worktree closed
 
-- [ ] **2.2 — ADR close-out PR** (½ day)
+- [ ] **2.2 — ADR close-out PR** (M)
   - Author ADR-011: "Drop spec-kit substrate; ship as Claude Code skill bundle" (the ONE meta-ADR for the reshape)
   - In same PR, mark:
     - ADR-007 → **Superseded by ADR-011** (worktrees + direct main edits replace feature-folder lifecycle)
@@ -86,25 +88,25 @@ User experience: talk to PAI → PAI invokes preflight Explore → workflow asks
   - Drop forward-reference to "ADR-011 (planned)" from any remaining doc — replaced by this real ADR-011
   - Exit: PR merged, all four ADR statuses correct on main
 
-- [ ] **2.3 — Archive analysis docs** (1 hr)
+- [ ] **2.3 — Archive analysis docs** (S)
   - Create `archive/analysis/` directory
   - Move to archive: 5 workflow-integration research passes, composable-architecture, speckit-composition-topologies, validator-chain-combinatorics, beads-gastown-comparison, framework-customization-depth, speckit-hook-philosophy, speckit-workflow-engine-mechanism, speckit-upstream-tracking
   - Keep on main: today's strategic reimagine analysis, today's roadmap, jtbd.md, reviewer-rule-gap-cluster (still useful precedent)
   - Exit: `docs/analysis/` contains only currently-active references; rest in archive
 
-- [ ] **2.4 — Archive SPIKE_PLAN.md** (15 min)
+- [ ] **2.4 — Archive SPIKE_PLAN.md** (S)
   - Move `docs/spikes/SPIKE_PLAN.md` → `archive/2026-04-spike-plan.md`
   - Add closing note: "Spike 1 closed (UNIV-01 fix landed); Spikes 2/3/4/5 cancelled per ADR-011 reshape"
   - Remove `docs/spikes/` directory
   - Exit: spike plan in archive, directory gone
 
-- [ ] **2.5 — Stale worktree + branch cleanup** (1 hr)
+- [ ] **2.5 — Stale worktree + branch cleanup** (S)
   - Remove worktrees: `workflow-research` (already merged via PR #23), `speckit-upstream-tracking` (work merged via PR #33)
   - Audit 11 unmerged remote branches: `gh api repos/nichenke/preflight/branches | jq -r '.[].name'` then for each, check if its tip commit is in main's history
   - Delete obsolete remote branches (likely all 11 are dead code from earlier waves)
   - Exit: only `main` and any active feature branches remain
 
-- [ ] **2.6 — Close pai-source issue #111** (15 min)
+- [ ] **2.6 — Close pai-source issue #111** (S)
   - Comment with link to today's analysis doc
   - Mark resolved-by-decision: "Spec-kit drop decision documented in preflight repo; original concern (PAI vs `/speckit.plan` over-planning) resolved by removing spec-kit from the chain entirely"
   - Exit: issue closed with reference
@@ -125,14 +127,14 @@ User experience: talk to PAI → PAI invokes preflight Explore → workflow asks
 
 ### Tasks
 
-- [ ] **3.1 — Drop self-constitution + simplify governance** (½ day)
+- [ ] **3.1 — Drop self-constitution + simplify governance** (M)
   - Delete `.specify/memory/constitution.md`
   - Replace with `PRINCIPLES.md` at repo root: 5–8 short claims (rule IDs are stable; rules ship as markdown; reviewer is on-demand; ADRs only on rule kernel changes; no spec-kit dependency; PAI is the orchestrator)
   - Simplify `specs/requirements.md` to remove plugin-era + spec-kit-era cruft; preserve issue-traceability and the substantive FRs
   - Tighten CONST-PROC-02 (now in PRINCIPLES.md): "ADR required when: (a) a preflight rule is added, removed, or has its severity changed; or (b) preflight's user-facing surface changes substantially. Vocabulary cleanups, typo fixes, added failure modes do not."
   - Exit: PRINCIPLES.md exists; constitution.md deleted; requirements.md simplified
 
-- [ ] **3.2 — Restructure to skill bundle** (1 day)
+- [ ] **3.2 — Restructure to skill bundle** (M)
   - Create `.claude/skills/preflight/` skill bundle structure (per analysis doc § "What preflight ships")
   - `git mv` operations:
     - `extensions/preflight/rules/*` → `.claude/skills/preflight/rules/`
@@ -143,7 +145,7 @@ User experience: talk to PAI → PAI invokes preflight Explore → workflow asks
   - Delete `presets/preflight/`, `extensions/preflight/`, `.specify/`
   - Exit: bundle installs cleanly into a target project via `cp -r`; review skill runs end-to-end
 
-- [ ] **3.3 — Author Explore workflow** (1.5 days)
+- [ ] **3.3 — Author Explore workflow** (L)
   - `.claude/skills/preflight/Workflows/Explore.md`
   - Three phases: deep elicitation, doc-type routing, draft generation
   - Deep elicitation: question bank organized by intent category (new feature, design decision, requirements update, architecture change, etc.); coverage thresholds per category
@@ -151,7 +153,7 @@ User experience: talk to PAI → PAI invokes preflight Explore → workflow asks
   - Draft generation: invoke template + fill from elicitation answers
   - Exit: workflow runs end-to-end on a synthetic intent ("add OAuth login"); produces drafts for the right doc types; routes correctly on at least 5 distinct intent shapes
 
-- [ ] **3.4 — Add gap-reviewer agent** (1 day)
+- [ ] **3.4 — Add gap-reviewer agent** (M)
   - `.claude/skills/preflight/agents/gap-reviewer.md`
   - Enumerated gap categories (each category gets a gap-detection prompt):
     - Missing testing strategy
@@ -165,7 +167,7 @@ User experience: talk to PAI → PAI invokes preflight Explore → workflow asks
   - Returns structured findings (file:line:severity:category)
   - Exit: agent runs against test specs (use the archived speckit-chain artifacts as known-good test cases — they had multiple gap classes)
 
-- [ ] **3.5 — Wire Explore → Review loop in SKILL.md** (½ day)
+- [ ] **3.5 — Wire Explore → Review loop in SKILL.md** (M)
   - SKILL.md orchestrates: Explore → Review (with gap-reviewer included) → surface findings → user iterates → re-elicit if needed → re-draft → re-review
   - PAI's BUILD phase invokes preflight SKILL when task involves spec creation/modification
   - SKILL hands off to PAI's EXECUTE when specs are clean
@@ -186,12 +188,12 @@ User experience: talk to PAI → PAI invokes preflight Explore → workflow asks
 
 ### Tasks
 
-- [ ] **4.1 — Pick a real feature** (1 hr)
+- [ ] **4.1 — Pick a real feature** (S)
   - Candidates: any of preflight's open issues, OR a feature in another active project (tack-room launcher mentioned in original ADR-007 spike plan)
-  - Criterion: small enough to ship in 1–2 days, exercises ≥3 preflight doc types
+  - Criterion: single-PR-sized scope, exercises ≥3 preflight doc types
   - Exit: feature picked, intent statement written
 
-- [ ] **4.2 — Run end-to-end on the chosen feature** (1 day)
+- [ ] **4.2 — Run end-to-end on the chosen feature** (M)
   - Invoke PAI; state intent
   - Observe Explore workflow's questions — too many? too few? wrong category?
   - Observe routing decisions — right doc types selected?
@@ -200,17 +202,17 @@ User experience: talk to PAI → PAI invokes preflight Explore → workflow asks
   - Iterate user → workflow → user
   - Exit: feature spec validated through workflow; PAI proceeds to BUILD
 
-- [ ] **4.3 — Capture frictions in spike-style report** (½ day)
+- [ ] **4.3 — Capture frictions in spike-style report** (M)
   - `docs/reviews/2026-05-NN-skill-bundle-shakedown.md`
   - Honest record: what worked, what didn't, what to tune
   - Exit: report written
 
-- [ ] **4.4 — Tune based on frictions** (1–2 days)
+- [ ] **4.4 — Tune based on frictions** (L)
   - Likely areas: question coverage thresholds, routing rules, gap categories, template defaults
   - Each tune is a small commit, no ADR (per tightened CONST-PROC-02 — only rule-kernel changes need ADRs)
   - Exit: identified frictions addressed
 
-- [ ] **4.5 — Ship v0.7.0** (½ day)
+- [ ] **4.5 — Ship v0.7.0** (M)
   - Tag `v0.7.0` (final, not `.devN`)
   - Update README + CLAUDE.md to reflect skill-bundle shape
   - Update install instructions: `cp -r preflight/.claude/skills/preflight <target>/.claude/skills/preflight`
