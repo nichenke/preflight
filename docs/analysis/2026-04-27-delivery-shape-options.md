@@ -62,13 +62,13 @@ For project-specific additions: a project drops rule files into `.preflight/rule
 
 **Spike resolved 2026-04-27** (was previously punted to ADR-012): project-scope mechanics confirmed against Claude Code official docs. Marketplace ref-pinning works (`#v0.7.0` style on the marketplace URL); per-plugin version pinning within `enabledPlugins` does not — the unit of pinning is the marketplace, not the individual plugin. For projects that need different preflight versions simultaneously, point each project's `.claude/settings.json` at a different marketplace ref. ADR-012 ratifies the project-scope default rather than originating the investigation.
 
-**Update:** auto-update at Claude Code startup (toggleable per marketplace; opt-in for third-party). Or `/plugin marketplace update nichenke`. Updates apply globally — the user updates once, all projects get the new kernel.
+**Update (project-scope with ref pinning is the recommended model):** at Claude Code startup, marketplace data refresh is OFF by default for third-party marketplaces; users opt in per marketplace. To take a new kernel version in a specific project: bump the marketplace ref in that project's `.claude/settings.json` (e.g. `nichenke/preflight#v0.7.0` → `#v0.8.0`) and commit the change. The update is deliberate per project, not fleet-wide. `/plugin marketplace update nichenke` exists but only refreshes the marketplace metadata; it does not rewrite per-project committed refs. Without ref pinning (rare; not recommended), a marketplace refresh propagates to all projects using that marketplace simultaneously — that's the user-scope-equivalent fall-back, not the recommended model.
 
 **Extend:** project drops markdown rule files into `.preflight/rules/`; reviewer picks them up alongside the kernel. No config format, no schema, no skip mechanism. The same rule format used by the kernel works for project additions.
 
 **J5 verdict:**
-- Install: ✅ trivially easy.
-- Update: ✅ auto-update handles N projects for free.
+- Install: ✅ trivially easy at first time per user; per-project install is one explicit command (committed to `.claude/settings.json`); per-collaborator install is zero commands once committed.
+- Update: ✅ deliberate per project (bump marketplace ref + commit); cross-project heterogeneity works natively. Not "auto-update handles N projects for free" — that's a different model that loses the per-project control J5 cares about.
 - Extend: ✅ additive discovery; project additions live in `.preflight/`, kernel lives in plugin — no collision possible.
 
 **Failure modes:**
@@ -242,5 +242,5 @@ If real demand emerges later for skip / override / config (a real project repeat
 - [Discovering plugins (official + third-party marketplaces)](https://code.claude.com/docs/en/discover-plugins.md)
 - [Skill discovery and namespacing](https://code.claude.com/docs/en/skills.md)
 - [`specs/jtbd.md` v0.2](../../specs/jtbd.md) — J5 (this analysis's test)
-- [`docs/analysis/2026-04-26-preflight-strategic-reimagine.md`](2026-04-26-preflight-strategic-reimagine.md) — the reshape proposal this refines
-- [`docs/plans/2026-04-26-preflight-roadmap.md`](../plans/2026-04-26-preflight-roadmap.md) Phase 3 — the tasks affected
+- `docs/analysis/2026-04-26-preflight-strategic-reimagine.md` — the reshape proposal this refines (lands via PR #45 — `feature/reimagine` branch; once merged, path resolves on main)
+- `docs/plans/2026-04-26-preflight-roadmap.md` Phase 3 — the tasks affected (lands via PR #45 — `feature/reimagine` branch; once merged, path resolves on main)
