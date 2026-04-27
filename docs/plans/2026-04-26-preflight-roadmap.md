@@ -41,10 +41,10 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
   - Exit: file exists, ≥5 stories, anti-jobs section names PAI/spec-kit/migration boundaries explicitly
 
 - [ ] **1.2 — Re-evaluate decisions against JTBD** (M)
-  - Confirm: drop spec-kit, drop self-constitution, drop ADR-007 lifecycle, ADRs survive (architecture-sized choices only — not behavior-change governance)
-  - **Open: delivery shape — skill bundle vs plugin.** Plugin distribution may be cleaner for content updates and repo uses. Decision needs a JTBD covering tool delivery / update / cross-repo install patterns first; current jtbd.md only covers harness Jobs, not delivery Jobs. Add J5 (or sibling `specs/delivery-jtbd.md`) before locking the delivery shape.
-  - Document any reversals as commits to the analysis doc
-  - Exit: roadmap updated if JTBD surfaces anything that contradicts current direction; delivery shape decided (or explicitly deferred to Phase 2 with a delivery-JTBD prerequisite)
+  - Confirm: drop spec-kit, drop self-constitution, drop ADR-007 lifecycle, ADRs survive (architecture-sized choices only — not behavior-change governance), **delivery shape decided** (no deferral)
+  - **Delivery shape decision is required, not optional.** Test against J5/S5 in `specs/jtbd.md` and the four-option analysis at `docs/analysis/2026-04-27-delivery-shape-options.md`. The decision goes into ADR-011 in Phase 2.2; deferring it would let Phase 2.2 / Phase 3.2 lock in skill-bundle structural changes while the delivery JTBD remains unresolved — the exact recursive-ADR-engine trap the kill switch is designed to prevent.
+  - Document any reversals as commits to the analysis doc inline
+  - Exit: roadmap updated if JTBD surfaces anything that contradicts current direction; delivery shape decided (skill bundle / plugin / hybrid / plugin-as-copier) with rationale recorded against J5 acceptance
 
 - [ ] **1.3 — Archive workstream HANDOFFs** (S)
   - Create `archive/handoffs/` directory
@@ -81,8 +81,9 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
   - Exit: PR merged, fix on main, test-pai-preset worktree closed
 
 - [ ] **2.2 — ADR close-out PR** (M)
-  - **Blocked-on:** Phase 1.2 (JTBD re-evaluation) must complete first; this task ratifies the reshape direction Phase 1.2 confirms (or revises). Authoring ADR-011 before Phase 1.2 finishes recreates the recursive-ADR-engine trap the reimagine is trying to remove.
-  - Author ADR-011: "Drop spec-kit substrate; ship as Claude Code skill bundle" (the ONE meta-ADR for the reshape)
+  - **Blocked-on:** Phase 1.2 (JTBD re-evaluation) must complete first, *including the delivery-shape decision*; this task ratifies the reshape direction Phase 1.2 confirms (or revises). Authoring ADR-011 before Phase 1.2 finishes recreates the recursive-ADR-engine trap the reimagine is trying to remove.
+  - Author ADR-011: "Drop spec-kit substrate; ship as <delivery shape decided in Phase 1.2>" — the ONE meta-ADR for the reshape. Title and body match what Phase 1.2 confirmed (current planning anticipates Claude Code plugin per `docs/analysis/2026-04-27-delivery-shape-options.md`, but ADR-011 reflects the actual Phase 1.2 outcome).
+  - **Scope note:** ADR-011 explicitly covers any rule kernel additions / removals introduced as part of the reshape itself, including the gap-reviewer's UNIV-G01..G08 added in Phase 3.4. CONST-PROC-02's "ADR required when a rule is added" clause is satisfied for the reshape's initial rule pack expansion by ADR-011's scope; future rule changes after the reshape ships continue to follow CONST-PROC-02 individually.
   - In same PR, mark:
     - ADR-007 → **Superseded by ADR-011** (worktrees + direct main edits replace feature-folder lifecycle)
     - ADR-009 → **Superseded by ADR-011** (integration topology no longer applicable)
@@ -131,10 +132,11 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
 
 - [ ] **3.1 — Drop self-constitution + simplify governance** (M)
   - Delete `.specify/memory/constitution.md`
+  - **Retire `constitution-rules.md` (rule pack file):** the artifact it reviewed (`constitution.md`) is gone; if any of its checks meaningfully apply to `PRINCIPLES.md` or another surviving document type, remap them into the appropriate rule file (likely `universal-rules.md`); otherwise drop the file entirely. Do not ship a rule file that has no live artifact to review — that surfaces false positives or sits dead in the bundle.
   - Replace with `PRINCIPLES.md` at repo root: 5–8 short claims (rule IDs are stable; rules ship as markdown; reviewer is on-demand; ADRs only on rule kernel changes; no spec-kit dependency; PAI is the orchestrator)
   - Simplify `specs/requirements.md` to remove plugin-era + spec-kit-era cruft; preserve issue-traceability and the substantive FRs
-  - Tighten CONST-PROC-02 (now in PRINCIPLES.md): "ADR required when: (a) a preflight rule is added, removed, or has its severity changed; or (b) preflight's user-facing surface changes substantially. Vocabulary cleanups, typo fixes, added failure modes do not."
-  - Exit: PRINCIPLES.md exists; constitution.md deleted; requirements.md simplified
+  - Tighten CONST-PROC-02 (now in PRINCIPLES.md): "ADR required when: (a) a preflight rule is added, removed, or has its severity changed; or (b) preflight's user-facing surface changes substantially. Vocabulary cleanups, typo fixes, added failure modes do not." (The reshape's initial rule pack expansion — UNIV-G01..G08 added in Phase 3.4 — is governed by ADR-011's reshape-scope clause, not by individual ADRs per rule.)
+  - Exit: PRINCIPLES.md exists; constitution.md deleted; constitution-rules.md retired (or remapped); requirements.md simplified
 
 - [ ] **3.2 — Restructure to skill bundle** (M)
   - Create `.claude/skills/preflight/` skill bundle structure (per analysis doc § "What preflight ships")
@@ -158,7 +160,7 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
 
 - [ ] **3.4 — Add gap-reviewer agent** (M)
   - `.claude/skills/preflight/agents/gap-reviewer.md`
-  - **Each gap category becomes a rule with a stable rule ID** (UNIV-Gnn) so findings preserve the S2 traceability requirement (review output must cite a quote and a rule ID). The gap-reviewer is rule-backed like checklist + bogey, not a separate un-traceable review channel:
+  - **Each gap category becomes a rule with a stable rule ID** (UNIV-Gnn) so findings preserve the S2 traceability requirement (review output must cite a quote and a rule ID). The gap-reviewer is rule-backed like checklist + bogey, not a separate un-traceable review channel. Per CONST-PROC-02: these eight rule additions are governed by ADR-011's reshape-scope clause (Phase 2.2), not by individual ADRs per rule:
     - UNIV-G01 — Missing testing strategy
     - UNIV-G02 — Missing rollback plan
     - UNIV-G03 — Missing observability story
