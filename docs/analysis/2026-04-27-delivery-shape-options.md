@@ -117,7 +117,7 @@ The historical reason this shape existed (in preflight v0.6.x) was that Claude C
 |---|---|---|---|---|
 | First-time install | 1 command | 2 commands (per user) | 2 commands | 2 commands |
 | Per-project install | 1 command | 0 commands | 0 commands | 1 command (re-bootstrap) |
-| Update across N projects | N submodule pulls | 1 auto-update | 1 auto-update | N manual syncs |
+| Update across N projects | N submodule pulls | project-scope w/ ref pin: deliberate per-project bump; user-scope or unpinned: 1 marketplace refresh propagates | 1 auto-update | N manual syncs |
 | Project rule additions | edit in place | drop into `.preflight/rules/` | overlay config + addRules | edit copy in `.preflight/` |
 | Additions survive updates | ❌ manual merge | ✅ separate dirs | ✅ overlay isolated | ❌ manual merge |
 | Skip / override kernel rules | edit in place | not supported (live with severity) | overlay supports it | edit copy |
@@ -195,12 +195,15 @@ Reviewer agent discovery walks both `${CLAUDE_PLUGIN_ROOT}/skills/preflight/rule
 Current:
 > `cp -r preflight/.claude/skills/preflight <target>/.claude/skills/preflight`
 
-New (per user, one time):
-> `/plugin marketplace add nichenke/preflight`
-> `/plugin install preflight@nichenke`
+New (per project, project-scope is the default):
+> `/plugin marketplace add nichenke/preflight#<ref>` (one-time per user, OR committed to the project's `.claude/settings.json` under `extraKnownMarketplaces` so collaborators inherit it)
+> `/plugin install preflight@nichenke --scope project` (writes to `.claude/settings.json` under `enabledPlugins`; commit it; collaborators get it on clone)
 
-Per project (optional, only if additions are needed):
+Per project (optional, only if rule additions are needed):
 > Create `.preflight/rules/<your-rule>.md` with the same frontmatter shape kernel rules use.
+
+User-scope alternative (when preflight should follow the user across all projects rather than be a per-project choice):
+> Same first command for marketplace, then `/plugin install preflight@nichenke --scope user` (or default scope; user is the default if `--scope` is omitted).
 
 ### Roadmap Phase 1.2 confirm-list
 
@@ -238,6 +241,6 @@ If real demand emerges later for skip / override / config (a real project repeat
 - [Plugin reference — manifest, components, CLAUDE_PLUGIN_ROOT](https://code.claude.com/docs/en/plugins-reference.md)
 - [Discovering plugins (official + third-party marketplaces)](https://code.claude.com/docs/en/discover-plugins.md)
 - [Skill discovery and namespacing](https://code.claude.com/docs/en/skills.md)
-- [`specs/jtbd.md` v0.2](../specs/jtbd.md) — J5 (this analysis's test)
+- [`specs/jtbd.md` v0.2](../../specs/jtbd.md) — J5 (this analysis's test)
 - [`docs/analysis/2026-04-26-preflight-strategic-reimagine.md`](2026-04-26-preflight-strategic-reimagine.md) — the reshape proposal this refines
 - [`docs/plans/2026-04-26-preflight-roadmap.md`](../plans/2026-04-26-preflight-roadmap.md) Phase 3 — the tasks affected
