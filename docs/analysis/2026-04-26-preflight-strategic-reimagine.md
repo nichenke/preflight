@@ -12,7 +12,7 @@
 
 Preflight's friction is structural, not process-volume in the abstract. The **48 rules + reviewer ensemble are the moat**; industry data confirms nobody else ships this. Templates are inputs to elicitation, not the user-facing surface. The lifecycle/governance scaffolding (ADR-007 feature folders, CONST-PROC-02 recursion, day-60 tripwire, multi-pass adversarial review on docs-only ADRs, ADR-011 forward-declared before ADR-007 validates) is process accretion that the field has been actively shedding during the same 60-day window preflight got heavier.
 
-**Final recommendation: drop spec-kit, ship as a Claude Code skill bundle that PAI invokes during BUILD when the task involves spec creation/modification. Preflight's value is deep elicitation + smart doc-type routing + gap-catching reviewers — not a template library users pick from.**
+**Final recommendation: drop spec-kit, ship as a Claude Code skill bundle invoked during spec creation/modification. Preflight's value is helping users build, modify, review, and re-read the durable project harness their agents execute against — driven by deep elicitation, smart doc-type routing, and gap-catching reviewers. Templates and rules are valuable inputs to that workflow (a secondary but important surface), not the primary user-facing interface.**
 
 ---
 
@@ -140,11 +140,15 @@ Preflight is a **PAI-invoked workflow** that drives spec generation through thre
 - **Gap reviewer (new):** explicitly catches gap classes — "no testing plan," "no rollback plan," "no observability story," "no failure modes," "no rate-of-change consideration"
 - Returns structured findings (file:line:severity:rule)
 
-### How PAI consumes preflight
+### How preflight is invoked (phased)
 
-PAI's Algorithm runs OBSERVE → THINK → PLAN → BUILD. When the BUILD task is "create or modify specs," PAI invokes preflight's Explore skill. The skill does its workflow, returns drafts + review findings, PAI surfaces to the user, user iterates. When clean, PAI hands off the spec to its own EXECUTE phase (which builds against the spec).
+The invocation surface phases in over time:
 
-The user's interface is **just talking to PAI.** PAI figures out it needs preflight, calls the skill, drives the loop. Templates are inputs to the workflow, not user-facing artifacts. The user never picks a template.
+**Phase A — direct user invocation (initial shape):** The user invokes `/preflight:explore` directly in a NATIVE PAI session when they're starting a feature, modifying the harness, or evolving a spec. The skill does its workflow, returns drafts + review findings, the user iterates and resolves open questions. **Human review of the explore output is required before BUILD** — this is non-negotiable in the initial shape. Once the explore output is reviewed, fixed, and clean, BUILD proceeds against it.
+
+**Phase B — PAI two-phase orchestration (later):** PAI's Algorithm fleshes out `/preflight:explore` from a human input statement, then the user reviews/PRs the explore output before BUILD. Same review gate, less ceremony to start the workflow. This is where the original "PAI invokes preflight during BUILD" framing eventually lands — but it's later work, not initial state.
+
+In both phases, templates and rules are inputs to the workflow. The user does not pick templates as a starting point — but they see and can adjust the doc-type routing decisions the workflow makes.
 
 ### What preflight ships
 
@@ -219,18 +223,22 @@ No `.specify/`, no `preset.yml`, no `extension.yml`, no spec-kit dependency.
 - User runs review again
 - Repeat
 
-**After (target):**
-- User talks to PAI: "I want to add OAuth login"
-- PAI runs Algorithm OBSERVE → identifies this is a spec task → invokes preflight Explore skill
-- Explore asks deep questions until coverage thresholds met (which are themselves rules)
+**After (target — Phase A, direct invocation):**
+- User invokes `/preflight:explore` in a NATIVE PAI session: "I want to add OAuth login"
+- Explore asks deep questions until coverage thresholds met (the thresholds are themselves rules)
 - Explore determines: this needs an RFC + requirements delta + architecture delta + test-strategy delta
 - Explore drafts all four
 - Review skill runs — reports gaps ("no rollback plan in RFC," "test-strategy doesn't cover OAuth state edge cases")
-- PAI surfaces gaps to user; user clarifies
-- Loop until clean
-- PAI hands off to its own BUILD phase against the now-validated specs
+- User clarifies, fixes, iterates against the surfaced findings
+- **Human review of the explore output is required before BUILD** — this gate is non-negotiable initially
+- Once explore output is clean and human-reviewed, BUILD proceeds
 
-The user never picks a template, never decides which doc type, never manually invokes review. The workflow drives.
+**After (target — Phase B, PAI two-phase, later):**
+- User states intent to PAI; PAI invokes Explore on the user's behalf
+- Explore output lands as a draft for the user to review/PR before BUILD
+- Same human-review gate; less ceremony at the start
+
+The user does not pick a template or manually decide doc types. The workflow drives doc-type routing; the user reviews and adjusts the decisions.
 
 ---
 

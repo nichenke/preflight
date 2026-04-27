@@ -14,7 +14,7 @@
 
 Preflight is a Claude Code skill bundle invoked by PAI during BUILD when the task involves harness creation or modification. Its value is **building, modifying, reviewing, and re-reading the durable project harness your agents execute against** — not a template library users pick from. Templates and rules are inputs to the workflow, not the user-facing surface.
 
-User experience: talk to PAI → PAI invokes preflight Explore → workflow asks deep questions → workflow drafts the right preflight docs → reviewers catch gaps → loop with user → handoff to PAI BUILD against validated specs.
+User experience phases in. **Initial (Phase A):** user invokes `/preflight:explore` directly in a NATIVE PAI session → workflow asks deep questions → workflow drafts the right preflight docs → reviewers catch gaps → user iterates → human review of explore output is required before BUILD → BUILD proceeds. **Later (Phase B):** PAI two-phase orchestration — PAI runs `/preflight:explore` from a user input, the user reviews/PRs the explore output before BUILD. Same human-review gate; less ceremony to start.
 
 Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a few hours or less, M = up to roughly a day, L = multi-day. Time-on-clock is a poor metric for whether something is "real time to re-derive" and tends to anchor expectations badly; size signals are honest about relative scope without committing to a clock.
 
@@ -41,9 +41,10 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
   - Exit: file exists, ≥5 stories, anti-jobs section names PAI/spec-kit/migration boundaries explicitly
 
 - [ ] **1.2 — Re-evaluate decisions against JTBD** (M)
-  - Confirm: drop spec-kit, drop self-constitution, drop ADR-007 lifecycle, ship as skill bundle, ADRs survive (architecture-sized choices only — not behavior-change governance)
+  - Confirm: drop spec-kit, drop self-constitution, drop ADR-007 lifecycle, ADRs survive (architecture-sized choices only — not behavior-change governance)
+  - **Open: delivery shape — skill bundle vs plugin.** Plugin distribution may be cleaner for content updates and repo uses. Decision needs a JTBD covering tool delivery / update / cross-repo install patterns first; current jtbd.md only covers harness Jobs, not delivery Jobs. Add J5 (or sibling `specs/delivery-jtbd.md`) before locking the delivery shape.
   - Document any reversals as commits to the analysis doc
-  - Exit: roadmap updated if JTBD surfaces anything that contradicts current direction
+  - Exit: roadmap updated if JTBD surfaces anything that contradicts current direction; delivery shape decided (or explicitly deferred to Phase 2 with a delivery-JTBD prerequisite)
 
 - [ ] **1.3 — Archive workstream HANDOFFs** (S)
   - Create `archive/handoffs/` directory
@@ -233,6 +234,7 @@ These are deferred to after the reshape ships. Not blocked on roadmap completion
 - **Question-bank tuning.** As the Explore workflow runs on more features, mine real elicitation transcripts for question patterns that consistently surface useful info.
 - **Cross-project consistency.** If preflight is installed in 3+ projects, audit whether the same rules + workflow produce consistent outcomes.
 - **Rule kernel growth.** Add new rules only when real reviewer findings repeatedly miss a class of issues. Each new rule = ADR per tightened CONST-PROC-02.
+- **Preflight awareness in PAI's LEARN phase.** Capture session signal — ideally via a subagent looking at the PRD / output of preflight-driven sessions — to feed both *add/change* and *reduce/remove* improvements back into preflight (rules, question banks, gap categories, templates). Cover quality-problem detection (e.g. reviews that consistently miss a class of issue, questions that consistently produce noise). **Open: implementation path** — does this land as a `.claude/rules/` repo-rule that PAI picks up during LEARN, or does it require LEARN/Algorithm changes upstream? Investigate before committing to a shape.
 
 ---
 
