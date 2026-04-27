@@ -8,7 +8,7 @@ Preflight helps you build, modify, review, and re-read the durable harness your 
 
 ## Personas
 
-The same human plays four roles at different times:
+Preflight serves four roles — often played by the same human at different times, sometimes split across different people on a team:
 
 - **Builder** — producing or modifying the project's harness (goals, rules, architecture, JTBD, interface contracts).
 - **Supervisor** — reviewing agent-drafted output before it merges; default action is *approve / iterate / reject*, not author from scratch.
@@ -39,7 +39,7 @@ J2 is Supervisor mode — pre-merge gate at the L3/L4 checkpoint. At L3 it's a s
 
 ### J3 — Keep architecture-sized decisions traceable
 
-**When** I'm making an architecture-sized choice — one whose downstream invariants will hold for months — **help me** record the decision and its rationale as an ADR, **so that** a future reader, contributor, or agent can retrace why the architecture is the way it is and won't silently revert it on the next "improvement."
+**When** I'm making an architecture-sized choice — one whose downstream invariants are expensive to re-derive — **help me** record the decision and its rationale as an ADR, **so that** a future reader, contributor, or agent can retrace why the architecture is the way it is and won't silently revert it on the next "improvement."
 
 **Justifies:** ADRs as a *scoped* artifact — kept for architecture-sized choices only, not for routine behavior changes. **Prevents:** the *"silent reversal"* failure mode where a later contributor or agent re-improves a prior decision because the rationale was never written down.
 
@@ -47,7 +47,7 @@ J3 is Maintainer mode (writing the ADR when the choice happens) and Returning-re
 
 ### J4 — Keep the harness contributor-readable across time
 
-**When** I'm returning to a project after months, joining as a new contributor, or reading the harness without invoking any agent, **help me** read the project's current intent from versioned, diffable text files, **so that** the harness remains the source of truth even when no agent is running and a returning reader can answer *"what is this project for and how is it shaped?"* with `git log` and a text editor.
+**When** I'm returning to a project after time away, joining as a new contributor, or reading the harness without invoking any agent, **help me** read the project's current intent from versioned, diffable text files, **so that** the harness remains the source of truth even when no agent is running and a returning reader can answer *"what is this project for and how is it shaped?"* with `git log` and a text editor.
 
 **Justifies:** keeping the harness as checked-in markdown (not agent-mediated state); requiring reviewer rules to cite line-anchored evidence. **Prevents:** the *"truth-in-the-agent"* failure mode where the agent becomes the only thing that knows what the project is supposed to do.
 
@@ -55,7 +55,7 @@ J4 is about the *durable bits* — goals, rules, architecture, JTBD, ADRs. State
 
 ## Anti-jobs
 
-- **Not for replacing PAI / agent ISC task decomposition.** Preflight evaluates and produces harness; it does not generate the task graph an implementation agent runs. *Preflight does:* the harness — the agent decomposes ISC against it.
+- **Not for replacing PAI / agent ISC task decomposition, spec-kit, OpenSpec, or similar SDD frameworks.** Preflight evaluates and produces *this* project harness shape; it does not generate the implementation task graph (the agent does that against the harness), and it does not try to be a drop-in alternative to adjacent spec-driven-dev frameworks (each has its own opinions on lifecycle, artifact shapes, and gates). *Preflight does:* serve projects that adopt this harness shape and review approach; the agent does ISC against the harness; users who want a different SDD shape pick a different tool.
 - **Not a CI gate, pre-commit hook, or runtime enforcer.** Preflight runs on demand. Making it block commits or merges turns review trust into review obligation, and false-positive cost compounds. *Preflight does:* return findings when invoked; the user (or a higher-level gate the user explicitly wires up) decides what to do.
 - **Not for behavior-change governance.** ADRs are for architecture-sized choices, not every behavioral edit. Forcing an ADR on routine behavior changes accretes process without adding traceability the project will actually use. *Preflight does:* ADR for architecture; commits, code, and spec edits trace everything else.
 - **Not a constitution-checker for arbitrary projects.** The rule pack is calibrated for projects that adopt this harness shape. Lifting rules into projects that haven't adopted it surfaces false positives at scale. *Preflight does:* serve projects that have adopted the practice.
@@ -77,5 +77,5 @@ One concrete narrative per Job. Each acceptance hint is specific enough to drive
 - Acceptance: ADR-required edits are detected by impact on architecture or interface contracts; behavior edits without architectural impact pass without prompting; the ADR draft includes the change, the alternatives considered, and the rationale.
 
 ### S4 — Returning reader, J4
-*As a contributor opening this project after three months, I want `specs/requirements.md`, the relevant ADRs under `specs/decisions/adrs/`, and (when present) `specs/architecture.md` to fully answer "what is this project for and how is it shaped?" without invoking any tool.*
+*As a contributor returning to a project (or joining cold), I want `specs/requirements.md`, the relevant ADRs under `specs/decisions/adrs/`, and (when present) `specs/architecture.md` to fully answer "what is this project for and how is it shaped?" without invoking any tool.*
 - Acceptance: opening that set of files in a text editor is sufficient on this project to answer the question; no read path requires running preflight, an agent, or any external tool. Each project's harness declares its own file set in `specs/requirements.md` (or wherever the project's index lives) — S4 is satisfied per-project against that declared set.
