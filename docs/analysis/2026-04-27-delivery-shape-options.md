@@ -7,9 +7,9 @@
 
 ## TL;DR
 
-Ship preflight as a **Claude Code plugin** providing the kernel (rules + reviewer agents + Explore/Review workflows + doc-type templates), with **project-level overlay** at `.claude/preflight-config.json` (or `.claude/skills/preflight/overrides/`) for per-project rule additions, skips, severity overrides, and custom doc-types. This is the hybrid Option C below.
+Ship preflight as a **Claude Code plugin** providing the kernel (rules + reviewer agents + Explore/Review workflows + doc-type templates). Projects that want to add their own rules or doc-types drop them into `.preflight/rules/` (or `.preflight/templates/`) at the repo root — discovered alongside the kernel by the reviewer agents at runtime. No overlay-config file, no skip mechanism, no severity overrides — just additive rule discovery from two locations.
 
-The hybrid satisfies J5's three motions (install, update, customize) without forcing projects to fork the kernel. Pure skill bundle (Option A) makes updates manual; pure plugin (Option B) makes per-project customization awkward. The hybrid sits at the sweet spot.
+This is **Option B** below. Earlier framings of this analysis proposed an overlay-config file (`.claude/preflight-config.json`) layered on top — that's been dropped. There's no JTBD-evidenced demand for skip / override / config-format mechanisms; additive rule discovery is enough. Anything more is bureaucracy that hasn't earned its keep.
 
 The decision belongs to ADR-012 (after ADR-011 is closed per the one-ADR-at-a-time process throttle).
 
@@ -17,15 +17,17 @@ The decision belongs to ADR-012 (after ADR-011 is closed per the one-ADR-at-a-ti
 
 `specs/jtbd.md` v0.2:
 
-> **When** I'm trying preflight on a new project, updating to a newer version across multiple projects, or adapting its defaults to a project's specific shape (extra rules, skipped rules, custom doc-types), **help me** install, update, and customize preflight without losing project-local adjustments and without forcing every contributor to re-tool, **so that** preflight's value compounds across projects and over time rather than being gated on a one-time install ceremony each project does in isolation.
+> **When** I'm trying preflight on a new project, updating to a newer version across my projects, or adding project-specific rules or doc-types alongside the kernel defaults, **help me** install, update, and extend preflight without forcing every contributor to re-tool, **so that** preflight's value compounds across projects and over time rather than being gated on a one-time install ceremony each project does in isolation.
 
 Three motions to satisfy:
 
 1. **Install** — new project, first time. Friction should be low (one or two commands).
 2. **Update** — newer version drops; the user has N projects using preflight. Friction should not scale with N.
-3. **Customize** — projects need per-project rule additions / skips / overrides. Customization must survive updates without manual merge.
+3. **Extend** — projects need to *add* project-specific rules or doc-types. Additions must survive updates without manual merge.
 
-J5's failure mode: *"installed once, forgotten, fork drift"* — projects pin an old preflight, accumulate unmerged local edits, lose access to upstream improvements.
+J5's failure mode: *"installed once, forgotten, fork drift"* — projects pin an old preflight, accumulate divergent copies, lose access to upstream improvements.
+
+J5 deliberately does not name *skipping* kernel rules, *overriding* severities, or any *config-format* concern. Those are not currently evidenced demands; absent demand, designing for them is bureaucracy.
 
 ## Options
 
@@ -35,101 +37,96 @@ J5's failure mode: *"installed once, forgotten, fork drift"* — projects pin an
 
 **Install:** `cp -r preflight-repo/.claude/skills/preflight target-project/.claude/skills/preflight` OR `git submodule add github.com/nichenke/preflight target-project/.claude/skills/preflight`.
 
-**Update:** if submodule, `git submodule update --remote`. If direct copy, `cp -r` again (overwrites local edits).
+**Update:** if submodule, `git submodule update --remote` per project. If direct copy, `cp -r` again (overwrites local edits).
 
-**Customize:** edit `.claude/skills/preflight/rules/*.md` in place. Cleanly customizable but…
+**Extend:** edit `.claude/skills/preflight/rules/*.md` in place. Cleanly extensible but additions and edits collide with updates.
 
 **J5 verdict:**
 - Install: ✅ easy.
-- Update: ⚠️ scales with N projects (each project pulls its submodule). Submodule conflicts on local rule edits are a real cost.
-- Customize: ⚠️ per-project edits collide with updates unless the user is disciplined about which files are "kernel" vs "local." No mechanical separation.
+- Update: ⚠️ scales with N projects; submodule conflicts on local rule edits are real cost.
+- Extend: ⚠️ additions and updates share the same directory tree; merge cost on every update.
 
-**Failure mode:** the *fork drift* failure J5 names. Every project has its own copy; over time they diverge from upstream and from each other.
+**Failure mode:** the *fork drift* failure J5 names. Every project owns its copy; over time they diverge from upstream and from each other.
 
-### Option B — Plugin (user-level)
+### Option B — Plugin (recommended)
 
-**Shape:** preflight ships as a Claude Code plugin. User installs once globally via `/plugin marketplace add nichenke/preflight && /plugin install preflight@nichenke`. The plugin's skills, agents, and rules live at `${CLAUDE_PLUGIN_ROOT}/`. Skills become namespaced: `/preflight:explore`, `/preflight:review`.
+**Shape:** preflight ships as a Claude Code plugin at `github.com/nichenke/preflight`. Users install once globally via `/plugin marketplace add nichenke/preflight && /plugin install preflight@nichenke`. The plugin's skills, agents, and rules live at `${CLAUDE_PLUGIN_ROOT}/`. Skills are namespaced: `/preflight:explore`, `/preflight:review`.
 
-**Install:** two commands first time; zero per-project commands afterward.
+For project-specific additions: a project drops rule files into `.preflight/rules/` and template files into `.preflight/templates/` at the repo root. The plugin's reviewer agents discover rules from both `${CLAUDE_PLUGIN_ROOT}/skills/preflight/rules/` (kernel) and `<repo>/.preflight/rules/` (project additions) at invocation time. Same shape, additive.
 
-**Update:** auto-update at Claude Code startup (toggleable per marketplace; opt-in for third-party). Or `/plugin marketplace update nichenke`. Updates apply globally — the user updates once, all projects get the new version.
+**Install:** two commands first time per user; zero per-project commands afterward (default kernel works).
 
-**Customize:** awkward by default. Plugin rules are read-only at `${CLAUDE_PLUGIN_ROOT}`. Per-project customization needs a config surface — either:
-- `.claude/settings.json` with plugin-specific hooks (limited to what the plugin exposes)
-- A project-level overlay file the plugin reads at runtime
+**Update:** auto-update at Claude Code startup (toggleable per marketplace; opt-in for third-party). Or `/plugin marketplace update nichenke`. Updates apply globally — the user updates once, all projects get the new kernel.
 
-Without a designed customization surface, Option B forces every project to use the same kernel — which doesn't survive contact with reality (projects do have different needs).
+**Extend:** project drops markdown rule files into `.preflight/rules/`; reviewer picks them up alongside the kernel. No config format, no schema, no skip mechanism. The same rule format used by the kernel works for project additions.
 
 **J5 verdict:**
 - Install: ✅ trivially easy.
-- Update: ✅ auto-updates handle the N-projects motion for free.
-- Customize: ❌ unless a customization surface is designed alongside the plugin shape. Otherwise projects can't extend.
+- Update: ✅ auto-update handles N projects for free.
+- Extend: ✅ additive discovery; project additions live in `.preflight/`, kernel lives in plugin — no collision possible.
 
-**Failure mode:** projects either (a) don't customize and live with kernel mismatches, or (b) bypass the plugin and roll their own — which loses the update mechanic.
+**Failure mode:** less "drift" failure, more "kernel hostility" — if the kernel ships a rule that's wrong for a specific project, the project can't disable it; they live with the finding (or open an issue against the kernel). Acceptable cost given that all rules ship with severity ({Critical, Important, Suggestion}); a bad-fit rule produces a Suggestion-level finding the project can ignore. If a project repeatedly hits a Critical-level rule that's wrong for them, that's a kernel-design conversation, not a per-project fix.
 
-### Option C — Hybrid (plugin + project overlay)
+### Option C — Hybrid (plugin kernel + overlay config) — REJECTED
 
-**Shape:** the kernel ships as a plugin (Option B). Each project that wants customization adds a small overlay at `.claude/preflight-config.json` (or `.claude/skills/preflight/overrides/`) that the plugin's workflows read at runtime. Overlay shape:
+Earlier framing of this doc proposed a hybrid: plugin kernel + project-level overlay config (`.claude/preflight-config.json`) with addRules / skipRules / overrideSeverity / customDocTypes fields.
 
-```jsonc
-// .claude/preflight-config.json
-{
-  "extends": "preflight",
-  "addRules": [
-    "./rules/project-issue-traceability.md"
-  ],
-  "skipRules": ["UNIV-04"],
-  "overrideSeverity": {
-    "UNIV-07": "Suggestion"
-  },
-  "customDocTypes": [
-    {
-      "name": "gameplay-design",
-      "template": "./templates/gameplay-design.md",
-      "rules": ["./rules/gameplay-design.md"]
-    }
-  ]
-}
-```
+**Why rejected:** no JTBD-evidenced demand for skip / override / config-format. J5 names install + update + extend; the *extend* motion is fully covered by additive rule discovery (Option B). Adding an overlay format introduces:
+- A schema to design and version
+- A precedence model (kernel vs overlay, which wins?)
+- A new artifact type for projects to maintain
+- Documentation overhead
 
-Plugin's Explore + Review workflows look at the kernel rules + the overlay, in that order. Overlay can add, skip, override, or extend.
+…all to solve problems that haven't surfaced. If a real demand emerges (a project repeatedly needs to skip or override a kernel rule), revisit. Until then, the kernel ships with severity, and projects ignore findings they don't want to act on.
 
-**Install:** plugin install (two commands, first-time only). Project sets up an overlay file when/if it needs to (optional; default kernel works without it).
+This is the right cut per the project rule "Don't add features, error handling, or abstractions beyond the task scope." Overlay config is a hypothetical-future-requirement design.
 
-**Update:** plugin auto-updates the kernel. Project overlay doesn't get touched (it lives outside the plugin). No merge conflicts.
+### Option D — Plugin-as-content-copier (the original preflight plugin shape)
 
-**Customize:** project owns its overlay. Versioned in the project's git history. Survives kernel updates by construction.
+**Shape:** preflight ships as a Claude Code plugin, but on installation the plugin *copies* its rule and template content into the target project's `.preflight/` directory. After install, the project owns the copy; the kernel content in the plugin is a source-of-truth template, but each project has its own snapshot. This was the v0.6.x preflight plugin shape, before the spec-kit conversion.
+
+**Install:** `/plugin install`, then run a "bootstrap" command that copies content into the project. Two-step.
+
+**Update:** `/plugin update` updates the plugin globally — but the *copies* in each project don't update. To get new rules into a project, the user has to re-run a "sync" or "re-bootstrap" command in each project, which either overwrites local edits or creates merge conflicts.
+
+**Extend:** edit the copied content in `.preflight/`. Project owns its copy after install.
 
 **J5 verdict:**
-- Install: ✅ as easy as Option B.
-- Update: ✅ as cheap as Option B; overlay isolation prevents the merge-cost of Option A.
-- Customize: ✅ explicit overlay surface; per-project versioning; no fork.
+- Install: ⚠️ two steps.
+- Update: ❌ kernel updates don't propagate to projects automatically; the user has to manually sync each project, accepting overwrite or doing a merge. Same N-projects friction as Option A, plus the version-confusion of "which version did this project copy?"
+- Extend: ✅ project owns its copy.
 
-**Failure mode:** the overlay shape becomes an API. Breaking changes to the overlay format ripple through every project. Mitigation: version the overlay schema (`"schemaVersion": 1`); publish migrations alongside kernel updates that change the schema.
+**Honest assessment:** this combines the *worst* of A and B. It has the in-project copy fork-drift problem of A (each project is a snapshot that diverges) AND the install ceremony of B (two-step plugin + bootstrap), AND it loses B's auto-update benefit (copies don't auto-update). The only thing it adds over A is a marginally nicer install (`/plugin install` vs `cp -r`).
+
+The historical reason this shape existed (in preflight v0.6.x) was that Claude Code plugins did not yet have first-class skill discovery — copying content into the project was the only way to make it discoverable. That constraint no longer applies; plugins now have `${CLAUDE_PLUGIN_ROOT}` and namespaced skill invocation. Option D is a relic of an earlier Claude Code era.
+
+**Verdict:** overkill, as you predicted. Strictly dominated by Option B for J5's three motions. Including it for completeness; not recommending it.
 
 ## Trade-off matrix
 
-| Concern | A: Skill bundle | B: Plugin | C: Hybrid |
-|---|---|---|---|
-| First-time install | 1 command (cp/submodule) | 2 commands (marketplace + install) | 2 commands (same as B) |
-| Update across N projects | N submodule pulls | 1 auto-update | 1 auto-update |
-| Per-project rule customization | edit in place (collides w/ updates) | requires plugin-exposed config | overlay file (clean) |
-| Customization survives updates | ❌ manual merge required | n/a (no surface) | ✅ overlay isolated |
-| Versioning model | per-project pin | global single | global kernel + per-project overlay |
-| Composability with hooks/commands | manual integration | auto-discover | auto-discover (kernel) + project hooks coexist |
-| Bootstrapping new contributor in project | clone repo, get bundle | install plugin once | install plugin once + read overlay |
-| Maintainer cost (1+ project) | high | lowest | low |
-| Failure mode | fork drift | one-size-fits-all | overlay-API stability |
+| Concern | A: Skill bundle | B: Plugin (recommended) | C: Hybrid (rejected) | D: Plugin-as-copier |
+|---|---|---|---|---|
+| First-time install | 1 command | 2 commands (per user) | 2 commands | 2 commands |
+| Update across N projects | N submodule pulls | 1 auto-update | 1 auto-update | N manual syncs |
+| Project rule additions | edit in place | drop into `.preflight/rules/` | overlay config + addRules | edit copy in `.preflight/` |
+| Additions survive updates | ❌ manual merge | ✅ separate dirs | ✅ overlay isolated | ❌ manual merge |
+| Skip / override kernel rules | edit in place | not supported (live with severity) | overlay supports it | edit copy |
+| New artifact required | none | `.preflight/rules/` (just markdown) | `.preflight/preflight-config.json` (schema) | `.preflight/` snapshot of kernel |
+| Versioning model | per-project pin | global single | global kernel + per-project overlay | per-project snapshot |
+| Composability with hooks/commands | manual | auto-discover | auto-discover | manual |
+| Maintainer cost (1+ project) | high | lowest | low-medium | high |
+| Failure mode | fork drift | kernel hostility (mitigated by severity) | overlay-API stability | fork drift + version confusion |
 
 ## Recommendation
 
-**Option C — Hybrid.** Plugin kernel + project overlay.
+**Option B — Plugin.** Kernel ships in the plugin; project additions land at `.preflight/rules/` and `.preflight/templates/` and are discovered by the reviewer agents alongside the kernel.
 
 Rationale:
-1. **J5's update motion is the deciding factor.** Option A's manual update path is the *fork drift* failure mode J5 names. Hybrid eliminates it.
-2. **J5's customize motion forces an overlay regardless.** Even if we shipped pure skill bundle (A), every project would need a way to manage local edits separately from kernel content. The overlay is needed; it might as well be designed.
-3. **Plugin distribution is the dominant idiom for Claude Code add-ons.** Adopting it puts preflight where users will look, with the install/update mechanic users already know.
-4. **The overlay schema is small to design** — addRules / skipRules / overrideSeverity / customDocTypes covers the customization needs we've actually seen in the rule-design history.
+1. **J5's three motions are all satisfied** without any new artifact type beyond a directory convention.
+2. **Pure plugin auto-update is the cheapest update story** in any pattern Claude Code currently supports.
+3. **Additive rule discovery is the simplest extension surface** — same rule shape used by the kernel works for projects. No schema, no precedence model, no skip mechanism.
+4. **The "kernel hostility" failure mode is mitigated by severity** — kernel rules ship as Critical / Important / Suggestion; a bad-fit Suggestion is ignored, a bad-fit Critical is a kernel-design conversation (not a per-project workaround).
+5. **`.preflight/` keeps project state out of `.claude/`**, which keeps the project's Claude Code config surface clean and gives preflight a clearly named home.
 
 ## What this changes for the reshape (PR #45)
 
@@ -139,7 +136,7 @@ Current Phase 3.2 task says:
 
 > Create `.claude/skills/preflight/` skill bundle structure ... `git mv` operations: extensions/preflight/rules/* → .claude/skills/preflight/rules/
 
-Under hybrid, the structure is:
+Under Option B, the structure is:
 
 ```
 preflight-plugin-repo/
@@ -156,52 +153,58 @@ preflight-plugin-repo/
         checklist-reviewer.md
         bogey-reviewer.md
         gap-reviewer.md
-  scripts/
-    new-overlay.sh                      # bootstraps .claude/preflight-config.json in a target project
 ```
 
-Skill invocation becomes `/preflight:explore` and `/preflight:review` (namespaced).
+Skill invocation: `/preflight:explore` and `/preflight:review`.
 
-Project repos add (optional):
+Project repos (optional, only if they need additions):
 ```
 target-project/
-  .claude/
-    preflight-config.json               # overlay file
-    rules/                              # project-local rules referenced from overlay
+  .preflight/
+    rules/                              # project-specific rule files (markdown, kernel format)
+    templates/                          # project-specific doc-type templates
 ```
 
-### Roadmap Phase 3.3 / 3.4 / 3.5
-
-No changes — Explore workflow, gap-reviewer agent, SKILL.md orchestration all live inside the plugin.
+Reviewer agent discovery walks both `${CLAUDE_PLUGIN_ROOT}/skills/preflight/rules/` and the project's `.preflight/rules/` if it exists. Both are markdown files in the same shape; no precedence rules, no override semantics — just additive.
 
 ### Roadmap Phase 4.5 (ship v0.7.0) — install instructions change
 
 Current:
 > `cp -r preflight/.claude/skills/preflight <target>/.claude/skills/preflight`
 
-New:
-> `/plugin marketplace add nichenke/preflight && /plugin install preflight@nichenke` (one-time per user)
-> Optionally: create `.claude/preflight-config.json` in any project that needs custom rules.
+New (per user, one time):
+> `/plugin marketplace add nichenke/preflight`
+> `/plugin install preflight@nichenke`
+
+Per project (optional, only if additions are needed):
+> Create `.preflight/rules/<your-rule>.md` with the same frontmatter shape kernel rules use.
+
+### Roadmap Phase 1.2 confirm-list
+
+Update from:
+> Open: delivery shape — skill bundle vs plugin. ... Add J5 (or sibling specs/delivery-jtbd.md) before locking the delivery shape.
+
+To:
+> Resolved (this analysis): plugin (Option B) per `docs/analysis/2026-04-27-delivery-shape-options.md`; ratified by ADR-012 after ADR-011 closes.
 
 ## What this DOESN'T change
 
-- **The four "in-use" Jobs (J1–J4).** Hybrid is invisible to Builders, Supervisors, Maintainers, and Returning readers. They use `/preflight:explore` and `/preflight:review` (or whatever the user-facing entry is); nothing about the harness Jobs depends on which delivery shape ships them.
+- **The four "in-use" Jobs (J1–J4).** Plugin shape is invisible to Builders, Supervisors, Maintainers, and Returning readers. They use `/preflight:explore` and `/preflight:review`; nothing about the harness Jobs depends on which delivery shape ships them.
 - **The harness shape itself.** `specs/requirements.md`, ADRs under `specs/decisions/adrs/`, etc. — all stay markdown-on-disk in the target project. J4 (contributor-readable) is unaffected.
-- **The reshape direction.** ADR-011 (drop spec-kit, ship as a Claude Code workflow tool) still holds. This refines what the workflow tool's *delivery* looks like.
+- **The reshape direction.** ADR-011 (drop spec-kit, ship as a Claude Code workflow tool) still holds.
 
-## Open questions for the ADR
+## Open questions for ADR-012
 
-1. **Overlay format.** JSON, YAML, or markdown with frontmatter? Project rule rule-design suggests markdown frontmatter is more legible; JSON is more programmable. Lean markdown for J4 (contributor-readable).
-2. **Overlay location.** `.claude/preflight-config.json` is conventional; `.claude/skills/preflight/overrides/` is more discoverable. Pick after surveying peer plugins.
-3. **Schema versioning.** Embed `"schemaVersion": 1` from day one; otherwise migrations get expensive.
-4. **Marketplace.** Use Anthropic's official marketplace or a self-hosted one? Self-hosted gives faster iteration; official gives reach. Probably self-hosted initially, migrate later.
-5. **Kernel customization surface scope.** The minimum viable overlay surface is addRules + skipRules. overrideSeverity and customDocTypes are nice-to-have. Start narrow; expand on real demand.
+1. **Marketplace.** Use Anthropic's official marketplace or self-hosted? Self-hosted gives faster iteration; official gives reach. Probably self-hosted initially.
+2. **`.preflight/` discovery scope.** Reviewer agents walk the project's `.preflight/rules/` recursively or only top-level? Recursive is more flexible; top-level is more predictable. Lean top-level.
+3. **Plugin manifest.** Versioning policy (PEP 440), author/repository fields, plugin description — boilerplate but worth deciding once.
+4. **Naming.** Plugin name = `preflight`; skill name = `preflight`; namespace becomes `/preflight:explore`. Confirm this collision is fine (it is — they're distinct surfaces in Claude Code's model).
 
 ## Bottom line
 
-Hybrid is the right shape. The roadmap's Phase 3 tasks need a small structural update (skill-bundle directory → plugin directory + plugin.json). Phase 1.2's Confirm-list updates: the delivery decision is *resolved* (hybrid plugin + overlay), pending an ADR to ratify it.
+Plugin (Option B). `.preflight/` for project additions. No overlay config, no skip mechanism, no schema. The simplest thing that satisfies J5's three motions.
 
-J5 is the test the hybrid passes that A and B individually don't.
+If real demand emerges later for skip / override / config (a real project repeatedly needs to disable a kernel rule), revisit. Until then, the kernel rules + severity grading + project-additive rules cover the field.
 
 ## References
 

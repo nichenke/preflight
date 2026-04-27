@@ -2,8 +2,6 @@
 
 **Version:** v0.2 (2026-04-27) · expected to evolve.
 
-**v0.2:** Added Adopter persona + J5 (delivery / install / update / per-project customization) + S5 user story. v0.1 covered the four "in-use" roles (Builder / Supervisor / Maintainer / Returning reader) but missed the prerequisite role of getting preflight into a project and keeping it current — surfaced during PR #45 review as an open delivery-shape decision.
-
 ## What this doc is for
 
 Preflight helps you build, modify, review, and re-read the durable harness your projects — and your agents — execute against. This document names what preflight is hired to do, and what it isn't.
@@ -58,9 +56,9 @@ J4 is about the *durable bits* — goals, rules, architecture, JTBD, ADRs. State
 
 ### J5 — Adopt and update preflight in a project
 
-**When** I'm trying preflight on a new project, updating to a newer version across multiple projects, or adapting its defaults to a project's specific shape (extra rules, skipped rules, custom doc-types), **help me** install, update, and customize preflight without losing project-local adjustments and without forcing every contributor to re-tool, **so that** preflight's value compounds across projects and over time rather than being gated on a one-time install ceremony each project does in isolation.
+**When** I'm trying preflight on a new project, updating to a newer version across my projects, or adding project-specific rules or doc-types alongside the kernel defaults, **help me** install, update, and extend preflight without forcing every contributor to re-tool, **so that** preflight's value compounds across projects and over time rather than being gated on a one-time install ceremony each project does in isolation.
 
-**Justifies:** the delivery-shape decision (skill bundle vs plugin vs hybrid) and any per-project customization mechanism. **Prevents:** the *"installed once, forgotten, fork drift"* failure mode where projects pin an old preflight, accumulate unmerged local edits, and lose access to upstream improvements (and rule kernel growth).
+**Justifies:** the delivery-shape decision (plugin vs in-project bundle) and the convention for project-level rule additions. **Prevents:** the *"installed once, forgotten, fork drift"* failure mode where projects pin an old preflight, accumulate divergent copies, and lose access to upstream improvements and rule kernel growth.
 
 J5 is the prerequisite that makes J1–J4 reach more than one project. Without it, preflight is a per-project copy that ages out of date. The delivery-shape decision lives downstream of this Job — the right shape is the one that satisfies J5 with the least friction.
 
@@ -92,5 +90,5 @@ One concrete narrative per Job. Each acceptance hint is specific enough to drive
 - Acceptance: opening that set of files in a text editor is sufficient on this project to answer the question; no read path requires running preflight, an agent, or any external tool. Each project's harness declares its own file set in `specs/requirements.md` (or wherever the project's index lives) — S4 is satisfied per-project against that declared set.
 
 ### S5 — Adopter, J5
-*As an adopter installing preflight in a new project (or updating across multiple projects), I want one command to install, one command to update, and a clear pattern for adding project-specific rule overrides without forking the kernel, so I can get current preflight + my customizations without copying files by hand or maintaining a rebase loop.*
-- Acceptance: install runs as a single command (specifics deferred to the delivery-shape ADR); update runs as a single command and does not overwrite project-local rule overrides or custom doc-types; per-project customizations live in a stable location separate from the kernel content; an adopter can answer *"is my preflight up to date?"* and *"what local overrides are in play?"* with one inspection each.
+*As an adopter installing preflight in a new project (or updating across multiple projects), I want one command to install, one command to update, and a clear pattern for adding project-specific rules or doc-types alongside the kernel without forking, so I can get current preflight + my additions without copying files by hand or maintaining a rebase loop.*
+- Acceptance: install runs as a single command (specifics deferred to the delivery-shape ADR); update runs as a single command and does not overwrite project-local additions; project-specific additions live in a stable location separate from the kernel content; an adopter can answer *"is my preflight up to date?"* and *"what additions does this project layer on top?"* with one inspection each.
