@@ -12,7 +12,7 @@
 
 ## North star
 
-Preflight is a Claude Code skill bundle invoked by PAI during BUILD when the task involves harness creation or modification. Its value is **building, modifying, reviewing, and re-reading the durable project harness your agents execute against** — not a template library users pick from. Templates and rules are inputs to the workflow, not the user-facing surface.
+Preflight is a Claude Code skill bundle invoked when harness creation or modification is needed. Its value is **building, modifying, reviewing, and re-reading the durable project harness your agents execute against** — not a template library users pick from. Templates and rules are inputs to the workflow, not the user-facing surface. Preflight runs *before* BUILD; human review of the explore output is required before BUILD proceeds.
 
 User experience phases in. **Initial (Phase A):** user invokes `/preflight:explore` directly in a NATIVE PAI session → workflow asks deep questions → workflow drafts the right preflight docs → reviewers catch gaps → user iterates → human review of explore output is required before BUILD → BUILD proceeds. **Later (Phase B):** PAI two-phase orchestration — PAI runs `/preflight:explore` from a user input, the user reviews/PRs the explore output before BUILD. Same human-review gate; less ceremony to start.
 
@@ -22,7 +22,7 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
 
 ## Kill switches
 
-- **2026-05-03:** If Phase 1 (foundation) isn't done, stop the strategic re-evaluation and just ship Phase 2 (cleanup). Cleanup is independently valuable.
+- **2026-05-03:** Phase 1.2 (JTBD re-evaluation) is a hard prerequisite for ADR-011 and any Phase 3 substrate work. If Phase 1.2 hasn't completed by this date, freeze the strategic reshape — Phase 2.2 (ADR close-out) and all of Phase 3 wait. Phase 1.3 (HANDOFF archives), Phase 1.4 (PR #22 merge), and the non-reshape Phase 2 cleanup tasks (2.1 UNIV-01 fix, 2.3 doc archive, 2.4 SPIKE_PLAN archive, 2.5 worktree cleanup, 2.6 issue #111 close) can ship regardless; they're independent of the reshape decision.
 - **2026-05-10:** If Phase 3 (reshape) hasn't started, the skill-bundle conversion is being deferred. Reassess: stay on spec-kit with throttled ADR engine instead.
 - **2026-05-24:** If Phase 4 (validate) hasn't produced one real feature shipped via the new workflow, the Explore skill design isn't working. Roll back to plain `/preflight:review` skill plus templates; drop the Explore workflow.
 
@@ -81,6 +81,7 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
   - Exit: PR merged, fix on main, test-pai-preset worktree closed
 
 - [ ] **2.2 — ADR close-out PR** (M)
+  - **Blocked-on:** Phase 1.2 (JTBD re-evaluation) must complete first; this task ratifies the reshape direction Phase 1.2 confirms (or revises). Authoring ADR-011 before Phase 1.2 finishes recreates the recursive-ADR-engine trap the reimagine is trying to remove.
   - Author ADR-011: "Drop spec-kit substrate; ship as Claude Code skill bundle" (the ONE meta-ADR for the reshape)
   - In same PR, mark:
     - ADR-007 → **Superseded by ADR-011** (worktrees + direct main edits replace feature-folder lifecycle)
@@ -150,29 +151,32 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
   - `.claude/skills/preflight/Workflows/Explore.md`
   - Three phases: deep elicitation, doc-type routing, draft generation
   - Deep elicitation: question bank organized by intent category (new feature, design decision, requirements update, architecture change, etc.); coverage thresholds per category
+  - **Answer provenance and dependency-aware retry (per S1 in `specs/jtbd.md`):** each elicitation answer carries one of `{confirmed, inferred, guessed}`; correcting a `{guessed}` answer re-runs only the dependent question subtree (not the entire bank); supervisors never have to re-answer a `{confirmed}` question
   - Doc-type routing: rules for which preflight doc types apply to which intent shapes (e.g., "design exploration with multiple viable approaches → RFC; committed decision after design accepted → ADR; new functional behavior → requirements delta; integration with external system → architecture delta + interface-contract")
   - Draft generation: invoke template + fill from elicitation answers
-  - Exit: workflow runs end-to-end on a synthetic intent ("add OAuth login"); produces drafts for the right doc types; routes correctly on at least 5 distinct intent shapes
+  - Exit: workflow runs end-to-end on a synthetic intent ("add OAuth login"); produces drafts for the right doc types; routes correctly on at least 5 distinct intent shapes; provenance markers visible in output; correcting a `{guessed}` answer re-runs only its dependent subtree
 
 - [ ] **3.4 — Add gap-reviewer agent** (M)
   - `.claude/skills/preflight/agents/gap-reviewer.md`
-  - Enumerated gap categories (each category gets a gap-detection prompt):
-    - Missing testing strategy
-    - Missing rollback plan
-    - Missing observability story
-    - Missing failure modes
-    - Missing rate-of-change consideration
-    - Missing security implications (when applicable)
-    - Internal conflicts (FR contradicts another FR; spec contradicts architecture)
-    - Incompleteness (FR missing acceptance criteria; section mentioned but empty)
-  - Returns structured findings (file:line:severity:category)
-  - Exit: agent runs against test specs (use the archived speckit-chain artifacts as known-good test cases — they had multiple gap classes)
+  - **Each gap category becomes a rule with a stable rule ID** (UNIV-Gnn) so findings preserve the S2 traceability requirement (review output must cite a quote and a rule ID). The gap-reviewer is rule-backed like checklist + bogey, not a separate un-traceable review channel:
+    - UNIV-G01 — Missing testing strategy
+    - UNIV-G02 — Missing rollback plan
+    - UNIV-G03 — Missing observability story
+    - UNIV-G04 — Missing failure modes
+    - UNIV-G05 — Missing rate-of-change consideration
+    - UNIV-G06 — Missing security implications (when applicable)
+    - UNIV-G07 — Internal conflicts (FR contradicts another FR; spec contradicts architecture)
+    - UNIV-G08 — Incompleteness (FR missing acceptance criteria; section mentioned but empty)
+  - Returns structured findings (file:line:severity:rule-id) — same shape as the existing checklist + bogey reviewers; severity uses FR-031's taxonomy (`{Critical, Important, Suggestion}`)
+  - Exit: agent runs against test specs (use the archived speckit-chain artifacts as known-good test cases — they had multiple gap classes); each finding cites a UNIV-Gnn rule ID and a quoted line
 
 - [ ] **3.5 — Wire Explore → Review loop in SKILL.md** (M)
   - SKILL.md orchestrates: Explore → Review (with gap-reviewer included) → surface findings → user iterates → re-elicit if needed → re-draft → re-review
-  - PAI's BUILD phase invokes preflight SKILL when task involves spec creation/modification
-  - SKILL hands off to PAI's EXECUTE when specs are clean
-  - Exit: end-to-end smoke test: PAI receives "I want X" → invokes preflight Explore → produces drafts + review findings → user clarifies → drafts updated → review clean → PAI proceeds
+  - **Phase A (initial):** user invokes `/preflight:explore` directly in a NATIVE PAI session, before BUILD
+  - **Phase B (later):** PAI's pre-BUILD planning (OBSERVE/THINK/PLAN) detects that a task involves harness creation or modification and invokes preflight on the user's behalf; the explore output is human-reviewed before BUILD proceeds
+  - **In both phases, human review of the explore output is required before BUILD starts** — non-negotiable; this is the gate
+  - SKILL hands off control to PAI's BUILD phase only when explore output is clean *and* human-reviewed
+  - Exit: end-to-end smoke test: user states intent (Phase A) or PAI detects spec work (Phase B) → invokes preflight Explore → produces drafts + review findings → user clarifies → drafts updated → review clean → human review confirms → PAI proceeds to BUILD
 
 ### Phase 3 exit criteria
 - `.claude/skills/preflight/` skill bundle exists with full structure

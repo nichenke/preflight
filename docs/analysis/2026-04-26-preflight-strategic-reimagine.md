@@ -146,7 +146,7 @@ The invocation surface phases in over time:
 
 **Phase A — direct user invocation (initial shape):** The user invokes `/preflight:explore` directly in a NATIVE PAI session when they're starting a feature, modifying the harness, or evolving a spec. The skill does its workflow, returns drafts + review findings, the user iterates and resolves open questions. **Human review of the explore output is required before BUILD** — this is non-negotiable in the initial shape. Once the explore output is reviewed, fixed, and clean, BUILD proceeds against it.
 
-**Phase B — PAI two-phase orchestration (later):** PAI's Algorithm fleshes out `/preflight:explore` from a human input statement, then the user reviews/PRs the explore output before BUILD. Same review gate, less ceremony to start the workflow. This is where the original "PAI invokes preflight during BUILD" framing eventually lands — but it's later work, not initial state.
+**Phase B — PAI two-phase orchestration (later):** PAI's Algorithm detects in pre-BUILD planning (OBSERVE/THINK/PLAN) that a task involves harness creation or modification, invokes preflight on the user's behalf, and the user reviews/PRs the explore output before BUILD. Same human-review gate as Phase A; less ceremony to start the workflow. (Note: an earlier framing of this section described Phase B as "PAI invokes preflight during BUILD." That was wrong — it would bypass the human-review gate. Both Phase A and Phase B run *before* BUILD.)
 
 In both phases, templates and rules are inputs to the workflow. The user does not pick templates as a starting point — but they see and can adjust the doc-type routing decisions the workflow makes.
 
