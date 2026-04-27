@@ -12,7 +12,7 @@
 
 ## North star
 
-Preflight is a Claude Code skill bundle invoked when harness creation or modification is needed. Its value is **building, modifying, reviewing, and re-reading the durable project harness your agents execute against** — not a template library users pick from. Templates and rules are inputs to the workflow, not the user-facing surface. Preflight runs *before* BUILD; human review of the explore output is required before BUILD proceeds.
+Preflight is a Claude Code workflow tool (delivery shape — skill bundle / plugin / hybrid / plugin-as-copier — selected by Phase 1.2 / ADR-011) invoked when harness creation or modification is needed. Its value is **building, modifying, reviewing, and re-reading the durable project harness your agents execute against** — not a template library users pick from. Templates and rules are inputs to the workflow, not the user-facing surface. Preflight runs *before* BUILD; human review of the explore output is required before BUILD proceeds.
 
 User experience phases in. **Initial (Phase A):** user invokes `/preflight:explore` directly in a NATIVE PAI session → workflow asks deep questions → workflow drafts the right preflight docs → reviewers catch gaps → user iterates → human review of explore output is required before BUILD → BUILD proceeds. **Later (Phase B):** PAI two-phase orchestration — PAI runs `/preflight:explore` from a user input, the user reviews/PRs the explore output before BUILD. Same human-review gate; less ceremony to start.
 
@@ -24,7 +24,7 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
 
 - **2026-05-03:** Phase 1.2 (JTBD re-evaluation) is a hard prerequisite for ADR-011 and any Phase 3 substrate work. If Phase 1.2 hasn't completed by this date, freeze the strategic reshape — Phase 2.2 (ADR close-out) and all of Phase 3 wait. Phase 1.3 (HANDOFF archives), Phase 1.4 (PR #22 merge), and the non-reshape Phase 2 cleanup tasks (2.1 UNIV-01 fix, 2.3 doc archive, 2.4 SPIKE_PLAN archive, 2.5 worktree cleanup, 2.6 issue #111 close) can ship regardless; they're independent of the reshape decision.
 - **2026-05-10:** If Phase 3 (reshape) hasn't started, the skill-bundle conversion is being deferred. Reassess: stay on spec-kit with throttled ADR engine instead.
-- **2026-05-24:** If Phase 4 (validate) hasn't produced one real feature shipped via the new workflow, the Explore skill design isn't working. Roll back to plain `/preflight:review` skill plus templates; drop the Explore workflow.
+- **2026-05-24:** If Phase 4 (validate) hasn't produced one real feature shipped via the new workflow, the Explore skill design isn't working. Fallback path: drop the Explore workflow; keep Review-only mode as the surface (Review.md workflow runs without Explore as a prerequisite — Phase 3 exit criteria require this fallback to be functional, so it's available without further engineering). Users invoke `/preflight:review` (or the namespaced equivalent in the selected delivery shape) against existing harness specs directly. Templates remain in the bundle/plugin as inputs to manual authoring.
 
 ---
 
@@ -154,7 +154,7 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
   - **For hybrid shape (rejected per the analysis but listed for completeness):** plugin kernel + project overlay; if Phase 1.2 surprised us back into this, see the analysis for structural details.
 
 - [ ] **3.3 — Author Explore workflow** (L)
-  - `.claude/skills/preflight/Workflows/Explore.md`
+  - File location depends on the Phase 3.2 shape: plugin shape → `skills/preflight/Workflows/Explore.md` inside the plugin repo; skill bundle shape → `.claude/skills/preflight/Workflows/Explore.md` in the target project; hybrid → plugin location with overlay-aware loader. Subsequent path references in this task body assume the location set in Phase 3.2.
   - Three phases: deep elicitation, doc-type routing, draft generation
   - Deep elicitation: question bank organized by intent category (new feature, design decision, requirements update, architecture change, etc.); coverage thresholds per category
   - **Answer provenance and dependency-aware retry (per S1 in `specs/jtbd.md`):** each elicitation answer carries one of `{confirmed, inferred, guessed}`; correcting a `{guessed}` answer re-runs only the dependent question subtree (not the entire bank); supervisors never have to re-answer a `{confirmed}` question
@@ -164,7 +164,7 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
   - Exit: workflow runs end-to-end on a synthetic intent ("add OAuth login"); produces drafts for the right doc types; routes correctly on at least 5 distinct intent shapes; provenance markers visible in output; correcting a `{guessed}` answer re-runs only its dependent subtree
 
 - [ ] **3.4 — Add gap-reviewer agent** (M)
-  - `.claude/skills/preflight/agents/gap-reviewer.md`
+  - File location depends on the Phase 3.2 shape: plugin shape → `skills/preflight/agents/gap-reviewer.md` inside the plugin repo; skill bundle shape → `.claude/skills/preflight/agents/gap-reviewer.md` in the target project. Path follows whatever Phase 3.2 chose.
   - **Each gap category becomes a rule with a stable rule ID** (UNIV-Gnn) so findings preserve the S2 traceability requirement (review output must cite a quote and a rule ID). The gap-reviewer is rule-backed like checklist + bogey, not a separate un-traceable review channel. Per CONST-PROC-02: these eight rule additions are governed by ADR-011's reshape-scope clause (Phase 2.2), not by individual ADRs per rule:
     - UNIV-G01 — Missing testing strategy
     - UNIV-G02 — Missing rollback plan
@@ -186,10 +186,11 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
   - Exit: end-to-end smoke test: user states intent (Phase A) or PAI detects spec work (Phase B) → invokes preflight Explore → produces drafts + review findings → user clarifies → drafts updated → review clean → human review confirms → PAI proceeds to BUILD
 
 ### Phase 3 exit criteria
-- `.claude/skills/preflight/` skill bundle exists with full structure
+- The delivery shape selected by Phase 1.2 / ADR-011 exists with full structure (plugin: `plugin.json` + `skills/preflight/`; skill bundle: `.claude/skills/preflight/`; hybrid: kernel in plugin + overlay loader)
 - No spec-kit artifacts remain (`presets/`, `extensions/`, `.specify/` all gone)
-- Explore + Review workflows functional
-- Gap-reviewer agent operational
+- Explore + Review workflows functional in the selected shape
+- Gap-reviewer agent operational in the selected shape
+- **Review-only mode functional independently of Explore** — `/preflight:review` (or namespaced equivalent in the selected shape) can be invoked against existing harness specs without going through Explore first; this is the kill-switch fallback path the 2026-05-24 deadline depends on
 - PAI can invoke preflight end-to-end on a real (or synthetic) intent
 
 ---
