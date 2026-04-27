@@ -235,6 +235,7 @@ These are deferred to after the reshape ships. Not blocked on roadmap completion
 - **Cross-project consistency.** If preflight is installed in 3+ projects, audit whether the same rules + workflow produce consistent outcomes.
 - **Rule kernel growth.** Add new rules only when real reviewer findings repeatedly miss a class of issues. Each new rule = ADR per tightened CONST-PROC-02.
 - **Preflight awareness in PAI's LEARN phase.** Capture session signal — ideally via a subagent looking at the PRD / output of preflight-driven sessions — to feed both *add/change* and *reduce/remove* improvements back into preflight (rules, question banks, gap categories, templates). Cover quality-problem detection (e.g. reviews that consistently miss a class of issue, questions that consistently produce noise). **Open: implementation path** — does this land as a `.claude/rules/` repo-rule that PAI picks up during LEARN, or does it require LEARN/Algorithm changes upstream? Investigate before committing to a shape.
+- **`specs/jtbd.md` v0.2 — strengthen user stories.** Tracked in #47. Tighten S1 situation, add Maintainer artifact-retirement story, add Supervisor L4 self-check story. Deferred from v0.1 because the workflow shapes the new stories reference don't exist yet — wait until Phase 4 validation.
 
 ---
 
