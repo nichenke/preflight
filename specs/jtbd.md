@@ -1,6 +1,8 @@
 # Preflight — jobs to be done
 
-**Version:** v0.1 (2026-04-26) · expected to evolve.
+**Version:** v0.2 (2026-04-27) · expected to evolve.
+
+**v0.2:** Added Adopter persona + J5 (delivery / install / update / per-project customization) + S5 user story. v0.1 covered the four "in-use" roles (Builder / Supervisor / Maintainer / Returning reader) but missed the prerequisite role of getting preflight into a project and keeping it current — surfaced during PR #45 review as an open delivery-shape decision.
 
 ## What this doc is for
 
@@ -8,12 +10,13 @@ Preflight helps you build, modify, review, and re-read the durable harness your 
 
 ## Personas
 
-Preflight serves four roles — often played by the same human at different times, sometimes split across different people on a team:
+Preflight serves five roles — often played by the same human at different times, sometimes split across different people on a team:
 
 - **Builder** — producing or modifying the project's harness (goals, rules, architecture, JTBD, interface contracts).
 - **Supervisor** — reviewing agent-drafted output before it merges; default action is *approve / iterate / reject*, not author from scratch.
 - **Maintainer** — evolving the harness over time as project shape changes (adjusting rules, updating decisions, retiring artifacts).
 - **Returning reader** — coming back to the harness after a break, or reading it cold as a new contributor or agent.
+- **Adopter** — installing preflight into a project for the first time, updating it across projects when a new version drops, or adapting its defaults to a project's specific shape (extra rules, skipped rules, custom doc-types). The prerequisite role that makes the other four possible.
 
 Each role has an **L3 mode** (more hands-on, human in-the-loop) and an **L4 mode** (more delegation, human on-the-loop). Preflight is most useful on the L3→L4 journey, where harness gaps are the friction that keeps agents from being trusted with more. The autonomy taxonomy is at `docs/reference/l4-autonomy-category-framework.md` (this is the one cross-doc reference where deeper reading is genuinely useful).
 
@@ -53,6 +56,14 @@ J3 is Maintainer mode (writing the ADR when the choice happens) and Returning-re
 
 J4 is about the *durable bits* — goals, rules, architecture, JTBD, ADRs. State (current implementation status, in-flight work, what's deployed) is fluid and lives in git history, code, and changelogs; the harness does not try to re-encode it.
 
+### J5 — Adopt and update preflight in a project
+
+**When** I'm trying preflight on a new project, updating to a newer version across multiple projects, or adapting its defaults to a project's specific shape (extra rules, skipped rules, custom doc-types), **help me** install, update, and customize preflight without losing project-local adjustments and without forcing every contributor to re-tool, **so that** preflight's value compounds across projects and over time rather than being gated on a one-time install ceremony each project does in isolation.
+
+**Justifies:** the delivery-shape decision (skill bundle vs plugin vs hybrid) and any per-project customization mechanism. **Prevents:** the *"installed once, forgotten, fork drift"* failure mode where projects pin an old preflight, accumulate unmerged local edits, and lose access to upstream improvements (and rule kernel growth).
+
+J5 is the prerequisite that makes J1–J4 reach more than one project. Without it, preflight is a per-project copy that ages out of date. The delivery-shape decision lives downstream of this Job — the right shape is the one that satisfies J5 with the least friction.
+
 ## Anti-jobs
 
 - **Not for replacing PAI / agent ISC task decomposition, spec-kit, OpenSpec, or similar SDD frameworks.** Preflight evaluates and produces *this* project harness shape; it does not generate the implementation task graph (the agent does that against the harness), and it does not try to be a drop-in alternative to adjacent spec-driven-dev frameworks (each has its own opinions on lifecycle, artifact shapes, and gates). *Preflight does:* serve projects that adopt this harness shape and review approach; the agent does ISC against the harness; users who want a different SDD shape pick a different tool.
@@ -79,3 +90,7 @@ One concrete narrative per Job. Each acceptance hint is specific enough to drive
 ### S4 — Returning reader, J4
 *As a contributor returning to a project (or joining cold), I want `specs/requirements.md`, the relevant ADRs under `specs/decisions/adrs/`, and (when present) `specs/architecture.md` to fully answer "what is this project for and how is it shaped?" without invoking any tool.*
 - Acceptance: opening that set of files in a text editor is sufficient on this project to answer the question; no read path requires running preflight, an agent, or any external tool. Each project's harness declares its own file set in `specs/requirements.md` (or wherever the project's index lives) — S4 is satisfied per-project against that declared set.
+
+### S5 — Adopter, J5
+*As an adopter installing preflight in a new project (or updating across multiple projects), I want one command to install, one command to update, and a clear pattern for adding project-specific rule overrides without forking the kernel, so I can get current preflight + my customizations without copying files by hand or maintaining a rebase loop.*
+- Acceptance: install runs as a single command (specifics deferred to the delivery-shape ADR); update runs as a single command and does not overwrite project-local rule overrides or custom doc-types; per-project customizations live in a stable location separate from the kernel content; an adopter can answer *"is my preflight up to date?"* and *"what local overrides are in play?"* with one inspection each.
