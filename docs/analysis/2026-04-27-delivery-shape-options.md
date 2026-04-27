@@ -11,6 +11,8 @@ Ship preflight as a **Claude Code plugin** providing the kernel (rules + reviewe
 
 This is **Option B** below. Earlier framings of this analysis proposed an overlay-config file (`.claude/preflight-config.json`) layered on top — that's been dropped. There's no JTBD-evidenced demand for skip / override / config-format mechanisms; additive rule discovery is enough. Anything more is bureaucracy that hasn't earned its keep.
 
+**Trade-off acknowledged honestly:** Option B's blast radius on a bad kernel update is *all of a user's projects at once*. Mitigations exist (auto-update opt-in, version pinning at install, canary on a low-stakes project) but per-project pinning is not a Claude Code plugin native feature. If a project domain has hard rollback requirements that exceed those mitigations, Option D (plugin-as-content-copier) becomes the right answer despite its update friction. For preflight's current usage profile (Nic + small set of projects), Option B's mitigations are sufficient.
+
 The decision belongs to ADR-012 (after ADR-011 is closed per the one-ADR-at-a-time process throttle).
 
 ## J5 — what we're testing against
@@ -65,7 +67,10 @@ For project-specific additions: a project drops rule files into `.preflight/rule
 - Update: ✅ auto-update handles N projects for free.
 - Extend: ✅ additive discovery; project additions live in `.preflight/`, kernel lives in plugin — no collision possible.
 
-**Failure mode:** less "drift" failure, more "kernel hostility" — if the kernel ships a rule that's wrong for a specific project, the project can't disable it; they live with the finding (or open an issue against the kernel). Acceptable cost given that all rules ship with severity ({Critical, Important, Suggestion}); a bad-fit rule produces a Suggestion-level finding the project can ignore. If a project repeatedly hits a Critical-level rule that's wrong for them, that's a kernel-design conversation, not a per-project fix.
+**Failure modes:**
+1. *Kernel hostility* — if the kernel ships a rule that's wrong for a specific project, the project can't disable it; they live with the finding or open an issue against the kernel. Mitigation: severity grading ({Critical, Important, Suggestion}) lets projects ignore lower-severity findings; a Critical-severity rule that's wrong for a project is a kernel-design conversation, not a per-project fix.
+2. *Update blast radius* — a bad kernel update propagates to all of a user's projects at once with no per-project pin. Claude Code plugins do not have native per-project version pinning. **Mitigations to wire in at adoption time:** (a) keep auto-update OFF by default for the preflight marketplace (opt-in per the user's risk tolerance); (b) pin to a specific version on install (`/plugin install preflight@nichenke@<version>` — PEP 440 versions); (c) test new versions on a single canary project before rolling forward; (d) `/plugin uninstall && /plugin install <prior-version>` is the rollback path if a bad version ships. Mitigations are real but not perfect — they require user discipline.
+3. *Dual-source confusion* — projects that have additions in `.preflight/rules/` plus the plugin kernel could see findings come from either source. Mitigation: every finding cites a rule ID; the rule ID's namespace (kernel vs project) makes the source visible.
 
 ### Option C — Hybrid (plugin kernel + overlay config) — REJECTED
 
@@ -107,15 +112,19 @@ The historical reason this shape existed (in preflight v0.6.x) was that Claude C
 | Concern | A: Skill bundle | B: Plugin (recommended) | C: Hybrid (rejected) | D: Plugin-as-copier |
 |---|---|---|---|---|
 | First-time install | 1 command | 2 commands (per user) | 2 commands | 2 commands |
+| Per-project install | 1 command | 0 commands | 0 commands | 1 command (re-bootstrap) |
 | Update across N projects | N submodule pulls | 1 auto-update | 1 auto-update | N manual syncs |
 | Project rule additions | edit in place | drop into `.preflight/rules/` | overlay config + addRules | edit copy in `.preflight/` |
 | Additions survive updates | ❌ manual merge | ✅ separate dirs | ✅ overlay isolated | ❌ manual merge |
 | Skip / override kernel rules | edit in place | not supported (live with severity) | overlay supports it | edit copy |
+| **Per-project version pinning** | ✅ submodule SHA | ❌ not native (user-level only) | ❌ kernel is global | ✅ snapshot is frozen |
+| **Rollback path on bad update** | ✅ git revert submodule | ⚠️ uninstall + reinstall older version | ⚠️ same as B for kernel | ✅ keep old snapshot |
+| **Blast radius of bad update** | per-project (isolated) | global (all user's projects) | global (all user's projects) | per-project (isolated) |
 | New artifact required | none | `.preflight/rules/` (just markdown) | `.preflight/preflight-config.json` (schema) | `.preflight/` snapshot of kernel |
 | Versioning model | per-project pin | global single | global kernel + per-project overlay | per-project snapshot |
 | Composability with hooks/commands | manual | auto-discover | auto-discover | manual |
 | Maintainer cost (1+ project) | high | lowest | low-medium | high |
-| Failure mode | fork drift | kernel hostility (mitigated by severity) | overlay-API stability | fork drift + version confusion |
+| Failure mode | fork drift | kernel hostility + update blast radius (mitigated, not eliminated) | overlay-API stability | fork drift + version confusion |
 
 ## Recommendation
 
@@ -125,8 +134,10 @@ Rationale:
 1. **J5's three motions are all satisfied** without any new artifact type beyond a directory convention.
 2. **Pure plugin auto-update is the cheapest update story** in any pattern Claude Code currently supports.
 3. **Additive rule discovery is the simplest extension surface** — same rule shape used by the kernel works for projects. No schema, no precedence model, no skip mechanism.
-4. **The "kernel hostility" failure mode is mitigated by severity** — kernel rules ship as Critical / Important / Suggestion; a bad-fit Suggestion is ignored, a bad-fit Critical is a kernel-design conversation (not a per-project workaround).
+4. **Severity grading mitigates kernel hostility** — kernel rules ship as Critical / Important / Suggestion; a bad-fit Suggestion is ignored, a bad-fit Critical is a kernel-design conversation (not a per-project workaround).
 5. **`.preflight/` keeps project state out of `.claude/`**, which keeps the project's Claude Code config surface clean and gives preflight a clearly named home.
+
+**Trade-off accepted honestly: Option B has the largest blast radius on a bad kernel update (all of a user's projects, no per-project pin).** This is the cost of B's auto-update value. The user-level mitigations (auto-update opt-in, install-time version pin, canary project, uninstall-and-reinstall-old as rollback) reduce but do not eliminate the risk. If preflight's user base later includes contexts where blast radius would be catastrophic — multi-team org, regulatory environment, projects whose specs the org cannot afford to break simultaneously — Option D's per-project snapshot becomes the right answer despite its update friction. For the current usage profile (single maintainer, small project set, where any breakage is recoverable in minutes), Option B's mitigations are sufficient and the simplicity wins. ADR-012 should record this trade-off explicitly so the decision is revisitable as the user base changes.
 
 ## What this changes for the reshape (PR #45)
 
