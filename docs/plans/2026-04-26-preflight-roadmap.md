@@ -42,7 +42,7 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
 
 - [ ] **1.2 — Re-evaluate decisions against JTBD** (M)
   - Confirm: drop spec-kit, drop self-constitution, drop ADR-007 lifecycle, ADRs survive (architecture-sized choices only — not behavior-change governance), **delivery shape decided** (no deferral)
-  - **Delivery shape decision is required, not optional.** Test against J5/S5 in `specs/jtbd.md` (on main) and the four-option delivery analysis (lands via PR #48 — `docs/analysis/2026-04-27-delivery-shape-options.md` once merged; until then read on `feature/jtbd-delivery`). The decision goes into ADR-011 in Phase 2.2; deferring it would let Phase 2.2 / Phase 3.2 lock in structural changes while the delivery JTBD remains unresolved — the exact recursive-ADR-engine trap the kill switch is designed to prevent.
+  - **Delivery shape decision is required, not optional.** The delivery Job + delivery analysis both land via PR #48 (adds J5/S5 to `specs/jtbd.md` and `docs/analysis/2026-04-27-delivery-shape-options.md`); Phase 1.2 cannot run until PR #48 is on main. Once both PRs (#45 + #48) are merged, test the delivery decision against J5/S5 (then on main) and the four-option analysis. The decision goes into ADR-011 in Phase 2.2; deferring it would let Phase 2.2 / Phase 3.2 lock in structural changes while the delivery JTBD remains unresolved — the exact recursive-ADR-engine trap the kill switch is designed to prevent.
   - Document any reversals as commits to the analysis doc inline
   - Exit: roadmap updated if JTBD surfaces anything that contradicts current direction; delivery shape decided (skill bundle / plugin / hybrid / plugin-as-copier) with rationale recorded against J5 acceptance
 
@@ -138,22 +138,27 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
   - Tighten CONST-PROC-02 (now in PRINCIPLES.md): "ADR required when: (a) a preflight rule is added, removed, or has its severity changed; or (b) preflight's user-facing surface changes substantially. Vocabulary cleanups, typo fixes, added failure modes do not." (The reshape's initial rule pack expansion — UNIV-G01..G08 added in Phase 3.4 — is governed by ADR-011's reshape-scope clause, not by individual ADRs per rule.)
   - Exit: PRINCIPLES.md exists; constitution.md deleted; constitution-rules.md retired (or remapped); requirements.md simplified
 
-- [ ] **3.2 — Restructure to skill bundle** (M)
-  - Create `.claude/skills/preflight/` skill bundle structure (per analysis doc § "What preflight ships")
-  - `git mv` operations:
-    - `extensions/preflight/rules/*` → `.claude/skills/preflight/rules/`
-    - `presets/preflight/templates/*` → `.claude/skills/preflight/templates/` (drop constitution-template.md)
-    - `extensions/preflight/agents/reviewers/*` → `.claude/skills/preflight/agents/`
-  - Author `.claude/skills/preflight/SKILL.md` (entry point + workflow routing)
-  - Author `.claude/skills/preflight/Workflows/Review.md` (port from `extensions/preflight/commands/speckit.preflight.review.md`)
-  - Delete `presets/preflight/`, `extensions/preflight/`, `.specify/`
-  - Exit: bundle installs cleanly into a target project via `cp -r`; review skill runs end-to-end
+- [ ] **3.2 — Restructure to the delivery shape Phase 1.2 / ADR-011 selected** (M)
+  - **Conditional on Phase 1.2 outcome.** The shape below is current planning (plugin at project scope per the delivery analysis on PR #48); revise if Phase 1.2 picked a different option (skill bundle / hybrid / plugin-as-copier).
+  - **For plugin shape (current expectation):**
+    - Create plugin repo structure: `plugin.json` at root, `skills/preflight/` containing the bundle (SKILL.md + Workflows/ + rules/ + templates/ + agents/)
+    - `git mv` operations:
+      - `extensions/preflight/rules/*` → `skills/preflight/rules/` (drop `constitution-rules.md` per Phase 3.1)
+      - `presets/preflight/templates/*` → `skills/preflight/templates/` (drop `constitution-template.md`)
+      - `extensions/preflight/agents/reviewers/*` → `skills/preflight/agents/`
+    - Author `skills/preflight/SKILL.md` (entry point + workflow routing)
+    - Author `skills/preflight/Workflows/Review.md` (port from `extensions/preflight/commands/speckit.preflight.review.md`)
+    - Delete `presets/preflight/`, `extensions/preflight/`, `.specify/`
+    - Exit: plugin installs via `/plugin marketplace add nichenke/preflight#<ref>` + `/plugin install preflight@nichenke --scope project`; review skill runs end-to-end
+  - **For skill bundle shape (alternative):** structure lives at `.claude/skills/preflight/` (the original plan); install via `cp -r` or git submodule; same content reorganization applies.
+  - **For hybrid shape (rejected per the analysis but listed for completeness):** plugin kernel + project overlay; if Phase 1.2 surprised us back into this, see the analysis for structural details.
 
 - [ ] **3.3 — Author Explore workflow** (L)
   - `.claude/skills/preflight/Workflows/Explore.md`
   - Three phases: deep elicitation, doc-type routing, draft generation
   - Deep elicitation: question bank organized by intent category (new feature, design decision, requirements update, architecture change, etc.); coverage thresholds per category
   - **Answer provenance and dependency-aware retry (per S1 in `specs/jtbd.md`):** each elicitation answer carries one of `{confirmed, inferred, guessed}`; correcting a `{guessed}` answer re-runs only the dependent question subtree (not the entire bank); supervisors never have to re-answer a `{confirmed}` question
+  - **Provenance must be persisted across the Explore→Review loop**, not just held in-memory during a single elicitation pass. The persisted artifact (likely the explore output's frontmatter or a sidecar JSON in the same directory) records each answer's provenance state and the dependency edges between questions; Phase 3.5's re-elicit path consumes this state on re-entry so confirmed answers survive review cycles. Without persistence, a re-elicit after human review would lose state and force supervisors to re-answer confirmed questions — violating S1 in the workflow this branch promotes.
   - Doc-type routing: rules for which preflight doc types apply to which intent shapes (e.g., "design exploration with multiple viable approaches → RFC; committed decision after design accepted → ADR; new functional behavior → requirements delta; integration with external system → architecture delta + interface-contract")
   - Draft generation: invoke template + fill from elicitation answers
   - Exit: workflow runs end-to-end on a synthetic intent ("add OAuth login"); produces drafts for the right doc types; routes correctly on at least 5 distinct intent shapes; provenance markers visible in output; correcting a `{guessed}` answer re-runs only its dependent subtree
@@ -215,15 +220,15 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
   - Exit: report written
 
 - [ ] **4.4 — Tune based on frictions** (L)
-  - Likely areas: question coverage thresholds, routing rules, gap categories, template defaults
-  - Each tune is a small commit, no ADR (per tightened CONST-PROC-02 — only rule-kernel changes need ADRs)
-  - Exit: identified frictions addressed
+  - **Non-rule-kernel tuning (no ADR required):** question coverage thresholds, routing rules, template defaults, prompt wording in agents. These are not rule additions/removals/severity changes; CONST-PROC-02 does not apply.
+  - **Rule-kernel tuning (ADR required per tightened CONST-PROC-02 in Phase 3.1):** any change to gap categories (UNIV-G01..G08) — adding, removing, renaming, or changing severity — IS a rule-kernel change since gap categories are stable rule IDs per Phase 3.4. Same for any other rule-pack edit. Each such change raises an ADR per CONST-PROC-02; no loophole.
+  - Exit: identified frictions addressed; rule-kernel changes carry corresponding ADRs
 
 - [ ] **4.5 — Ship v0.7.0** (M)
   - Tag `v0.7.0` (final, not `.devN`)
-  - Update README + CLAUDE.md to reflect skill-bundle shape
-  - Update install instructions: `cp -r preflight/.claude/skills/preflight <target>/.claude/skills/preflight`
-  - Exit: tag pushed, README accurate
+  - Update README + CLAUDE.md to reflect the delivery shape Phase 1.2 / ADR-011 selected
+  - Update install instructions to match the selected shape (current expectation: plugin at project scope — `/plugin marketplace add nichenke/preflight#v0.7.0` then `/plugin install preflight@nichenke --scope project`)
+  - Exit: tag pushed, README accurate, install instructions match the shipped shape
 
 ### Phase 4 exit criteria
 - One real feature shipped via the new workflow
