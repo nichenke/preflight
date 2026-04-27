@@ -7,13 +7,13 @@
 
 ## TL;DR
 
-Ship preflight as a **Claude Code plugin** providing the kernel (rules + reviewer agents + Explore/Review workflows + doc-type templates). Projects that want to add their own rules or doc-types drop them into `.preflight/rules/` (or `.preflight/templates/`) at the repo root — discovered alongside the kernel by the reviewer agents at runtime. No overlay-config file, no skip mechanism, no severity overrides — just additive rule discovery from two locations.
+Ship preflight as a **Claude Code plugin installed at project scope by default**. The kernel (rules + reviewer agents + Explore/Review workflows + doc-type templates) lives in the plugin; the project's `.claude/settings.json` records `enabledPlugins` and pins the marketplace ref. Team members get the same plugin on clone — zero per-developer install commands. Projects that want to add their own rules or doc-types drop them into `.preflight/rules/` (or `.preflight/templates/`) at the repo root — discovered alongside the kernel by the reviewer agents at runtime. No overlay-config file, no skip mechanism, no severity overrides.
 
-This is **Option B** below. Earlier framings of this analysis proposed an overlay-config file (`.claude/preflight-config.json`) layered on top — that's been dropped. There's no JTBD-evidenced demand for skip / override / config-format mechanisms; additive rule discovery is enough. Anything more is bureaucracy that hasn't earned its keep.
+This is **Option B (project-scope variant)**. The earlier framing punted project-scope mechanics to ADR-012; a 2026-04-27 spike (under 30 min) confirmed project-scope works as documented in Claude Code's plugin docs and resolves the cross-project blast-radius and per-project pinning concerns. Earlier framings of this analysis proposed an overlay-config file (`.claude/preflight-config.json`) layered on top — that's been dropped. There's no JTBD-evidenced demand for skip / override / config-format mechanisms; additive rule discovery is enough.
 
-**Trade-off acknowledged honestly:** Option B's blast radius on a bad kernel update is *all of a user's projects at once*. Mitigations exist (auto-update opt-in, version pinning at install, canary on a low-stakes project) but per-project pinning is not a Claude Code plugin native feature. If a project domain has hard rollback requirements that exceed those mitigations, Option D (plugin-as-content-copier) becomes the right answer despite its update friction. For preflight's current usage profile (Nic + small set of projects), Option B's mitigations are sufficient.
+**Honest constraint that survives the spike:** `enabledPlugins` is per-plugin true/false (no per-plugin version field). Cross-project version heterogeneity works natively (project A on v0.7, project B on v0.8 via per-project settings). *Within* a single project, if multiple plugins from the same marketplace need different versions simultaneously, you need multiple marketplace entries with different refs. Rarely binding in practice.
 
-The decision belongs to ADR-012 (after ADR-011 is closed per the one-ADR-at-a-time process throttle).
+ADR-012 ratifies project-scope as the default; the spike means ADR-012 is a formality, not an investigation.
 
 ## J5 — what we're testing against
 
@@ -56,9 +56,11 @@ J5 deliberately does not name *skipping* kernel rules, *overriding* severities, 
 
 For project-specific additions: a project drops rule files into `.preflight/rules/` and template files into `.preflight/templates/` at the repo root. The plugin's reviewer agents discover rules from both `${CLAUDE_PLUGIN_ROOT}/skills/preflight/rules/` (kernel) and `<repo>/.preflight/rules/` (project additions) at invocation time. Same shape, additive.
 
-**Install:** two commands first time per user (`/plugin marketplace add nichenke/preflight` then `/plugin install preflight@nichenke`); zero per-project commands afterward (default kernel works).
+**Install (project-scope is the recommended default):** `/plugin install preflight@nichenke --scope project` from within the project (or via the interactive `/plugin` UI with Project scope selected). The choice is recorded in `.claude/settings.json` under `enabledPlugins`, committed alongside the code, and team members get it on clone — zero per-developer install commands. First-time setup also adds the marketplace if not already known: `/plugin marketplace add nichenke/preflight#<ref>` where `<ref>` pins the marketplace to a tag or commit SHA. The marketplace add can also be committed at project scope via `extraKnownMarketplaces` in `.claude/settings.json` so collaborators inherit it.
 
-**Install-scope variant — project-scope:** Claude Code plugin docs also describe project-scope installation via `.claude/settings.json` declaring which plugins the project uses; precedence is **user > project > local**. For team workflows, project-scope is plausibly the right scope — team members get the same plugin on clone without per-developer install commands, and the project's `.claude/settings.json` versions the plugin choice alongside the code. For solo use (preflight's current adoption profile), user-scope is simpler. ADR-012 should investigate the exact mechanics (whether project-scope settings can pin a marketplace ref or version, how update behavior interacts with user-scope installs, conflict resolution between scopes) and pick a default scope based on intended adoption. The trade-off matrix below evaluates user-scope; project-scope shifts blast radius and pinning toward the per-project end of each row.
+**User-scope is the alternative:** same plugin, settings live in `~/.claude/settings.json`. Useful when preflight should follow the user across all projects without per-project opt-in. Project-scope wins precedence when both are configured (precedence: managed > command-line > local > project > user).
+
+**Spike resolved 2026-04-27** (was previously punted to ADR-012): project-scope mechanics confirmed against Claude Code official docs. Marketplace ref-pinning works (`#v0.7.0` style on the marketplace URL); per-plugin version pinning within `enabledPlugins` does not — the unit of pinning is the marketplace, not the individual plugin. For projects that need different preflight versions simultaneously, point each project's `.claude/settings.json` at a different marketplace ref. ADR-012 ratifies the project-scope default rather than originating the investigation.
 
 **Update:** auto-update at Claude Code startup (toggleable per marketplace; opt-in for third-party). Or `/plugin marketplace update nichenke`. Updates apply globally — the user updates once, all projects get the new kernel.
 
@@ -71,7 +73,7 @@ For project-specific additions: a project drops rule files into `.preflight/rule
 
 **Failure modes:**
 1. *Kernel hostility* — if the kernel ships a rule that's wrong for a specific project, the project can't disable it; they live with the finding or open an issue against the kernel. Mitigation: severity grading ({Critical, Important, Suggestion}) lets projects ignore lower-severity findings; a Critical-severity rule that's wrong for a project is a kernel-design conversation, not a per-project fix.
-2. *Update blast radius* — a bad kernel update propagates to all of a user's projects at once. **Mitigations using documented Claude Code plugin behavior:** (a) auto-update is OFF by default for third-party marketplaces (per the plugin docs), so the preflight marketplace does not surprise-update; users opt in when ready; (b) when ready to update, run `/plugin marketplace update nichenke` explicitly rather than relying on automatic refresh; (c) test the new version on a single canary project before invoking review on higher-stakes projects; (d) rollback path if a bad version ships: `/plugin uninstall preflight` and reinstall after the marketplace points at an earlier commit (since marketplaces are git-backed, this is `git reset` on the marketplace repo, not on user projects). The exact pin/rollback mechanics need ADR-012 to verify against current Claude Code plugin tooling — earlier framings of this section claimed an `@<version>` install suffix that the current plugin docs do not appear to expose. The honest position is that auto-update opt-in plus manual `/plugin marketplace update` covers the common case; per-version pinning is a follow-on ADR-012 question.
+2. *Update blast radius* — significantly reduced under project-scope (the recommended default). A bad kernel update only affects projects that have explicitly bumped their marketplace ref. Projects that pin to a specific ref (e.g. `nichenke/preflight#v0.7.0`) stay on that version until the project's `.claude/settings.json` is updated and the change is committed. **Mitigations using documented Claude Code plugin behavior:** (a) auto-update is OFF by default for third-party marketplaces (per the plugin docs), so the preflight marketplace does not surprise-update; (b) marketplace ref-pinning at project scope (`extraKnownMarketplaces` with explicit `ref`) provides per-project version control; (c) `/plugin marketplace update nichenke` is the explicit update path when a project decides to take a new version; (d) rollback is `git revert` on the project's `.claude/settings.json` to restore the prior marketplace ref. *Constraint to note:* `enabledPlugins` granularity is per-plugin true/false (no version field per plugin); per-plugin version heterogeneity *within a single project* requires multiple marketplace entries with different refs. Cross-project heterogeneity (project A on v0.7, project B on v0.8) works natively via per-project settings.
 3. *Dual-source confusion* — projects that have additions in `.preflight/rules/` plus the plugin kernel could see findings come from either source. Mitigation: every finding cites a rule ID; the rule ID's namespace (kernel vs project) makes the source visible.
 
 ### Option C — Hybrid (plugin kernel + overlay config) — REJECTED
@@ -119,9 +121,9 @@ The historical reason this shape existed (in preflight v0.6.x) was that Claude C
 | Project rule additions | edit in place | drop into `.preflight/rules/` | overlay config + addRules | edit copy in `.preflight/` |
 | Additions survive updates | ❌ manual merge | ✅ separate dirs | ✅ overlay isolated | ❌ manual merge |
 | Skip / override kernel rules | edit in place | not supported (live with severity) | overlay supports it | edit copy |
-| **Per-project version pinning** | ✅ submodule SHA | ❌ not native (user-level only) | ❌ kernel is global | ✅ snapshot is frozen |
-| **Rollback path on bad update** | ✅ git revert submodule | ⚠️ uninstall + reinstall older version | ⚠️ same as B for kernel | ✅ keep old snapshot |
-| **Blast radius of bad update** | per-project (isolated) | global (all user's projects) | global (all user's projects) | per-project (isolated) |
+| **Per-project version pinning** | ✅ submodule SHA | ✅ marketplace ref pin at project scope (per-marketplace, not per-plugin) | ❌ kernel is global | ✅ snapshot is frozen |
+| **Rollback path on bad update** | ✅ git revert submodule | ✅ git revert `.claude/settings.json` marketplace ref | ⚠️ same as B for kernel | ✅ keep old snapshot |
+| **Blast radius of bad update** | per-project (isolated) | per-project at project-scope; per-user at user-scope | global (all user's projects) | per-project (isolated) |
 | New artifact required | none | `.preflight/rules/` (just markdown) | `.preflight/preflight-config.json` (schema) | `.preflight/` snapshot of kernel |
 | Versioning model | per-project pin | global single | global kernel + per-project overlay | per-project snapshot |
 | Composability with hooks/commands | manual | auto-discover | auto-discover | manual |
@@ -139,7 +141,15 @@ Rationale:
 4. **Severity grading mitigates kernel hostility** — kernel rules ship as Critical / Important / Suggestion; a bad-fit Suggestion is ignored, a bad-fit Critical is a kernel-design conversation (not a per-project workaround).
 5. **`.preflight/` keeps project state out of `.claude/`**, which keeps the project's Claude Code config surface clean and gives preflight a clearly named home.
 
-**Trade-off accepted honestly: Option B has the largest blast radius on a bad kernel update (all of a user's projects, no per-project pin).** This is the cost of B's auto-update value. The user-level mitigations (auto-update opt-in, install-time version pin, canary project, uninstall-and-reinstall-old as rollback) reduce but do not eliminate the risk. If preflight's user base later includes contexts where blast radius would be catastrophic — multi-team org, regulatory environment, projects whose specs the org cannot afford to break simultaneously — Option D's per-project snapshot becomes the right answer despite its update friction. For the current usage profile (single maintainer, small project set, where any breakage is recoverable in minutes), Option B's mitigations are sufficient and the simplicity wins. ADR-012 should record this trade-off explicitly so the decision is revisitable as the user base changes.
+**Trade-off updated 2026-04-27 spike:** project-scope plugin install resolves most of the blast-radius concern that earlier framings of this analysis treated as the major Option B cost. With project-scope as the default:
+- Each project's `.claude/settings.json` records the marketplace ref it uses; updates are committed deliberately, not pushed.
+- Cross-project version heterogeneity (project A on v0.7, project B on v0.8) works natively.
+- Rollback is `git revert` on the project's settings file.
+- Blast radius is per-project (matching Option A and D for that criterion) without sacrificing Option B's plugin-discovery infrastructure.
+
+The remaining honest constraint: `enabledPlugins` is per-plugin true/false (no per-plugin version field). For projects that need *multiple plugins from the same marketplace at different versions simultaneously*, multiple marketplace entries are required. This is rarely binding in practice (most projects pin one marketplace ref).
+
+The earlier "Option D becomes correct in regulatory contexts" caveat is now narrower: Option D wins only when a project cannot use Claude Code plugin distribution at all (e.g. air-gapped environments where marketplace refs can't be fetched). For the standard adoption profile — Claude Code-using teams who can clone repos and resolve marketplaces — project-scope plugin install is the right shape.
 
 ## What this changes for the reshape (PR #45)
 
@@ -208,10 +218,13 @@ To:
 
 ## Open questions for ADR-012
 
-1. **Marketplace.** Use Anthropic's official marketplace or self-hosted? Self-hosted gives faster iteration; official gives reach. Probably self-hosted initially.
+ADR-012 ratifies decisions; it does not originate the investigation any longer. The 2026-04-27 spike resolved the project-scope question; the remaining items are mostly stylistic / boilerplate.
+
+1. **Marketplace.** Use Anthropic's official marketplace or self-hosted? Self-hosted (`github.com/nichenke/preflight`) gives faster iteration; official gives reach. Recommend self-hosted initially; migrate later if reach matters.
 2. **`.preflight/` discovery scope.** Reviewer agents walk the project's `.preflight/rules/` recursively or only top-level? Recursive is more flexible; top-level is more predictable. Lean top-level.
 3. **Plugin manifest.** Versioning policy (PEP 440), author/repository fields, plugin description — boilerplate but worth deciding once.
 4. **Naming.** Plugin name = `preflight`; skill name = `preflight`; namespace becomes `/preflight:explore`. Confirm this collision is fine (it is — they're distinct surfaces in Claude Code's model).
+5. **Resolved by 2026-04-27 spike:** project-scope is the recommended default install scope. Marketplace ref-pinning (`#tag` or `#commit-sha` on marketplace URL) provides per-project version control. Known constraint: per-plugin version pinning *within* a marketplace is not supported — the unit of pinning is the marketplace. If individual-plugin heterogeneity within one project becomes a hard need, use multiple marketplace entries with different refs.
 
 ## Bottom line
 
