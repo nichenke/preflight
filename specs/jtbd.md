@@ -70,7 +70,7 @@ One concrete narrative per Job. Each acceptance hint is specific enough to drive
 
 ### S2 — Supervisor, J2
 *As a supervisor reviewing an agent-drafted RFC, I want a defect list with severity and file-anchored quotes, so that I spend attention on calls I have to make — not on issues the rule pack already defines as defects.*
-- Acceptance: review output groups findings by severity (Critical / High / Medium / Low); each finding cites a quote and a rule ID; findings without rule traceability surface as *"judgment call, not rule violation."*
+- Acceptance: review output groups findings by severity using FR-031's taxonomy ({Critical, Important, Suggestion}); each finding cites a quote and a rule ID; findings without rule traceability surface as *"judgment call, not rule violation."*
 
 ### S3 — Maintainer, J3
 *As a maintainer making an architecture-sized change, I want the system to flag my edit as needing an ADR — and to stay silent on routine behavior changes — so that traceability is recorded where it matters and isn't accreted where it doesn't.*
@@ -78,4 +78,4 @@ One concrete narrative per Job. Each acceptance hint is specific enough to drive
 
 ### S4 — Returning reader, J4
 *As a contributor opening this project after three months, I want `specs/requirements.md`, the relevant ADRs under `specs/decisions/adrs/`, and (when present) `specs/architecture.md` to fully answer "what is this project for and how is it shaped?" without invoking any tool.*
-- Acceptance: opening those files in a text editor is sufficient to understand current intent and architecture; no read path requires running preflight, an agent, or any external tool; missing files (e.g. no `architecture.md`) do not block comprehension because the harness explicitly lists which doc types are required vs optional.
+- Acceptance: opening that set of files in a text editor is sufficient on this project to answer the question; no read path requires running preflight, an agent, or any external tool. Each project's harness declares its own file set in `specs/requirements.md` (or wherever the project's index lives) — S4 is satisfied per-project against that declared set.
