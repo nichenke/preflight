@@ -116,7 +116,7 @@ The historical reason this shape existed (in preflight v0.6.x) was that Claude C
 | Concern | A: Skill bundle | B: Plugin (recommended) | C: Hybrid (rejected) | D: Plugin-as-copier |
 |---|---|---|---|---|
 | First-time install | 1 command | 2 commands (per user) | 2 commands | 2 commands |
-| Per-project install | 1 command | 0 commands | 0 commands | 1 command (re-bootstrap) |
+| Per-project install | 1 command | 1 command (project-scope install + commit settings); 0 for collaborators on clone | 0 commands | 1 command (re-bootstrap) |
 | Update across N projects | N submodule pulls | project-scope w/ ref pin: deliberate per-project bump; user-scope or unpinned: 1 marketplace refresh propagates | 1 auto-update | N manual syncs |
 | Project rule additions | edit in place | drop into `.preflight/rules/` | overlay config + addRules | edit copy in `.preflight/` |
 | Additions survive updates | ❌ manual merge | ✅ separate dirs | ✅ overlay isolated | ❌ manual merge |
@@ -125,7 +125,7 @@ The historical reason this shape existed (in preflight v0.6.x) was that Claude C
 | **Rollback path on bad update** | ✅ git revert submodule | ✅ git revert `.claude/settings.json` marketplace ref | ⚠️ same as B for kernel | ✅ keep old snapshot |
 | **Blast radius of bad update** | per-project (isolated) | per-project at project-scope; per-user at user-scope | global (all user's projects) | per-project (isolated) |
 | New artifact required | none | `.preflight/rules/` (just markdown) | `.preflight/preflight-config.json` (schema) | `.preflight/` snapshot of kernel |
-| Versioning model | per-project pin | global single | global kernel + per-project overlay | per-project snapshot |
+| Versioning model | per-project pin (submodule SHA) | per-project marketplace ref pin (project scope) or global single (user scope) | global kernel + per-project overlay | per-project snapshot |
 | Composability with hooks/commands | manual | auto-discover | auto-discover | manual |
 | Maintainer cost (1+ project) | high | lowest | low-medium | high |
 | Failure mode | fork drift | kernel hostility + update blast radius (mitigated, not eliminated) | overlay-API stability | fork drift + version confusion |
@@ -136,7 +136,7 @@ The historical reason this shape existed (in preflight v0.6.x) was that Claude C
 
 Rationale:
 1. **J5's three motions are all satisfied** without any new artifact type beyond a directory convention.
-2. **Pure plugin auto-update is the cheapest update story** in any pattern Claude Code currently supports.
+2. **Project-scope ref pinning gives per-project version control with deliberate, committed updates** — cheaper than per-project submodule pulls (Option A) and safer than auto-update propagation (the wrong default for this use case per the spike-resolution paragraph below).
 3. **Additive rule discovery is the simplest extension surface** — same rule shape used by the kernel works for projects. No schema, no precedence model, no skip mechanism.
 4. **Severity grading mitigates kernel hostility** — kernel rules ship as Critical / Important / Suggestion; a bad-fit Suggestion is ignored, a bad-fit Critical is a kernel-design conversation (not a per-project workaround).
 5. **`.preflight/` keeps project state out of `.claude/`**, which keeps the project's Claude Code config surface clean and gives preflight a clearly named home.
