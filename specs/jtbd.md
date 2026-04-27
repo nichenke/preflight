@@ -74,7 +74,7 @@ One concrete narrative per Job. Each acceptance hint is specific enough to drive
 
 ### S3 — Maintainer, J3
 *As a maintainer making an architecture-sized change, I want the system to flag my edit as needing an ADR — and to stay silent on routine behavior changes — so that traceability is recorded where it matters and isn't accreted where it doesn't.*
-- Acceptance: ADR-required edits are detected by impact on architecture or interface contracts; behavior edits without architectural impact pass without prompting; the ADR draft includes the change, the alternatives considered, and the rationale.
+- Acceptance: edits touching `specs/architecture.md` or `specs/interfaces/` are flagged for an ADR; edits touching only `specs/requirements.md` behavioral clauses pass without prompting; the ADR draft includes the change, the alternatives considered, and the rationale.
 
 ### S4 — Returning reader, J4
 *As a contributor returning to a project (or joining cold), I want `specs/requirements.md`, the relevant ADRs under `specs/decisions/adrs/`, and (when present) `specs/architecture.md` to fully answer "what is this project for and how is it shaped?" without invoking any tool.*
