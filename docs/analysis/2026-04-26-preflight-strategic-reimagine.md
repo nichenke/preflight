@@ -158,14 +158,14 @@ In both phases, templates and rules are inputs to the workflow. The user does no
   Workflows/
     Explore.md                  # deep elicitation + doc-type routing + draft generation
     Review.md                   # rule check + reviewer ensemble + gap reviewer
-  rules/                        # 48 rules (the moat)
+  rules/                        # rule kernel (count varies; see roadmap Phase 3.1 for retirements + Phase 3.4 for additions)
     universal-rules.md
-    constitution-rules.md
     requirements-rules.md
     architecture-rules.md
     rfc-rules.md
     adr-rules.md
     cross-doc-rules.md
+    # constitution-rules.md retired in Phase 3.1 (its artifact, constitution.md, is being deleted)
   templates/                    # 6 templates (constitution dropped)
     adr-template.md
     rfc-template.md

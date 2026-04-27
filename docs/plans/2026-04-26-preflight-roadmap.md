@@ -42,7 +42,7 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
 
 - [ ] **1.2 — Re-evaluate decisions against JTBD** (M)
   - Confirm: drop spec-kit, drop self-constitution, drop ADR-007 lifecycle, ADRs survive (architecture-sized choices only — not behavior-change governance), **delivery shape decided** (no deferral)
-  - **Delivery shape decision is required, not optional.** Test against J5/S5 in `specs/jtbd.md` and the four-option analysis at `docs/analysis/2026-04-27-delivery-shape-options.md`. The decision goes into ADR-011 in Phase 2.2; deferring it would let Phase 2.2 / Phase 3.2 lock in skill-bundle structural changes while the delivery JTBD remains unresolved — the exact recursive-ADR-engine trap the kill switch is designed to prevent.
+  - **Delivery shape decision is required, not optional.** Test against J5/S5 in `specs/jtbd.md` (on main) and the four-option delivery analysis (lands via PR #48 — `docs/analysis/2026-04-27-delivery-shape-options.md` once merged; until then read on `feature/jtbd-delivery`). The decision goes into ADR-011 in Phase 2.2; deferring it would let Phase 2.2 / Phase 3.2 lock in structural changes while the delivery JTBD remains unresolved — the exact recursive-ADR-engine trap the kill switch is designed to prevent.
   - Document any reversals as commits to the analysis doc inline
   - Exit: roadmap updated if JTBD surfaces anything that contradicts current direction; delivery shape decided (skill bundle / plugin / hybrid / plugin-as-copier) with rationale recorded against J5 acceptance
 
@@ -82,7 +82,7 @@ Task sizing in this roadmap uses **S / M / L** rather than time estimates: S = a
 
 - [ ] **2.2 — ADR close-out PR** (M)
   - **Blocked-on:** Phase 1.2 (JTBD re-evaluation) must complete first, *including the delivery-shape decision*; this task ratifies the reshape direction Phase 1.2 confirms (or revises). Authoring ADR-011 before Phase 1.2 finishes recreates the recursive-ADR-engine trap the reimagine is trying to remove.
-  - Author ADR-011: "Drop spec-kit substrate; ship as <delivery shape decided in Phase 1.2>" — the ONE meta-ADR for the reshape. Title and body match what Phase 1.2 confirmed (current planning anticipates Claude Code plugin per `docs/analysis/2026-04-27-delivery-shape-options.md`, but ADR-011 reflects the actual Phase 1.2 outcome).
+  - Author ADR-011: "Drop spec-kit substrate; ship as <delivery shape decided in Phase 1.2>" — the ONE meta-ADR for the reshape. Title and body match what Phase 1.2 confirmed (current planning anticipates Claude Code plugin at project scope per the delivery analysis on PR #48 / `feature/jtbd-delivery`, but ADR-011 reflects the actual Phase 1.2 outcome).
   - **Scope note:** ADR-011 explicitly covers any rule kernel additions / removals introduced as part of the reshape itself, including the gap-reviewer's UNIV-G01..G08 added in Phase 3.4. CONST-PROC-02's "ADR required when a rule is added" clause is satisfied for the reshape's initial rule pack expansion by ADR-011's scope; future rule changes after the reshape ships continue to follow CONST-PROC-02 individually.
   - In same PR, mark:
     - ADR-007 → **Superseded by ADR-011** (worktrees + direct main edits replace feature-folder lifecycle)
