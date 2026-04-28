@@ -36,7 +36,9 @@ Verdict labels:
 - **Revise** — verdict holds with a new precondition added that the original analysis didn't require.
 - **Flip** — verdict reversed against the original 2026-04-26 reasoning.
 
-Hybrid labels (e.g., "Confirm with sunset", "Refine with mitigation") are not legal — collapse to the closest formal label.
+Verdict cells in the matrix may include a short parenthetical qualifier (e.g., "Refine (empirical pruning)") to name the specific way the verdict was sharpened. These are descriptors of *how* the verdict applies in this case, not new verdict categories.
+
+Hybrid labels (e.g., "Confirm with sunset", "Refine with mitigation") are not legal — collapse to the closest formal label, then use a parenthetical qualifier if the specific shape needs naming.
 
 Severity if verdict is wrong: **Critical** / **High** / **Medium** / **Low**.
 
@@ -51,7 +53,7 @@ Severity if verdict is wrong: **Critical** / **High** / **Medium** / **Low**.
 | (c) | Worktrees + direct main edits replace ADR-007 lifecycle | **Confirm** | J3 threshold + S3 routing is content-driven not folder-driven; lifecycle ceremony adds no traceability | Low |
 | (d) | Tighten CONST-PROC-02 scope | **Confirm** | Anti-job 69 (jtbd:69, "not for behavior-change governance") *requires* this — the decision and the anti-job are co-defined | Low |
 | (e) | Six templates (drop constitution-template) | **Confirm** | J1 enumeration (jtbd:27) names goals/rules/architecture/JTBD/interface contracts — no constitution | Low |
-| (f) | New gap-reviewer agent | **Refine** (empirical pruning) | J2 + S1 explicitly name gap categories (jtbd:77); anti-job-1 risk addressed by per-category logging + empirical category pruning, not a theoretical pre-build audit | Medium |
+| (f) | New gap-reviewer agent | **Refine** (empirical pruning) | J2 + S1 explicitly name gap categories (jtbd:77); anti-job 1 risk addressed by per-category logging + empirical category pruning, not a theoretical pre-build audit | Medium |
 | (g.1) | No multi-pass adversarial review on docs-only | **Refine** (sharpen framing) | Throttle on tautology drift, not docs-only as a category — multi-pass on substantive content remains useful | Low |
 | (g.2) | One ADR proposed at a time | **Refine** (with sunset) | Damping mechanism for current cascade-thrash state; revisit once cascade thrash settles | Low |
 | (g.3) | No forward-declared ADRs | **Confirm** | J3 + J4 require versioned-text traceability without speculative cross-references | Low |
@@ -110,7 +112,7 @@ Severity if verdict is wrong: **Critical** / **High** / **Medium** / **Low**.
 - **Why this requires a refinement, not a flip:** J2 and S1 are explicit and operate at the *spec-document level*, not the agent-task level — gap-reviewer audits "does this RFC have a rollback plan?", not "does this task decomposition have a rollback plan?" That's a defensible scope distinction. The boundary is close enough to anti-job 1 that duplication risk is real, but the right defense is **empirical, not gating**: instrument the agent with per-category finding logs and let measured findings prune scope. A theoretical pre-build audit answers a coverage question via paper analysis; empirical pruning answers it with what gap-reviewer actually finds vs. what PAI already catches.
 - **Anti-job check:** Anti-job 67 (user-facing scope) does *not* invalidate; gap-reviewer is preflight's reviewer, not a replacement for PAI. Anti-job 68 ("not a CI gate") requires gap-reviewer to remain on-demand. Anti-job 1 is the live watch-item, addressed by empirical pruning rather than a build gate.
 - **Risk severity:** **Medium.** If PAI premortem already catches everything in the enumerated list, gap-reviewer's per-category findings will trend to zero and the categories will prune. The empirical loop is cheap; the wrong defense (no instrumentation) is the expensive failure mode, because duplication then has no detection mechanism.
-- **Refinement to ADR-011:** confirm gap-reviewer as a Phase 3 deliverable, **with explicit instrumentation requirement: each finding gap-reviewer emits is tagged with its gap category** (rollback plan, observability, failure modes, etc.). After 5–10 specs of empirical use, prune any category that produced zero findings as evidence PAI subsumes it at the spec-document level. If all categories prune to zero, escalate the duplication concern back to design and surface a follow-on decision for J2 coverage (extend checklist-/bogey-reviewer scope, or add a different reviewer).
+- **Refinement to ADR-011:** confirm gap-reviewer as a Phase 3 deliverable, **with explicit instrumentation requirement: each finding gap-reviewer emits is tagged with its gap category** (rollback plan, observability, failure modes, etc.). "Spec" in the pruning rule means an individual spec-shaped artifact submitted for review (RFC, ADR, requirements pass, etc.) — not just completed-and-accepted specs; gap-reviewer fires on draft and revision passes equally. After gap-reviewer runs on 5–10 such specs, classify each category by finding rate: **zero findings → prune** as evidence PAI subsumes it at the spec-document level; **low but nonzero findings (e.g., 1 of 5)** → flag as a partial-overlap watch-item, surface for follow-on review rather than auto-pruning; **steady findings** → category is carrying its weight, retain. If all categories prune to zero, escalate the duplication concern back to design and surface a follow-on decision for J2 coverage (extend checklist-/bogey-reviewer scope, or add a different reviewer).
 
 ### (g.1) No multi-pass adversarial review on docs-only changes — *Refine* (framing)
 
@@ -191,7 +193,7 @@ The closest watch-item is **(f) against anti-job 1** (read carefully — anti-jo
 
 ## Reversals
 
-**No verdict was flipped, no revisions.** The eight original decisions (a–h) all hold. Three received *Refinements* (verdict and intent hold; framing or scope sharpened):
+**No verdict was flipped, no revisions.** The eight original decisions (a–h) all hold. Three received *Refinements* (verdict and intent hold; framing or scope sharpened). *Revise* was defined in the [Verdict legend](#verdict-legend) for label completeness but was not invoked in this evaluation — its absence is by design, not omission.
 
 1. **(f) gap-reviewer — Refine.** Per-category instrumentation + empirical pruning replaces a theoretical pre-build audit. Anti-job 1 boundary is closer than the original analysis acknowledged; the right defense is empirical (measure what gap-reviewer finds vs. what PAI already catches), not a build gate.
 2. **(g.1) no multi-pass on docs — Refine.** Sharpens the rule from a document-type filter to a tautology-drift trigger. Same intent; tighter shape.
