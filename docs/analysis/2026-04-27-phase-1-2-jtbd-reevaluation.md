@@ -40,9 +40,9 @@ Anti-job line 67 ("Not for replacing PAI / agent ISC task decomposition, spec-ki
 | (g.1) | No multi-pass adversarial review on docs-only | **Refine** (sharpen framing) | Throttle on tautology drift, not docs-only as a category — multi-pass on substantive content remains useful | Low |
 | (g.2) | One ADR proposed at a time | **Refine** (with sunset) | Damping mechanism for current cascade-thrash state; revisit once cascade thrash settles | Low |
 | (g.3) | No forward-declared ADRs | **Confirm** | J3 + J4 require versioned-text traceability without speculative cross-references | Low |
-| (h) | Ship as Option B plugin (project scope) | **Revise** (confirm with mitigation) | J5 motions hold (delivery-shape lines 69–73); J4 readability gap requires `.preflight/kernel-snapshot/` read-only mirror | High |
+| (h) | Ship as Option B plugin (project scope) | **Confirm** | J5 motions hold (delivery-shape lines 69–73); J4 does not reach into preflight's kernel (jtbd:55 scopes J4 to the project's durable bits; S4 line 90 declares per-project file set) | Low |
 
-**Two revisions** (`(f)`, `(h)`); **two refinements** (`(g.1)`, `(g.2)`); **six straight confirms**. **No flips.**
+**One revision** (`(f)`); **two refinements** (`(g.1)`, `(g.2)`); **seven straight confirms**. **No flips.**
 
 ---
 
@@ -122,15 +122,14 @@ Anti-job line 67 ("Not for replacing PAI / agent ISC task decomposition, spec-ki
 - **Anti-job check:** none.
 - **Risk severity:** **Low.**
 
-### (h) Ship as Option B plugin (project scope) — *Revise* (confirm with J4 mitigation)
+### (h) Ship as Option B plugin (project scope) — *Confirm*
 
 - **JTBD need served:** J5 (jtbd:57–63). All three motions verified by the delivery-shape doc (lines 69–73): install ✓ trivially easy first time per user; update ✓ deliberate per project; extend ✓ additive discovery prevents collision.
-- **Counterargument (the J4 readability gap):** S4 (jtbd:88–90) says *"opening that set of files in a text editor is sufficient ... no read path requires running preflight, an agent, or any external tool."* Option B places the kernel rules inside `${CLAUDE_PLUGIN_ROOT}` — outside the project's git tree. A returning reader using only `git log` and a text editor cannot answer "what rules apply here?" without invoking the plugin. **Option B partially fails J4 on the rule-set question.**
-- **Why this is a refinement, not a flip:** the alternative shapes (Option A skill bundle, Option D plugin-as-copier) satisfy J4 by having the rules visible in the project repo, but they fail J5's three motions in ways the delivery-shape spike already verified. The right answer is to **augment Option B with a project-local read-only kernel mirror** that carries J4 readability without breaking J5's update flow.
+- **Counterargument (J4 readability of the kernel):** plausible read of S4 — kernel rules live inside `${CLAUDE_PLUGIN_ROOT}` outside the project's git tree, so a returning reader using only `git log` and a text editor cannot inspect *preflight's kernel* without invoking the plugin.
+- **Why the counterargument fails:** J4's scope (jtbd:55) is *the project's* durable bits — "goals, rules, architecture, JTBD, ADRs" — i.e. **the project's** harness. S4 (jtbd:89–90) names the project's required read set as `specs/requirements.md` + `specs/decisions/adrs/` + (when present) `specs/architecture.md`, and declares acceptance against the **per-project file set** the project itself declares. Preflight's kernel is *the tool's* content; it isn't part of any specific project's declared harness. J4 line 53 also names the relevant J4 commitment for reviewers: *"requiring reviewer rules to cite line-anchored evidence"* — i.e., findings point back into the project's harness so a reader can navigate without invoking the plugin. The kernel content itself doesn't need to be project-tree-resident for J4 to hold.
 - **Anti-job check:** none.
-- **Risk severity:** **High.** This is the highest-severity item in the set because it's the most-likely-to-be-acted-on (Phase 2.2 ADR-012 will encode the delivery shape), and J4 readability is a foundational JTBD commitment, not a transient preference.
-- **Refinement to ADR-012:** confirm Option B (plugin, project scope), **with project-local read-only kernel mirror** at e.g. `.preflight/kernel-snapshot/`. Mirror is written on plugin install and overwritten on plugin marketplace update — same trigger as the kernel itself, no separate sync flow. The mirror is documentation-shaped, not behavior-shaped: reviewer agents continue to read from `${CLAUDE_PLUGIN_ROOT}`. The mirror's purpose is solely to satisfy S4's "git log + text editor sufficient" acceptance for the rule-set question. ADR-012 must specify: (i) mirror path convention, (ii) mirror-vs-kernel precedence (read-only mirror, no override), (iii) what triggers a mirror refresh, (iv) what's in the mirror (kernel rule files, not preflight runtime).
-- **Out of scope here:** Option B's other delivery-shape failure modes from the 2026-04-27 spike (kernel hostility, dual-source confusion, blast radius) are implementation concerns, not JTBD evidence. ADR-012 designs the mitigations against them; this Phase 1.2 evaluation tests only against jtbd v0.2.
+- **Risk severity:** **Low.** No JTBD invalidation. Standard delivery-shape risk lives in Option B's implementation failure modes, addressed by ADR-012, not by Phase 1.2.
+- **Out of scope here:** Option B's delivery-shape failure modes from the 2026-04-27 spike (kernel hostility, dual-source confusion, blast radius) are implementation concerns, not JTBD evidence. ADR-012 designs the mitigations against them; this Phase 1.2 evaluation tests only against jtbd v0.2.
 
 ---
 
@@ -149,7 +148,7 @@ Anti-job line 67 ("Not for replacing PAI / agent ISC task decomposition, spec-ki
 | (g.1) No multi-pass on docs (refined) | — | indirect | indirect | — | indirect |
 | (g.2) One ADR at a time | — | — | indirect | indirect | — |
 | (g.3) No forward-declared ADRs | — | — | **primary** | **primary** | — |
-| (h) Plugin Option B (refined) | — | — | — | **primary** (via mirror) | **primary** |
+| (h) Plugin Option B | — | — | — | — | **primary** |
 
 Every job J1–J5 has at least one primary-server decision. **J4 and J5 dominance:** five of ten decisions primarily serve J4 or J5, reflecting that the reshape is mainly about delivery and durability, not about defect-catching or harness-authoring (those have one each).
 
@@ -158,7 +157,7 @@ Every job J1–J5 has at least one primary-server decision. **J4 and J5 dominanc
 - **Builder** (J1): primary by (e); incidental by (f), (c), (d).
 - **Supervisor** (J2): primary by (f) only — **single-decision dependency.** If the gap-reviewer audit (Decision (f) refinement) shows PAI subsumes the gap categories at spec-document level, Supervisor coverage in this decision set collapses to zero. Watch this.
 - **Maintainer** (J3): primary or strong by (c), (d), (g.1), (g.2). Best-served persona.
-- **Returning-reader** (J4): primary by (b), (g.3); now also by (h)-with-mirror after refinement.
+- **Returning-reader** (J4): primary by (b), (g.3). J4 stays project-scoped; preflight's kernel content lives outside the project tree under Option B and that's consistent with J4's scope (jtbd:55, S4 acceptance jtbd:90).
 - **Adopter** (J5): primary by (a), (h). Two delivery-substrate decisions.
 
 **No persona is uniformly burdened.** Maintainer absorbs transitional cost from (a) and (h) but is the long-term beneficiary of (c), (d), (g.1), (g.2). The thinnest coverage is Supervisor — see Decision (f) refinement.
@@ -177,12 +176,11 @@ The closest watch-item is **(f) against anti-job 1** (read carefully — anti-jo
 
 ## Reversals
 
-**No verdict was flipped.** The eight original decisions (a–h) all hold. Two received *Revisions* (verdict holds with a new precondition), and two received *Refinements* (verdict and intent hold; framing or scope sharpened):
+**No verdict was flipped.** The eight original decisions (a–h) all hold. One received a *Revision* (verdict holds with a new precondition), and two received *Refinements* (verdict and intent hold; framing or scope sharpened):
 
 1. **(f) gap-reviewer — Revise.** Adds a PAI-premortem-coverage audit as a precondition for Phase 3 build. Anti-job 1 boundary is closer than the original analysis acknowledged.
 2. **(g.1) no multi-pass on docs — Refine.** Sharpens the rule from a document-type filter to a tautology-drift trigger. Same intent; tighter shape.
 3. **(g.2) one ADR at a time — Refine.** Adds a sunset clause: revisit once cascade thrash settles. The acceptance condition changes (currently strict, future relaxed), but the verdict remains in place during cascade-thrash state.
-4. **(h) Option B plugin — Revise.** Adds project-local read-only kernel mirror to close the J4 readability gap. The original delivery-shape analysis tested only against J5; J4's S4 acceptance requires this mitigation.
 
 ---
 
@@ -200,10 +198,10 @@ The closest watch-item is **(f) against anti-job 1** (read carefully — anti-jo
 
 ### ADR-012 (delivery shape) should cite
 
-- Verdict matrix row (h) only.
+- Verdict matrix row (h) only — straight Confirm.
 - Option B confirmation against J5's three motions (delivery-shape doc carries this directly).
-- **Project-local read-only kernel mirror** as the J4 mitigation, with the four specifications listed in the Decision (h) refinement above.
-- Severity-High framing: this is the highest-severity decision in the matrix because it encodes the delivery substrate that all subsequent J5 motions depend on.
+- The J4 scope clarification (jtbd:55) and S4 acceptance (jtbd:90): J4 governs the project's declared harness, not preflight's kernel; Option B's `${CLAUDE_PLUGIN_ROOT}` placement of kernel rules is consistent with J4 as written.
+- The implementation failure modes flagged by the 2026-04-27 spike (kernel hostility, dual-source confusion, blast radius) need design treatment in ADR-012 — not because JTBD requires it, but because they are real Option-B-specific risks the spike already identified.
 
 ### What ADR-011 / ADR-012 should NOT cite
 
