@@ -38,11 +38,11 @@ Anti-job line 67 ("Not for replacing PAI / agent ISC task decomposition, spec-ki
 | (e) | Six templates (drop constitution-template) | **Confirm** | J1 enumeration (jtbd:27) names goals/rules/architecture/JTBD/interface contracts — no constitution | Low |
 | (f) | New gap-reviewer agent | **Revise** (confirm with audit precondition) | J2 + S1 explicitly name gap categories (jtbd:77); but anti-job-1 risk → audit PAI premortem coverage before Phase 3 build | Medium |
 | (g.1) | No multi-pass adversarial review on docs-only | **Refine** (sharpen framing) | Throttle on tautology drift, not docs-only as a category — multi-pass on substantive content remains useful | Low |
-| (g.2) | One ADR proposed at a time | **Confirm** with sunset | Damping mechanism for current cascade-thrash state; revisit after a quiet period | Low |
+| (g.2) | One ADR proposed at a time | **Refine** (with sunset) | Damping mechanism for current cascade-thrash state; revisit once cascade thrash settles | Low |
 | (g.3) | No forward-declared ADRs | **Confirm** | J3 + J4 require versioned-text traceability without speculative cross-references | Low |
-| (h) | Ship as Option B plugin (project scope) | **Refine** (confirm with mitigation) | J5 motions hold (delivery-shape lines 69–73); J4 readability gap requires `.preflight/kernel-snapshot/` read-only mirror | High |
+| (h) | Ship as Option B plugin (project scope) | **Revise** (confirm with mitigation) | J5 motions hold (delivery-shape lines 69–73); J4 readability gap requires `.preflight/kernel-snapshot/` read-only mirror | High |
 
-**Two real refinements** (`(f)`, `(h)`); **one framing refinement** (`(g.1)`); **seven straight confirms**. **No flips.**
+**Two revisions** (`(f)`, `(h)`); **two refinements** (`(g.1)`, `(g.2)`); **six straight confirms**. **No flips.**
 
 ---
 
@@ -62,7 +62,7 @@ Anti-job line 67 ("Not for replacing PAI / agent ISC task decomposition, spec-ki
 - **Counterargument:** preflight is exactly the kind of project J4 envisions, so it should eat its own dogfood and keep a constitution-shaped artifact.
 - **Why the counterargument is medium-weak:** dogfooding is real but doesn't mandate the constitution shape; preflight's harness can be expressed as CLAUDE.md + requirements.md + ADRs + architecture.md and still satisfy S4.
 - **Anti-job check:** Anti-job 70 ("not a constitution-checker for arbitrary projects") supports dropping. No collision.
-- **Risk severity:** **Low.** Preserve the dogfood instinct as a sanity check after the rewrite — confirm the resulting harness still satisfies S4 for preflight itself.
+- **Risk severity:** **Low.** Preserve the dogfood instinct as a sanity check after the Phase 3 reshape lands — confirm the resulting harness still satisfies S4 for preflight itself.
 
 ### (c) Worktrees + direct main edits replace ADR-007 lifecycle — *Confirm*
 
@@ -106,7 +106,7 @@ Anti-job line 67 ("Not for replacing PAI / agent ISC task decomposition, spec-ki
 - **Refinement:** sharpen the rule from *"no multi-pass adversarial review on docs-only changes"* to *"throttle multi-pass review when later passes find findings only because earlier passes made the doc more abstract (tautology drift), not because the underlying defect existed all along."* The trigger is "are we finding new findings or chasing the abstraction we just introduced?"
 - **Risk severity:** **Low.**
 
-### (g.2) One ADR proposed at a time — *Confirm* with sunset
+### (g.2) One ADR proposed at a time — *Refine* (with sunset)
 
 - **JTBD need served:** J3 indirectly. Multiple Proposed ADRs cascade; J3 requires ADRs to be readable as the rationale for *the architecture as it is*, which fails when half the chain is conditional.
 - **Counterargument:** J1 features can need ADRs on integration / persistence / rollout simultaneously; serial creates a queue.
@@ -122,7 +122,7 @@ Anti-job line 67 ("Not for replacing PAI / agent ISC task decomposition, spec-ki
 - **Anti-job check:** none.
 - **Risk severity:** **Low.**
 
-### (h) Ship as Option B plugin (project scope) — *Refine* (confirm with J4 mitigation)
+### (h) Ship as Option B plugin (project scope) — *Revise* (confirm with J4 mitigation)
 
 - **JTBD need served:** J5 (jtbd:57–63). All three motions verified by the delivery-shape doc (lines 69–73): install ✓ trivially easy first time per user; update ✓ deliberate per project; extend ✓ additive discovery prevents collision.
 - **Counterargument (the J4 readability gap):** S4 (jtbd:88–90) says *"opening that set of files in a text editor is sufficient ... no read path requires running preflight, an agent, or any external tool."* Option B places the kernel rules inside `${CLAUDE_PLUGIN_ROOT}` — outside the project's git tree. A returning reader using only `git log` and a text editor cannot answer "what rules apply here?" without invoking the plugin. **Option B partially fails J4 on the rule-set question.**
@@ -130,6 +130,7 @@ Anti-job line 67 ("Not for replacing PAI / agent ISC task decomposition, spec-ki
 - **Anti-job check:** none.
 - **Risk severity:** **High.** This is the highest-severity item in the set because it's the most-likely-to-be-acted-on (Phase 2.2 ADR-012 will encode the delivery shape), and J4 readability is a foundational JTBD commitment, not a transient preference.
 - **Refinement to ADR-012:** confirm Option B (plugin, project scope), **with project-local read-only kernel mirror** at e.g. `.preflight/kernel-snapshot/`. Mirror is written on plugin install and overwritten on plugin marketplace update — same trigger as the kernel itself, no separate sync flow. The mirror is documentation-shaped, not behavior-shaped: reviewer agents continue to read from `${CLAUDE_PLUGIN_ROOT}`. The mirror's purpose is solely to satisfy S4's "git log + text editor sufficient" acceptance for the rule-set question. ADR-012 must specify: (i) mirror path convention, (ii) mirror-vs-kernel precedence (read-only mirror, no override), (iii) what triggers a mirror refresh, (iv) what's in the mirror (kernel rule files, not preflight runtime).
+- **Out of scope here:** Option B's other delivery-shape failure modes from the 2026-04-27 spike (kernel hostility, dual-source confusion, blast radius) are implementation concerns, not JTBD evidence. ADR-012 designs the mitigations against them; this Phase 1.2 evaluation tests only against jtbd v0.2.
 
 ---
 
@@ -176,13 +177,12 @@ The closest watch-item is **(f) against anti-job 1** (read carefully — anti-jo
 
 ## Reversals
 
-**No verdict was flipped.** The eight original decisions (a–h) all hold.
+**No verdict was flipped.** The eight original decisions (a–h) all hold. Two received *Revisions* (verdict holds with a new precondition), and two received *Refinements* (verdict and intent hold; framing or scope sharpened):
 
-**Three refinements** were added based on jtbd v0.2 evidence that wasn't in the 2026-04-26 reasoning chain:
-
-1. **(f) gap-reviewer** — adds a PAI-premortem-coverage audit as a precondition for Phase 3 build. Anti-job 1 boundary is closer than the original analysis acknowledged.
-2. **(g.1) no multi-pass on docs** — sharpens the rule from a document-type filter to a tautology-drift trigger. Same intent; tighter shape.
-3. **(h) Option B plugin** — adds project-local read-only kernel mirror to close the J4 readability gap. The original delivery-shape analysis tested only against J5; J4's S4 acceptance requires this mitigation.
+1. **(f) gap-reviewer — Revise.** Adds a PAI-premortem-coverage audit as a precondition for Phase 3 build. Anti-job 1 boundary is closer than the original analysis acknowledged.
+2. **(g.1) no multi-pass on docs — Refine.** Sharpens the rule from a document-type filter to a tautology-drift trigger. Same intent; tighter shape.
+3. **(g.2) one ADR at a time — Refine.** Adds a sunset clause: revisit once cascade thrash settles. The acceptance condition changes (currently strict, future relaxed), but the verdict remains in place during cascade-thrash state.
+4. **(h) Option B plugin — Revise.** Adds project-local read-only kernel mirror to close the J4 readability gap. The original delivery-shape analysis tested only against J5; J4's S4 acceptance requires this mitigation.
 
 ---
 
@@ -196,6 +196,7 @@ The closest watch-item is **(f) against anti-job 1** (read carefully — anti-jo
 - Decision (f) **with audit precondition recorded as an open question** for Phase 3, not as a Phase 2.2 ratification item. ADR-011 should state: "gap-reviewer is a Phase 3 deliverable; PAI-premortem-coverage audit is required before build."
 - Decision (g.1) **with refined framing** — "throttle on tautology drift," not "no multi-pass on docs-only."
 - Decision (g.2) with sunset note — revisit once cascade thrash settles.
+- **Supervisor (J2) coverage dependency:** Supervisor is served by Decision (f) only in this set. If the gap-reviewer audit shows PAI subsumes the gap categories at spec-document level, Supervisor coverage collapses to zero, and ADR-011 must surface a follow-on decision (extend checklist-/bogey-reviewer scope, or add a different reviewer).
 
 ### ADR-012 (delivery shape) should cite
 
@@ -206,7 +207,7 @@ The closest watch-item is **(f) against anti-job 1** (read carefully — anti-jo
 
 ### What ADR-011 / ADR-012 should NOT cite
 
-- This document's verdict text as a *governance precedent*. The verdicts are valid for the held-decision set only. Future decisions reset to the same JTBD-decomposition / opposing-verdict / synthesis structure if needed.
+- This document's verdict text as a *governance precedent*. The verdicts apply to this held-decision set only — reuse the *method* (JTBD-decomposition + opposing-verdict synthesis) on future decisions, not the verdicts themselves.
 - Time estimates. None given here, none should be added downstream.
 
 ---
