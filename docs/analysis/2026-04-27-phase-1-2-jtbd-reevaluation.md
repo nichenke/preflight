@@ -18,12 +18,27 @@ For each held decision:
 1. **JTBD need served:** which job(s), persona(s), user-story acceptance the decision optimizes for, with line citations.
 2. **Counterargument:** the strongest opposing case, argued from jtbd v0.2 evidence (not from outside-doc preference).
 3. **Anti-job check:** whether any of the four anti-jobs (jtbd v0.2 lines 67–70) constrain or invalidate the decision.
-4. **Verdict:** *Confirm*, *Refine* (verdict holds, framing or scope sharpened), *Revise* (verdict holds with new precondition), or *Flip* (verdict reversed).
-5. **Risk severity if verdict is wrong:** Critical / High / Medium / Low.
+4. **Verdict:** *Confirm*, *Refine*, *Revise*, or *Flip* — see [Verdict legend](#verdict-legend) below.
+5. **Risk severity if verdict is wrong:** Critical / High / Medium / Low — see [Verdict legend](#verdict-legend).
 
 Two parallel analyses were run before synthesis: a JTBD-decomposition pass that mapped each decision to jobs/personas without voting, and an adversarial pass that argued the *opposing* verdict for each decision (counters confirmation bias). Verdicts here reflect the synthesis, not either pass alone.
 
 Anti-job line 67 ("Not for replacing PAI / agent ISC task decomposition, spec-kit, OpenSpec, or similar SDD frameworks") is read as **user-facing scope**, not implementation substrate — preflight is not a user-facing replacement for spec-kit, but is free to choose any internal substrate.
+
+---
+
+## Verdict legend
+
+Verdict labels:
+
+- **Confirm** — verdict holds as originally argued; no change to scope or framing.
+- **Refine** — verdict and intent hold; framing or scope sharpened (e.g., a coarse rule narrowed to its actual failure mode, or a precondition replaced with a more reliable mechanism).
+- **Revise** — verdict holds with a new precondition added that the original analysis didn't require.
+- **Flip** — verdict reversed against the original 2026-04-26 reasoning.
+
+Hybrid labels (e.g., "Confirm with sunset", "Refine with mitigation") are not legal — collapse to the closest formal label.
+
+Severity if verdict is wrong: **Critical** / **High** / **Medium** / **Low**.
 
 ---
 
@@ -36,13 +51,13 @@ Anti-job line 67 ("Not for replacing PAI / agent ISC task decomposition, spec-ki
 | (c) | Worktrees + direct main edits replace ADR-007 lifecycle | **Confirm** | J3 threshold + S3 routing is content-driven not folder-driven; lifecycle ceremony adds no traceability | Low |
 | (d) | Tighten CONST-PROC-02 scope | **Confirm** | Anti-job 69 (jtbd:69, "not for behavior-change governance") *requires* this — the decision and the anti-job are co-defined | Low |
 | (e) | Six templates (drop constitution-template) | **Confirm** | J1 enumeration (jtbd:27) names goals/rules/architecture/JTBD/interface contracts — no constitution | Low |
-| (f) | New gap-reviewer agent | **Revise** (confirm with audit precondition) | J2 + S1 explicitly name gap categories (jtbd:77); but anti-job-1 risk → audit PAI premortem coverage before Phase 3 build | Medium |
+| (f) | New gap-reviewer agent | **Refine** (empirical pruning) | J2 + S1 explicitly name gap categories (jtbd:77); anti-job-1 risk addressed by per-category logging + empirical category pruning, not a theoretical pre-build audit | Medium |
 | (g.1) | No multi-pass adversarial review on docs-only | **Refine** (sharpen framing) | Throttle on tautology drift, not docs-only as a category — multi-pass on substantive content remains useful | Low |
 | (g.2) | One ADR proposed at a time | **Refine** (with sunset) | Damping mechanism for current cascade-thrash state; revisit once cascade thrash settles | Low |
 | (g.3) | No forward-declared ADRs | **Confirm** | J3 + J4 require versioned-text traceability without speculative cross-references | Low |
 | (h) | Ship as Option B plugin (project scope) | **Confirm** | J5 motions hold (delivery-shape lines 69–73); J4 does not reach into preflight's kernel (jtbd:55 scopes J4 to the project's durable bits; S4 line 90 declares per-project file set) | Low |
 
-**One revision** (`(f)`); **two refinements** (`(g.1)`, `(g.2)`); **seven straight confirms**. **No flips.**
+**Three refinements** (`(f)`, `(g.1)`, `(g.2)`); **seven straight confirms**. **No revisions, no flips.**
 
 ---
 
@@ -88,14 +103,14 @@ Anti-job line 67 ("Not for replacing PAI / agent ISC task decomposition, spec-ki
 - **Anti-job check:** Anti-job 70 supports dropping.
 - **Risk severity:** **Low.** Cheap to revisit if a downstream project surfaces real demand.
 
-### (f) Build a new gap-reviewer agent — *Revise* (confirm with audit precondition)
+### (f) Build a new gap-reviewer agent — *Refine* (empirical pruning)
 
 - **JTBD need served:** J2 (jtbd:33–39) and J1 (S1, jtbd:77 — "failure modes, rollback plan, observability story"). The enumerated gap categories map directly onto J2's defect taxonomy plus S1's named questions.
 - **Counterargument (with teeth):** Anti-job 1 (jtbd:67) says preflight is *not* for replacing PAI/agent task decomposition. Gap categories like "no rollback plan" / "no observability story" overlap PAI's pre-BUILD premortem and OBSERVE/THINK/PLAN structure. The strategic-reimagine doc compares gap-reviewer to *other frameworks'* explore steps but not to *PAI's own* premortem.
-- **Why this requires a refinement, not a flip:** J2 and S1 are explicit and operate at the *spec-document level*, not the agent-task level — gap-reviewer audits "does this RFC have a rollback plan?", not "does this task decomposition have a rollback plan?" That's a defensible scope distinction. But the boundary is close enough to anti-job 1 that the audit must happen before Phase 3 builds the agent.
-- **Anti-job check:** Anti-job 67 (user-facing scope) does *not* invalidate; gap-reviewer is preflight's reviewer, not a replacement for PAI. Anti-job 68 ("not a CI gate") requires gap-reviewer to remain on-demand. Anti-job 1 is the watch-item: must audit PAI premortem coverage before building.
-- **Risk severity:** **Medium.** If PAI premortem already catches everything in the enumerated list, building a separate gap-reviewer is duplicative scaffolding inside preflight's tool boundary. The audit is cheap; skipping it is the expensive choice.
-- **Refinement to ADR-011:** confirm gap-reviewer as a Phase 3 deliverable, **with explicit precondition: audit the gap-category list against PAI's premortem and OBSERVE outputs before building.** If PAI subsumes any gap category at the spec-document level, drop that category from gap-reviewer; if PAI subsumes all categories, escalate the duplication concern back to design.
+- **Why this requires a refinement, not a flip:** J2 and S1 are explicit and operate at the *spec-document level*, not the agent-task level — gap-reviewer audits "does this RFC have a rollback plan?", not "does this task decomposition have a rollback plan?" That's a defensible scope distinction. The boundary is close enough to anti-job 1 that duplication risk is real, but the right defense is **empirical, not gating**: instrument the agent with per-category finding logs and let measured findings prune scope. A theoretical pre-build audit answers a coverage question via paper analysis; empirical pruning answers it with what gap-reviewer actually finds vs. what PAI already catches.
+- **Anti-job check:** Anti-job 67 (user-facing scope) does *not* invalidate; gap-reviewer is preflight's reviewer, not a replacement for PAI. Anti-job 68 ("not a CI gate") requires gap-reviewer to remain on-demand. Anti-job 1 is the live watch-item, addressed by empirical pruning rather than a build gate.
+- **Risk severity:** **Medium.** If PAI premortem already catches everything in the enumerated list, gap-reviewer's per-category findings will trend to zero and the categories will prune. The empirical loop is cheap; the wrong defense (no instrumentation) is the expensive failure mode, because duplication then has no detection mechanism.
+- **Refinement to ADR-011:** confirm gap-reviewer as a Phase 3 deliverable, **with explicit instrumentation requirement: each finding gap-reviewer emits is tagged with its gap category** (rollback plan, observability, failure modes, etc.). After 5–10 specs of empirical use, prune any category that produced zero findings as evidence PAI subsumes it at the spec-document level. If all categories prune to zero, escalate the duplication concern back to design and surface a follow-on decision for J2 coverage (extend checklist-/bogey-reviewer scope, or add a different reviewer).
 
 ### (g.1) No multi-pass adversarial review on docs-only changes — *Refine* (framing)
 
@@ -155,7 +170,7 @@ Every job J1–J5 has at least one primary-server decision. **J4 and J5 dominanc
 ### Persona coverage
 
 - **Builder** (J1): primary by (e); incidental by (f), (c), (d).
-- **Supervisor** (J2): primary by (f) only — **single-decision dependency.** If the gap-reviewer audit (Decision (f) refinement) shows PAI subsumes the gap categories at spec-document level, Supervisor coverage in this decision set collapses to zero. Watch this.
+- **Supervisor** (J2): primary by (f) only — **single-decision dependency.** Decision (f)'s empirical pruning loop is the carrier: if all gap categories prune to zero across 5–10 specs (PAI subsumes them at the spec-document level), Supervisor coverage in this decision set collapses to zero. ADR-011 must surface the conditional follow-on (extend checklist-/bogey-reviewer scope, or add a different reviewer). Watch this.
 - **Maintainer** (J3): primary or strong by (c), (d), (g.1), (g.2). Best-served persona.
 - **Returning-reader** (J4): primary by (b), (g.3). J4 stays project-scoped; preflight's kernel content lives outside the project tree under Option B and that's consistent with J4's scope (jtbd:55, S4 acceptance jtbd:90).
 - **Adopter** (J5): primary by (a), (h). Two delivery-substrate decisions.
@@ -170,15 +185,15 @@ None of the ten decision-units invalidate against any anti-job (jtbd:67–70). T
 - **(e) and anti-job 70:** anti-job 70 makes constitution-as-shipped-template suspect. Supportive.
 - **(f) and anti-job 68:** gap-reviewer must remain on-demand, not auto-firing. Supportive constraint on implementation; no current collision.
 
-The closest watch-item is **(f) against anti-job 1** (read carefully — anti-job 1 is *user-facing scope*, but gap categories overlap PAI's premortem at the spec-document level enough to warrant the audit precondition added in the Decision (f) refinement).
+The closest watch-item is **(f) against anti-job 1** (read carefully — anti-job 1 is *user-facing scope*, but gap categories overlap PAI's premortem at the spec-document level enough to warrant the empirical pruning loop added in the Decision (f) refinement).
 
 ---
 
 ## Reversals
 
-**No verdict was flipped.** The eight original decisions (a–h) all hold. One received a *Revision* (verdict holds with a new precondition), and two received *Refinements* (verdict and intent hold; framing or scope sharpened):
+**No verdict was flipped, no revisions.** The eight original decisions (a–h) all hold. Three received *Refinements* (verdict and intent hold; framing or scope sharpened):
 
-1. **(f) gap-reviewer — Revise.** Adds a PAI-premortem-coverage audit as a precondition for Phase 3 build. Anti-job 1 boundary is closer than the original analysis acknowledged.
+1. **(f) gap-reviewer — Refine.** Per-category instrumentation + empirical pruning replaces a theoretical pre-build audit. Anti-job 1 boundary is closer than the original analysis acknowledged; the right defense is empirical (measure what gap-reviewer finds vs. what PAI already catches), not a build gate.
 2. **(g.1) no multi-pass on docs — Refine.** Sharpens the rule from a document-type filter to a tautology-drift trigger. Same intent; tighter shape.
 3. **(g.2) one ADR at a time — Refine.** Adds a sunset clause: revisit once cascade thrash settles. The acceptance condition changes (currently strict, future relaxed), but the verdict remains in place during cascade-thrash state.
 
@@ -191,10 +206,10 @@ The closest watch-item is **(f) against anti-job 1** (read carefully — anti-jo
 - Verdict matrix rows (a) through (g.3).
 - Decision (a)–(c) confirms as the substrate / lifecycle reshape rationale, with JTBD evidence.
 - Decision (d) *co-defined with anti-job 69* — strongest of the verdicts.
-- Decision (f) **with audit precondition recorded as an open question** for Phase 3, not as a Phase 2.2 ratification item. ADR-011 should state: "gap-reviewer is a Phase 3 deliverable; PAI-premortem-coverage audit is required before build."
+- Decision (f) **with empirical-pruning instrumentation recorded as an open question** for Phase 3, not as a Phase 2.2 ratification item. ADR-011 should state: "gap-reviewer is a Phase 3 deliverable; per-category finding logs are required from build; categories that produce zero findings over 5–10 specs are pruned as evidence PAI subsumes them at the spec-document level."
 - Decision (g.1) **with refined framing** — "throttle on tautology drift," not "no multi-pass on docs-only."
 - Decision (g.2) with sunset note — revisit once cascade thrash settles.
-- **Supervisor (J2) coverage dependency:** Supervisor is served by Decision (f) only in this set. If the gap-reviewer audit shows PAI subsumes the gap categories at spec-document level, Supervisor coverage collapses to zero, and ADR-011 must surface a follow-on decision (extend checklist-/bogey-reviewer scope, or add a different reviewer).
+- **Supervisor (J2) coverage dependency:** Supervisor is served by Decision (f) only in this set. If the empirical pruning loop drives all gap categories to zero (PAI subsumes them at the spec-document level), Supervisor coverage collapses to zero, and ADR-011 must surface a follow-on decision (extend checklist-/bogey-reviewer scope, or add a different reviewer). ADR-011 should record this as an explicit open question with both branches enumerated, not as inline narrative text.
 
 ### ADR-012 (delivery shape) should cite
 
