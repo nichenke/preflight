@@ -209,12 +209,13 @@ The closest watch-item is **(f) against anti-job 1** (read carefully — anti-jo
 
 ### ADR-011 (reshape) should cite
 
-- Verdict matrix rows (a) through (g.3).
+- Verdict matrix rows (a) through (g.3) — **note that (f) is a Phase 3 open question, not a Phase 2.2 ratification item; see the (f) bullet below for the carve-out.**
 - Decision (a)–(c) confirms as the substrate / lifecycle reshape rationale, with JTBD evidence.
 - Decision (d) *co-defined with anti-job 3* — strongest of the verdicts.
-- Decision (f) **with empirical-pruning instrumentation recorded as an open question** for Phase 3, not as a Phase 2.2 ratification item. ADR-011 should state: "gap-reviewer is a Phase 3 deliverable; per-category finding logs are required from build; categories that produce zero findings over 5–10 specs are pruned as evidence PAI subsumes them at the spec-document level."
+- Decision (e) and (g.3) — straight Confirms; cite as-is, no special framing required.
 - Decision (g.1) **with refined framing** — "throttle on tautology drift," not "no multi-pass on docs-only."
 - Decision (g.2) with sunset note — revisit once cascade thrash settles.
+- Decision (f) **carve-out (open question, not ratification):** record empirical-pruning instrumentation as a Phase 3 open question, not a Phase 2.2 ratification item. ADR-011 should state: "gap-reviewer is a Phase 3 deliverable; per-category finding logs are required from build; categories that produce zero findings over 5–10 specs are pruned as evidence PAI subsumes them at the spec-document level; steady-firing categories require an additivity check against PAI premortem before retain."
 - **Supervisor (J2) coverage dependency:** Supervisor is served by Decision (f) only in this set. If the empirical pruning loop drives all gap categories to zero, or all categories fail the additivity check against PAI premortem (PAI subsumes them at the spec-document level), Supervisor coverage collapses to zero, and ADR-011 must surface a follow-on decision (extend checklist-/bogey-reviewer scope, or add a different reviewer). ADR-011 should record this as an explicit open question with both branches enumerated, not as inline narrative text.
 
 ### ADR-012 (delivery shape) should cite
